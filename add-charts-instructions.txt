@@ -1,0 +1,25 @@
+# To add charts to your MonthlyTracker page, install Recharts:
+npm install recharts
+
+# Then, you can use the following imports in your MonthlyTracker.tsx:
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+# Example usage for Habits Completed / Day and Habits Completed in Month:
+# (Add this to your MonthlyTracker.tsx after calculating the data arrays)
+
+<ResponsiveContainer width="100%" height={96}>
+  <LineChart data={completedPerDayData} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
+    <CartesianGrid strokeDasharray="3 3" />
+    <XAxis dataKey="day" />
+    <YAxis />
+    <Tooltip />
+    <Line type="monotone" dataKey="completed" stroke="#16a34a" strokeWidth={2} dot={false} />
+  </LineChart>
+</ResponsiveContainer>
+
+# completedPerDayData should be an array like:
+# [{ day: '1', completed: 2 }, { day: '2', completed: 1 }, ...]
+
+# For Habits Completed in Month, use a similar array with cumulative or daily totals.
+
+# Let me know if you want the full code patch for your MonthlyTracker.tsx!
