@@ -78,4 +78,3 @@ export const useInactivityLogout = (signOut: () => void) => {
     };
   }, [checkInactivity, updateLastActivity, resetTimeout]);
 };
-};
