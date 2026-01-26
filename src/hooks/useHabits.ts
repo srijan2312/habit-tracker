@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/useAuth';
 import { format, startOfMonth, endOfMonth, differenceInDays } from 'date-fns';
 import { toast } from 'sonner';
+import { API_URL } from '@/config/api';
 
 export interface Habit {
   _id: string;
