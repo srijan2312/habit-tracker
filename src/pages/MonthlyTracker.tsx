@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/select';
 
 export default function MonthlyTracker() {
-  const { habits, isLoading, toggleHabitCompletion } = useHabits();
+  const { habits, isLoading, toggleHabitCompletion, useFreeze } = useHabits();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
 
   const handlePrevMonth = () => setSelectedMonth(prev => subMonths(prev, 1));
@@ -116,7 +116,7 @@ export default function MonthlyTracker() {
           </div>
 
           {/* Habit Grid */}
-          <HabitGrid habits={habits} selectedMonth={selectedMonth} onToggle={handleToggle} />
+          <HabitGrid habits={habits} selectedMonth={selectedMonth} onToggle={handleToggle} onUseFreeze={useFreeze} />
         </div>
       </main>
     </div>

@@ -95,17 +95,26 @@ router.get('/:userId', async (req, res) => {
     if (freezesError) throw freezesError;
     
     const today = new Date().toISOString().slice(0, 10);
+
+    // Build a quick lookup for freezes per habit
+    const freezeMap = freezes.reduce((acc, curr) => {
+      const list = acc.get(curr.habit_id) || [];
+      list.push(curr.date);
+      acc.set(curr.habit_id, list);
+      return acc;
+    }, new Map());
+
     const result = habits.map(habit => {
       const habitLogs = logs.filter(log => log.habit_id === habit.id && log.completed);
       const completedDates = Array.from(new Set(habitLogs.map(log => log.date))).sort();
-      const habitFreezes = freezes.filter(f => f.habit_id === habit.id);
+      const habitFreezes = freezeMap.get(habit.id) || [];
       
       let currentStreak = 0;
       if (completedDates.length > 0) {
         let streak = 0;
         let checkDate = new Date(today);
         let dateSet = new Set(completedDates);
-        let freezeSet = new Set(habitFreezes.map(f => f.date));
+        let freezeSet = new Set(habitFreezes);
         
         while (true) {
           const dateStr = checkDate.toISOString().slice(0, 10);
@@ -150,6 +159,7 @@ router.get('/:userId', async (req, res) => {
         isCompletedToday: todayCompleted,
         logs: habitLogs,
         freezesUsed: habitFreezes.length,
+        freezeDates: habitFreezes,
       };
     });
     

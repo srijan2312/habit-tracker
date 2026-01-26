@@ -3,9 +3,9 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS freezes_available INT DEFAULT 3;
 
 -- Create streak_freezes table
 CREATE TABLE IF NOT EXISTS streak_freezes (
-  id BIGSERIAL PRIMARY KEY,
-  habit_id BIGINT NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
-  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  habit_id UUID NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   date TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(habit_id, user_id, date)

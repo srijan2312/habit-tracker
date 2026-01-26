@@ -32,6 +32,8 @@ export interface HabitWithStats extends Habit {
   completionPercentage: number;
   isCompletedToday: boolean;
   logs: HabitLog[];
+  freezeDates?: string[];
+  freezesUsed?: number;
 }
 
 interface User {
@@ -59,6 +61,8 @@ export const useHabits = () => {
         ...habit,
         _id: habit.id,
         userId: habit.user_id,
+        freezeDates: habit.freezeDates || [],
+        freezesUsed: habit.freezesUsed ?? habit.freezesUsed ?? 0,
       }));
     },
     enabled: !!user,

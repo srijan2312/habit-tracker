@@ -1,12 +1,12 @@
 import { useCallback, useMemo } from 'react';
-import { Check } from 'lucide-react';
+import { Check, Lock, Zap } from 'lucide-react';
 import { HabitWithStats } from '@/hooks/useHabits';
 import { format, eachDayOfInterval, startOfMonth, endOfMonth, getDay, isAfter, startOfDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 
-interface HabitGridProps { habits: HabitWithStats[]; selectedMonth: Date; onToggle: (habitId: string, date: string, currentlyCompleted: boolean) => void; }
+interface HabitGridProps { habits: HabitWithStats[]; selectedMonth: Date; onToggle: (habitId: string, date: string, currentlyCompleted: boolean) => void; onUseFreeze: (habitId: string, date: string) => void; }
 
-export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onToggle }) => {
+export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onToggle, onUseFreeze }) => {
     // Get the number of days in the selected month
     const monthStart = startOfMonth(selectedMonth);
     const monthEnd = endOfMonth(selectedMonth);
@@ -37,6 +37,16 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
         })
         .map(log => log.date)
     );
+
+    // Count frozen days as protected completions for stats display
+    if (habit.freezeDates && habit.freezeDates.length) {
+      habit.freezeDates.forEach(dateStr => {
+        const d = new Date(dateStr);
+        if (d >= monthStart && d <= effectiveEnd && d.getMonth() === monthStart.getMonth() && d.getFullYear() === monthStart.getFullYear()) {
+          completedDates.add(dateStr);
+        }
+      });
+    }
     const completedDays = completedDates.size;
     // Cap percentage at 100
     const rawPercent = daysInRange.length > 0 ? Math.round((completedDays / daysInRange.length) * 100) : 0;
@@ -56,11 +66,27 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
     return map;
   }, [habits]);
 
+  const freezeMap = useMemo(() => {
+    const map = new Map<string, Set<string>>();
+    habits.forEach(habit => {
+      if (habit.freezeDates && habit.freezeDates.length) {
+        map.set(habit._id, new Set(habit.freezeDates));
+      }
+    });
+    return map;
+  }, [habits]);
+
   const isDateCompleted = useCallback((habitId: string, date: Date) => {
     const dates = logMap.get(habitId);
     if (!dates) return false;
     return dates.has(format(date, 'yyyy-MM-dd'));
   }, [logMap]);
+
+  const isDateFrozen = useCallback((habitId: string, date: Date) => {
+    const dates = freezeMap.get(habitId);
+    if (!dates) return false;
+    return dates.has(format(date, 'yyyy-MM-dd'));
+  }, [freezeMap]);
   const isFutureDate = (date: Date) => isAfter(startOfDay(date), startOfDay(new Date()));
   const dayLabels = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
   const today = format(new Date(), 'yyyy-MM-dd');
@@ -105,11 +131,41 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
                 {days.map(day => {
                   const dateStr = format(day, 'yyyy-MM-dd');
                   const isCompleted = isDateCompleted(habit._id, day);
+                  const isFrozen = isDateFrozen(habit._id, day);
                   const isFuture = isFutureDate(day);
+                  const isToday = dateStr === today;
+                  const startDate = habit.start_date ? startOfDay(new Date(habit.start_date)) : startOfDay(new Date());
+                  const isBeforeStart = startOfDay(day) < startDate;
+                  const isPast = startOfDay(day) < startOfDay(new Date());
+                  const locked = isFuture || isBeforeStart || (isPast && !isToday);
+
+                  const handleClick = () => {
+                    if (locked) {
+                      if (!isCompleted && !isFrozen && !isBeforeStart && !isFuture) {
+                        onUseFreeze(habit._id, dateStr);
+                      }
+                      return;
+                    }
+                    onToggle(habit._id, dateStr, !isCompleted);
+                  };
+
+                  const showLock = locked && !isCompleted && !isFrozen;
+
                   return <td key={`${habit._id}-${dateStr}`} className={cn("border-l px-1 py-2 text-center", dateStr === today && "bg-primary/10")}> 
-                    <button onClick={() => !isFuture && onToggle(habit._id, dateStr, !isCompleted)} disabled={isFuture} className={cn("mx-auto flex h-6 w-6 items-center justify-center rounded border-2 transition-all", isCompleted ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground/30 bg-background hover:border-primary/50", isFuture && "opacity-30 cursor-not-allowed")}> 
-                      {isCompleted && <Check className="h-4 w-4" />} 
-                    </button> 
+                    <button
+                      onClick={handleClick}
+                      disabled={isFuture || isBeforeStart}
+                      className={cn(
+                        "mx-auto flex h-6 w-6 items-center justify-center rounded border-2 transition-all",
+                        isCompleted ? "border-primary bg-primary text-primary-foreground" : isFrozen ? "border-blue-400 bg-blue-50 text-blue-700" : "border-muted-foreground/30 bg-background hover:border-primary/50",
+                        (isFuture || isBeforeStart) && "opacity-30 cursor-not-allowed"
+                      )}
+                      title={locked ? (isBeforeStart ? "Starts later" : !isToday ? "Day locked. Use freeze to restore streak." : undefined) : "Mark complete"}
+                    >
+                      {isCompleted && <Check className="h-4 w-4" />}
+                      {!isCompleted && isFrozen && <Zap className="h-4 w-4" />}
+                      {showLock && <Lock className="h-3 w-3 text-muted-foreground" />}
+                    </button>
                   </td>;
                 })}
                 <td className="border-l px-3 py-3 text-center font-semibold">{stats?.completedDays} / {stats?.totalDays}</td>
