@@ -10,8 +10,14 @@ const app = express();
 
 // CORS configuration - allow your Netlify domain
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || '*',
+  origin: [
+    'https://habit-tracker-001.netlify.app',
+    'http://localhost:5173',
+    process.env.FRONTEND_URL,
+  ].filter(Boolean),
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 app.use(cors(corsOptions));
 app.use(express.json());
