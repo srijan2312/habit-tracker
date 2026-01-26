@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Check } from 'lucide-react';
 import { HabitWithStats } from '@/hooks/useHabits';
 import { format, eachDayOfInterval, startOfMonth, endOfMonth, getDay, isAfter, startOfDay } from 'date-fns';
@@ -48,7 +48,19 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
     };
   }), [habits, selectedMonth]);
 
-  const isDateCompleted = (habitId: string, date: Date) => habits.find(h => h._id === habitId)?.logs.some(log => log.date === format(date, 'yyyy-MM-dd')) ?? false;
+  const logMap = useMemo(() => {
+    const map = new Map<string, Set<string>>();
+    habits.forEach(habit => {
+      map.set(habit._id, new Set(habit.logs.map(log => log.date)));
+    });
+    return map;
+  }, [habits]);
+
+  const isDateCompleted = useCallback((habitId: string, date: Date) => {
+    const dates = logMap.get(habitId);
+    if (!dates) return false;
+    return dates.has(format(date, 'yyyy-MM-dd'));
+  }, [logMap]);
   const isFutureDate = (date: Date) => isAfter(startOfDay(date), startOfDay(new Date()));
   const dayLabels = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
   const today = format(new Date(), 'yyyy-MM-dd');

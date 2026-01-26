@@ -80,7 +80,7 @@ export const useHabits = () => {
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['habits'] });
+      queryClient.invalidateQueries({ queryKey: ['habits', user?._id] });
       toast.success('Habit created successfully!');
     },
     onError: (error: unknown) => {
@@ -107,7 +107,7 @@ export const useHabits = () => {
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['habits'] });
+      queryClient.invalidateQueries({ queryKey: ['habits', user?._id] });
       toast.success('Habit updated!');
     },
     onError: (error: unknown) => {
@@ -131,7 +131,7 @@ export const useHabits = () => {
       if (!res.ok) throw new Error('Failed to delete habit');
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['habits'] });
+      queryClient.invalidateQueries({ queryKey: ['habits', user?._id] });
       toast.success('Habit deleted');
     },
     onError: (error: unknown) => {
@@ -171,15 +171,38 @@ export const useHabits = () => {
         if (!res.ok) throw new Error('Failed to delete log');
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['habits'] });
+    onMutate: async ({ habitId, date, completed }) => {
+      await queryClient.cancelQueries({ queryKey: ['habits', user?._id] });
+      const previousHabits = queryClient.getQueryData<HabitWithStats[]>(['habits', user?._id]);
+      if (!previousHabits || !user) return { previousHabits };
+
+      const updated = previousHabits.map(habit => {
+        if (habit._id !== habitId) return habit;
+        const hasLog = habit.logs.some(log => log.date === date);
+        let logs = habit.logs;
+        if (completed && !hasLog) {
+          logs = [...habit.logs, { habit_id: habitId, user_id: user._id, date, completed: true }];
+        } else if (!completed && hasLog) {
+          logs = habit.logs.filter(log => log.date !== date);
+        }
+        return { ...habit, logs };
+      });
+
+      queryClient.setQueryData(['habits', user._id], updated);
+      return { previousHabits };
     },
-    onError: (error: unknown) => {
+    onError: (error: unknown, _variables, context) => {
+      if (context?.previousHabits && user) {
+        queryClient.setQueryData(['habits', user._id], context.previousHabits);
+      }
       if (error instanceof Error) {
         toast.error('Failed to update habit: ' + error.message);
       } else {
         toast.error('Failed to update habit');
       }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['habits', user?._id] });
     },
   });
 
