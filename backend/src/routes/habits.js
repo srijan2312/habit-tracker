@@ -1,7 +1,5 @@
 import express from 'express';
-import Habit from '../models/Habit.js';
-import HabitLog from '../models/HabitLog.js';
-import mongoose from 'mongoose';
+import { supabase } from '../config/supabase.js';
 
 const router = express.Router();
 
@@ -12,9 +10,14 @@ router.post('/logs', async (req, res) => {
     if (!habit_id || !user_id || !date) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    const log = new HabitLog({ habit_id, user_id, date, completed: completed !== false });
-    await log.save();
-    res.status(201).json(log);
+    
+    const { data, error } = await supabase
+      .from('habit_logs')
+      .insert([{ habit_id, user_id, date, completed: completed !== false }])
+      .select();
+    
+    if (error) throw error;
+    res.status(201).json(data[0]);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -24,33 +27,40 @@ router.post('/logs', async (req, res) => {
 router.delete('/logs/:habitId/:date', async (req, res) => {
   try {
     const { habitId, date } = req.params;
-    // Try to get userId from body, query, or headers (for frontend compatibility)
     let userId = req.body.user_id || req.query.user_id;
     if (!userId && req.headers.authorization) {
-      // Optionally decode JWT here if you use it, or parse from headers
-      // For now, try to get from a custom header if frontend sends it
       userId = req.headers['x-user-id'];
     }
     if (!habitId || !date || !userId) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    const deleted = await HabitLog.findOneAndDelete({ habit_id: habitId, user_id: userId, date });
-    if (!deleted) return res.status(404).json({ error: 'Log not found' });
+    
+    const { error } = await supabase
+      .from('habit_logs')
+      .delete()
+      .eq('habit_id', habitId)
+      .eq('user_id', userId)
+      .eq('date', date);
+    
+    if (error) throw error;
     res.json({ message: 'Log deleted' });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-
-
 // Get all habit logs for a user (for monthly tracker, etc.)
 router.get('/logs/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
-    // Optionally filter by habitId, date, etc. via query params
-    const logs = await HabitLog.find({ user_id: userId });
-    res.json(logs);
+    
+    const { data, error } = await supabase
+      .from('habit_logs')
+      .select('*')
+      .eq('user_id', userId);
+    
+    if (error) throw error;
+    res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -60,15 +70,27 @@ router.get('/logs/:userId', async (req, res) => {
 router.get('/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
-    const habits = await Habit.find({ userId });
-    const habitIds = habits.map(h => h._id);
-    const logs = await HabitLog.find({ habit_id: { $in: habitIds }, user_id: userId });
+    
+    const { data: habits, error: habitsError } = await supabase
+      .from('habits')
+      .select('*')
+      .eq('user_id', userId);
+    
+    if (habitsError) throw habitsError;
+    
+    const { data: logs, error: logsError } = await supabase
+      .from('habit_logs')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('completed', true);
+    
+    if (logsError) throw logsError;
+    
     const today = new Date().toISOString().slice(0, 10);
     const result = habits.map(habit => {
-      const habitLogs = logs.filter(log => String(log.habit_id) === String(habit._id) && log.completed);
-      // Use only unique dates
+      const habitLogs = logs.filter(log => log.habit_id === habit.id && log.completed);
       const completedDates = Array.from(new Set(habitLogs.map(log => log.date))).sort();
-      // Calculate current streak: walk backward from today, count consecutive completions
+      
       let currentStreak = 0;
       if (completedDates.length > 0) {
         let streak = 0;
@@ -85,7 +107,7 @@ router.get('/:userId', async (req, res) => {
         }
         currentStreak = streak;
       }
-      // Calculate best streak: walk through all completions, count max consecutive
+      
       let longestStreak = 0;
       let tempStreak = 1;
       if (completedDates.length > 0) {
@@ -102,14 +124,15 @@ router.get('/:userId', async (req, res) => {
           if (tempStreak > longestStreak) longestStreak = tempStreak;
         }
       }
-      // Calculate completion percentage (last 30 days)
+      
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       const last30DaysLogs = habitLogs.filter(log => new Date(log.date) >= thirtyDaysAgo);
       const completionPercentage = Math.round((last30DaysLogs.length / 30) * 100);
       const todayCompleted = completedDates.includes(today);
+      
       return {
-        ...habit.toObject(),
+        ...habit,
         currentStreak,
         longestStreak,
         completionPercentage,
@@ -117,6 +140,7 @@ router.get('/:userId', async (req, res) => {
         logs: habitLogs,
       };
     });
+    
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -126,9 +150,13 @@ router.get('/:userId', async (req, res) => {
 // Create a new habit
 router.post('/', async (req, res) => {
   try {
-    const habit = new Habit(req.body);
-    await habit.save();
-    res.status(201).json(habit);
+    const { data, error } = await supabase
+      .from('habits')
+      .insert([req.body])
+      .select();
+    
+    if (error) throw error;
+    res.status(201).json(data[0]);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -137,8 +165,14 @@ router.post('/', async (req, res) => {
 // Update a habit
 router.put('/:id', async (req, res) => {
   try {
-    const habit = await Habit.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(habit);
+    const { data, error } = await supabase
+      .from('habits')
+      .update(req.body)
+      .eq('id', req.params.id)
+      .select();
+    
+    if (error) throw error;
+    res.json(data[0]);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -147,10 +181,15 @@ router.put('/:id', async (req, res) => {
 // Delete a habit
 router.delete('/:id', async (req, res) => {
   try {
-    await Habit.findByIdAndDelete(req.params.id);
+    const { error } = await supabase
+      .from('habits')
+      .delete()
+      .eq('id', req.params.id);
+    
+    if (error) throw error;
     res.json({ message: 'Habit deleted' });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
