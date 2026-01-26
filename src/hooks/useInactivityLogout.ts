@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -9,11 +9,18 @@ export const useInactivityLogout = (signOut: () => void) => {
   const navigate = useNavigate();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const updateLastActivity = () => {
+  const updateLastActivity = useCallback(() => {
     localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
-  };
+  }, []);
 
-  const checkInactivity = () => {
+  const handleLogout = useCallback(() => {
+    signOut();
+    localStorage.removeItem(LAST_ACTIVITY_KEY);
+    toast.info('Logged out due to inactivity');
+    navigate('/');
+  }, [signOut, navigate]);
+
+  const checkInactivity = useCallback(() => {
     const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
     if (lastActivity) {
       const timeSinceLastActivity = Date.now() - parseInt(lastActivity);
@@ -21,16 +28,9 @@ export const useInactivityLogout = (signOut: () => void) => {
         handleLogout();
       }
     }
-  };
+  }, [handleLogout]);
 
-  const handleLogout = () => {
-    signOut();
-    localStorage.removeItem(LAST_ACTIVITY_KEY);
-    toast.info('Logged out due to inactivity');
-    navigate('/');
-  };
-
-  const resetTimeout = () => {
+  const resetTimeout = useCallback(() => {
     updateLastActivity();
     
     if (timeoutRef.current) {
@@ -40,7 +40,7 @@ export const useInactivityLogout = (signOut: () => void) => {
     timeoutRef.current = setTimeout(() => {
       handleLogout();
     }, INACTIVITY_TIMEOUT);
-  };
+  }, [updateLastActivity, handleLogout]);
 
   useEffect(() => {
     // Check inactivity on mount (handles browser close/reopen)
@@ -76,5 +76,6 @@ export const useInactivityLogout = (signOut: () => void) => {
       });
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
+  }, [checkInactivity, updateLastActivity, resetTimeout]);
+};
 };
