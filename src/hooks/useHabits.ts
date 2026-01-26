@@ -69,7 +69,7 @@ export const useHabits = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ ...habit, userId: user._id }),
+        body: JSON.stringify({ ...habit, user_id: user._id }),
       });
       if (!res.ok) throw new Error('Failed to create habit');
       return await res.json();
