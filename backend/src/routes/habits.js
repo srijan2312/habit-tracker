@@ -85,20 +85,31 @@ router.get('/:userId', async (req, res) => {
       .eq('completed', true);
     
     if (logsError) throw logsError;
+
+    // Get streak freezes
+    const { data: freezes, error: freezesError } = await supabase
+      .from('streak_freezes')
+      .select('*')
+      .eq('user_id', userId);
+    
+    if (freezesError) throw freezesError;
     
     const today = new Date().toISOString().slice(0, 10);
     const result = habits.map(habit => {
       const habitLogs = logs.filter(log => log.habit_id === habit.id && log.completed);
       const completedDates = Array.from(new Set(habitLogs.map(log => log.date))).sort();
+      const habitFreezes = freezes.filter(f => f.habit_id === habit.id);
       
       let currentStreak = 0;
       if (completedDates.length > 0) {
         let streak = 0;
         let checkDate = new Date(today);
         let dateSet = new Set(completedDates);
+        let freezeSet = new Set(habitFreezes.map(f => f.date));
+        
         while (true) {
           const dateStr = checkDate.toISOString().slice(0, 10);
-          if (dateSet.has(dateStr)) {
+          if (dateSet.has(dateStr) || freezeSet.has(dateStr)) {
             streak++;
             checkDate.setDate(checkDate.getDate() - 1);
           } else {
@@ -138,6 +149,7 @@ router.get('/:userId', async (req, res) => {
         completionPercentage,
         isCompletedToday: todayCompleted,
         logs: habitLogs,
+        freezesUsed: habitFreezes.length,
       };
     });
     
@@ -188,6 +200,80 @@ router.delete('/:id', async (req, res) => {
     
     if (error) throw error;
     res.json({ message: 'Habit deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Use a freeze token for a habit
+router.post('/freeze/:habitId', async (req, res) => {
+  try {
+    const { habitId } = req.params;
+    const { user_id, date } = req.body;
+    
+    if (!user_id || !date) {
+      return res.status(400).json({ error: 'Missing user_id or date' });
+    }
+
+    // Check if user has freeze tokens available
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('freezes_available')
+      .eq('id', user_id)
+      .single();
+    
+    if (userError) throw userError;
+    
+    if (!user || user.freezes_available < 1) {
+      return res.status(400).json({ error: 'No freeze tokens available' });
+    }
+
+    // Check if freeze already exists for this habit on this date
+    const { data: existingFreeze } = await supabase
+      .from('streak_freezes')
+      .select('*')
+      .eq('habit_id', habitId)
+      .eq('user_id', user_id)
+      .eq('date', date)
+      .single();
+    
+    if (existingFreeze) {
+      return res.status(400).json({ error: 'Freeze already used for this date' });
+    }
+
+    // Add freeze record
+    const { data: freeze, error: freezeError } = await supabase
+      .from('streak_freezes')
+      .insert([{ habit_id: habitId, user_id, date }])
+      .select();
+    
+    if (freezeError) throw freezeError;
+
+    // Decrement user's freeze tokens
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ freezes_available: user.freezes_available - 1 })
+      .eq('id', user_id);
+    
+    if (updateError) throw updateError;
+
+    res.json({ message: 'Freeze applied', freeze: freeze[0] });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Get user freeze tokens count
+router.get('/info/:userId', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('freezes_available')
+      .eq('id', req.params.userId)
+      .single();
+    
+    if (error) throw error;
+    res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

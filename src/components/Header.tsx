@@ -4,6 +4,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { QuickAddHabitButton } from './QuickAddHabitButton';
 import { SearchBar } from './SearchBar';
 import { MotivationalQuote } from './MotivationalQuote';
+import { StreakFreezeCounter } from './StreakFreeze';
 import HabitFormModal from './HabitFormModal';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/useAuth';
@@ -68,7 +69,10 @@ export const Header: React.FC = () => {
         )}
 
         {/* Right side: ThemeToggle, Profile */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
+          {user && (
+            <StreakFreezeCounter />
+          )}
           {/* Always show ThemeToggle in top bar */}
           <ThemeToggle />
           {user ? (

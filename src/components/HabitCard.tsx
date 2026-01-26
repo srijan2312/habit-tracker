@@ -1,4 +1,4 @@
-import { Flame, MoreHorizontal, Pencil, Trash2, Calendar } from 'lucide-react';
+import { Flame, MoreHorizontal, Pencil, Trash2, Calendar, Zap } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { HabitWithStats } from '@/hooks/useHabits';
@@ -122,14 +122,23 @@ export const HabitCard: React.FC<HabitCardProps> = ({
       </div>
 
       {/* Stats */}
-      <div className="mt-4 grid grid-cols-2 gap-3 border-t pt-4">
+      <div className="mt-4 grid grid-cols-3 gap-2 border-t pt-4">
         <div className="text-center">
           <p className="text-2xl font-bold text-primary">{habit.currentStreak}</p>
-          <p className="text-xs text-muted-foreground">Current Streak</p>
+          <p className="text-xs text-muted-foreground">Current</p>
         </div>
         <div className="text-center">
           <p className="text-2xl font-bold text-foreground">{habit.longestStreak}</p>
-          <p className="text-xs text-muted-foreground">Best Streak</p>
+          <p className="text-xs text-muted-foreground">Best</p>
+        </div>
+        <div className="text-center">
+          {habit.freezesUsed !== undefined && habit.freezesUsed > 0 && (
+            <div className="flex items-center justify-center gap-1">
+              <Zap className="h-4 w-4 text-blue-500" />
+              <p className="text-sm font-medium text-blue-600">{habit.freezesUsed}</p>
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">Freezes</p>
         </div>
       </div>
     </div>

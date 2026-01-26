@@ -228,5 +228,24 @@ export const useHabits = () => {
     toggleHabitCompletion,
     getMonthLogs,
     refetch: habitsQuery.refetch,
+    useFreeze: async (habitId: string, date: string) => {
+      if (!user) return;
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/habits/freeze/${habitId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ user_id: user._id, date }),
+      });
+      if (res.ok) {
+        toast.success('Streak freeze applied!');
+        queryClient.invalidateQueries({ queryKey: ['habits', user._id] });
+      } else {
+        const data = await res.json();
+        toast.error(data.error || 'Failed to use freeze');
+      }
+    },
   };
 };
