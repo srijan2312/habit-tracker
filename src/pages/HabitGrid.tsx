@@ -134,7 +134,12 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
                   const isFrozen = isDateFrozen(habit._id, day);
                   const isFuture = isFutureDate(day);
                   const isToday = dateStr === today;
-                  const startDate = habit.start_date ? startOfDay(new Date(habit.start_date)) : startOfDay(new Date());
+                  // Use habit start_date if present, otherwise fall back to created_at (older habits should allow freezing past days)
+                  const startDate = habit.start_date
+                    ? startOfDay(new Date(habit.start_date))
+                    : habit.created_at
+                      ? startOfDay(new Date(habit.created_at))
+                      : startOfDay(new Date(0));
                   const isBeforeStart = startOfDay(day) < startDate;
                   const isPast = startOfDay(day) < startOfDay(new Date());
                   const locked = isFuture || isBeforeStart || (isPast && !isToday);
