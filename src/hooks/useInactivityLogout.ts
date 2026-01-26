@@ -82,5 +82,5 @@ export const useInactivityLogout = (signOut: () => void) => {
       });
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [navigate]);
+  }, [navigate, signOut]);
 };
