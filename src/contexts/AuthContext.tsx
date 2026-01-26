@@ -1,11 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { AuthContext, AuthContextType, User } from './AuthContextContext';
 import { API_URL } from '@/config/api';
+import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const signOut = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('lastActivityTime');
+    setUser(null);
+  };
+
+  // Enable inactivity logout when user is logged in
+  useInactivityLogout(user ? signOut : () => {});
 
   useEffect(() => {
     // Check for token and user in localStorage
@@ -50,6 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify({ _id: data.userId, email }));
+      localStorage.setItem('lastActivityTime', Date.now().toString());
       setUser({ _id: data.userId, email });
       return { error: null };
     } catch (err: unknown) {
@@ -58,12 +70,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return { error: 'Unknown error' };
     }
-  };
-
-  const signOut = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
   };
 
   return (
