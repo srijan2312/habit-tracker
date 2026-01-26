@@ -138,6 +138,7 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
                   const isBeforeStart = startOfDay(day) < startDate;
                   const isPast = startOfDay(day) < startOfDay(new Date());
                   const locked = isFuture || isBeforeStart || (isPast && !isToday);
+                  const canUseFreeze = locked && !isFuture && !isBeforeStart && !isCompleted && !isFrozen;
 
                   const handleClick = () => {
                     if (locked) {
@@ -157,10 +158,14 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
                       disabled={isFuture || isBeforeStart}
                       className={cn(
                         "mx-auto flex h-6 w-6 items-center justify-center rounded border-2 transition-all",
-                        isCompleted ? "border-primary bg-primary text-primary-foreground" : isFrozen ? "border-blue-400 bg-blue-50 text-blue-700" : "border-muted-foreground/30 bg-background hover:border-primary/50",
+                        isCompleted ? "border-primary bg-primary text-primary-foreground" :
+                        isFrozen ? "border-blue-400 bg-blue-50 text-blue-700" :
+                        canUseFreeze ? "border-dashed border-blue-500 bg-blue-50/60 hover:bg-blue-100" :
+                        "border-muted-foreground/30 bg-background hover:border-primary/50",
                         (isFuture || isBeforeStart) && "opacity-30 cursor-not-allowed"
                       )}
-                      title={locked ? (isBeforeStart ? "Starts later" : !isToday ? "Day locked. Use freeze to restore streak." : undefined) : "Mark complete"}
+                      title={locked ? (isBeforeStart ? "Starts later" : !isToday ? (canUseFreeze ? "Click to use a freeze and restore this day" : "Day locked.") : undefined) : "Mark complete"}
+                      aria-label={canUseFreeze ? "Use a freeze to restore this day" : locked ? "Locked day" : "Toggle completion"}
                     >
                       {isCompleted && <Check className="h-4 w-4" />}
                       {!isCompleted && isFrozen && <Zap className="h-4 w-4" />}

@@ -116,7 +116,14 @@ export default function MonthlyTracker() {
           </div>
 
           {/* Habit Grid */}
-          <HabitGrid habits={habits} selectedMonth={selectedMonth} onToggle={handleToggle} onUseFreeze={useFreeze} />
+          <div className="space-y-2">
+            <div className="text-xs text-muted-foreground flex items-center gap-3">
+              <span className="inline-flex items-center gap-1">🔒 Locked past day</span>
+              <span className="inline-flex items-center gap-1">⚡ Click locked past day to use a freeze</span>
+              <span className="inline-flex items-center gap-1">✅ Completed</span>
+            </div>
+            <HabitGrid habits={habits} selectedMonth={selectedMonth} onToggle={handleToggle} onUseFreeze={useFreeze} />
+          </div>
         </div>
       </main>
     </div>
