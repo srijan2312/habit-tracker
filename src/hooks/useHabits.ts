@@ -49,12 +49,17 @@ export const useHabits = () => {
     queryFn: async (): Promise<HabitWithStats[]> => {
       if (!user) return [];
       const token = localStorage.getItem('token');
-      const res = await fetch(`/api/habits/${user._id}`, {
+      const res = await fetch(`${API_URL}/api/habits/${user._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Failed to fetch habits');
-      // The backend now returns habits with logs and stats
-      return await res.json();
+      const data = await res.json();
+      // Transform Supabase data (id, user_id) to frontend format (_id, userId)
+      return data.map((habit: any) => ({
+        ...habit,
+        _id: habit.id,
+        userId: habit.user_id,
+      }));
     },
     enabled: !!user,
   });
