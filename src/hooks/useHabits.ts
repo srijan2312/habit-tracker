@@ -246,6 +246,7 @@ export const useHabits = () => {
       if (res.ok) {
         toast.success('Streak freeze applied!');
         queryClient.invalidateQueries({ queryKey: ['habits', user._id] });
+        queryClient.invalidateQueries({ queryKey: ['user-freezes', user._id] }); // Refresh freeze counter
       } else {
         const data = await res.json();
         toast.error(data.error || 'Failed to use freeze');

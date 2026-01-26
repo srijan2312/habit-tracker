@@ -11,7 +11,7 @@ export const StreakFreezeCounter: React.FC = () => {
   const auth = useAuth();
   const user = (auth && typeof auth === 'object' && 'user' in auth) ? auth.user : null;
 
-  const { data: userData } = useQuery({
+  const { data: userData, refetch } = useQuery({
     queryKey: ['user-freezes', user?._id],
     queryFn: async () => {
       if (!user) return null;
@@ -23,6 +23,8 @@ export const StreakFreezeCounter: React.FC = () => {
       return await res.json();
     },
     enabled: !!user,
+    staleTime: 0, // Always refetch to show current count
+    refetchOnWindowFocus: true,
   });
 
   const freezesCount = userData?.freezes_available || 0;
