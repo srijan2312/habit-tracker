@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Link } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { API_URL } from '@/config/api';
 
 export default function ForgotPassword({ onBack }: { onBack: () => void }) {
   const [email, setEmail] = useState('');
