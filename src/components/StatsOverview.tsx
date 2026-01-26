@@ -74,23 +74,23 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({ habits }) => {
   ];
 
   return (
-    <div className="flex flex-row gap-6 justify-between items-stretch w-full">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6 w-full">
       {cards.filter(Boolean).map((card, index) => (
         <div
           key={card.title}
-          className="flex-1 min-w-0 group rounded-xl border bg-card p-5 transition-all duration-300 hover:shadow-lg animate-fade-up flex flex-col justify-between"
+          className="group rounded-xl border bg-card p-4 lg:p-5 transition-all duration-300 hover:shadow-lg animate-fade-up flex flex-col justify-between"
           style={{ animationDelay: `${index * 100}ms` }}
         >
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">{card.title}</p>
-              <p className="mt-1 text-3xl font-bold tracking-tight text-foreground">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="text-xs lg:text-sm text-muted-foreground truncate">{card.title}</p>
+              <p className="mt-1 text-xl lg:text-3xl font-bold tracking-tight text-foreground break-words">
                 {card.value}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">{card.subtitle}</p>
+              <p className="mt-1 text-xs text-muted-foreground truncate">{card.subtitle}</p>
             </div>
-            <div className={`rounded-lg p-2.5 ${card.bgColor}`}>
-              <card.icon className={`h-5 w-5 ${card.color}`} />
+            <div className={`rounded-lg p-2 lg:p-2.5 flex-shrink-0 ${card.bgColor}`}>
+              <card.icon className={`h-4 w-4 lg:h-5 lg:w-5 ${card.color}`} />
             </div>
           </div>
         </div>
