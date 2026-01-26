@@ -7,7 +7,13 @@ import userRoutes from './routes/users.js';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+// CORS configuration - allow your Netlify domain
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || '*',
+  credentials: true,
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use('/api/habits', habitRoutes);

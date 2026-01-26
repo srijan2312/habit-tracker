@@ -16,7 +16,7 @@ export default function ForgotPassword({ onBack }: { onBack: () => void }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/users/forgot-password', {
+      const res = await fetch(`${API_URL}/api/users/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

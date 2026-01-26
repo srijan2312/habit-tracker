@@ -62,7 +62,7 @@ export const useHabits = () => {
     mutationFn: async (habit: Omit<Habit, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
       if (!user) throw new Error('Not authenticated');
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/habits', {
+      const res = await fetch(`${API_URL}/api/habits`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ export const useHabits = () => {
   const updateHabit = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Habit> & { id: string }) => {
       const token = localStorage.getItem('token');
-      const res = await fetch(`/api/habits/${id}`, {
+      const res = await fetch(`${API_URL}/api/habits/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ export const useHabits = () => {
   const deleteHabit = useMutation({
     mutationFn: async (id: string) => {
       const token = localStorage.getItem('token');
-      const res = await fetch(`/api/habits/${id}`, {
+      const res = await fetch(`${API_URL}/api/habits/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -143,7 +143,7 @@ export const useHabits = () => {
       const token = localStorage.getItem('token');
       if (completed) {
         // Create the log
-        const res = await fetch(`/api/habits/logs`, {
+        const res = await fetch(`${API_URL}/api/habits/logs`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -154,7 +154,7 @@ export const useHabits = () => {
         if (!res.ok) throw new Error('Failed to create log');
       } else {
         // Delete the log (send user_id as query param for backend compatibility)
-        const res = await fetch(`/api/habits/logs/${habitId}/${date}?user_id=${user._id}`, {
+        const res = await fetch(`${API_URL}/api/habits/logs/${habitId}/${date}?user_id=${user._id}`, {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -182,7 +182,7 @@ export const useHabits = () => {
     const token = localStorage.getItem('token');
     const start = format(startOfMonth(month), 'yyyy-MM-dd');
     const end = format(endOfMonth(month), 'yyyy-MM-dd');
-    const res = await fetch(`/api/habits/logs/${user._id}?start=${start}&end=${end}`, {
+    const res = await fetch(`${API_URL}/api/habits/logs/${user._id}?start=${start}&end=${end}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error('Failed to fetch logs');
