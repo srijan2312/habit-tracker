@@ -72,6 +72,13 @@ export const Header: React.FC = () => {
             >
               Calendar
             </NavLink>
+            <NavLink 
+              to="/leaderboard" 
+              className={navLinkClasses}
+              activeClassName={activeNavLinkClasses}
+            >
+              Leaderboard
+            </NavLink>
           </nav>
         )}
 
@@ -139,6 +146,14 @@ export const Header: React.FC = () => {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Calendar
+                    </NavLink>
+                    <NavLink 
+                      to="/leaderboard" 
+                      className="text-sm font-medium px-2 py-1 rounded"
+                      activeClassName="text-foreground bg-primary/10"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Leaderboard
                     </NavLink>
                     <hr className="border-border" />
                     <button 
