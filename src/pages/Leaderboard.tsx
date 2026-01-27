@@ -1,13 +1,16 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { useAuth } from '@/contexts/useAuth';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Trophy, Flame, TrendingUp, Crown } from 'lucide-react';
+import { Trophy, Flame, TrendingUp, Crown, ArrowLeft } from 'lucide-react';
 
 export default function Leaderboard() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [metric, setMetric] = useState<'streak' | 'completion'>('streak');
   const { data: leaderboard, isLoading, error } = useLeaderboard({ 
@@ -34,11 +37,19 @@ export default function Leaderboard() {
 
   return (
     <div className="space-y-8 pb-20">
-      <div>
-        <h1 className="text-4xl font-bold tracking-tight mb-2">Leaderboard</h1>
-        <p className="text-muted-foreground">
-          See how you stack up against other habit builders. Rankings based on your highest streak and monthly completion rate.
-        </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h1 className="text-4xl font-bold tracking-tight mb-2">Leaderboard</h1>
+            <p className="text-muted-foreground">
+              See how you stack up against other habit builders. Rankings based on your highest streak and monthly completion rate.
+            </p>
+          </div>
+        </div>
+        <ThemeToggle />
       </div>
 
       <Tabs defaultValue="streak" onValueChange={(value) => setMetric(value as 'streak' | 'completion')} className="w-full">
