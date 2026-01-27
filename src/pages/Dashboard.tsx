@@ -92,20 +92,26 @@ export default function Dashboard() {
   const handleToggle = async (habitId: string, date: string, completed: boolean) => {
     toggleHabitCompletion.mutate({ habitId, date, completed });
     
-    // Increment challenge score when habit is completed
+    // Increment challenge score only when completing habits for today
     if (completed && youId) {
-      try {
-        const token = localStorage.getItem('token');
-        await fetch(`${API_URL}/api/challenges/increment-score`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify({ userId: youId }),
-        });
-      } catch (err) {
-        console.error('Failed to update challenge score:', err);
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const dateStr = format(new Date(date), 'yyyy-MM-dd');
+      
+      // Only increment if the completed date is today
+      if (dateStr === today) {
+        try {
+          const token = localStorage.getItem('token');
+          await fetch(`${API_URL}/api/challenges/increment-score`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify({ userId: youId }),
+          });
+        } catch (err) {
+          console.error('Failed to update challenge score:', err);
+        }
       }
     }
   };
