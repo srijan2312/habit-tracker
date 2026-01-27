@@ -4,6 +4,7 @@ import { Calendar, Clock, X } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -110,6 +111,9 @@ export const HabitFormModal: React.FC<HabitFormModalProps> = ({
           <DialogTitle className="font-display text-2xl">
             {habit ? 'Edit Habit' : 'Create New Habit'}
           </DialogTitle>
+          <DialogDescription>
+            {habit ? 'Update your habit details below.' : 'Fill in the details to track your new habit.'}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5">
