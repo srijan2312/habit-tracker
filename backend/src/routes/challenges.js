@@ -169,4 +169,37 @@ router.post('/join', async (req, res) => {
   }
 });
 
+router.post('/increment-score', async (req, res) => {
+  const { userId } = req.body || {};
+  if (!userId) {
+    return res.status(400).json({ error: 'userId is required' });
+  }
+
+  try {
+    const { data: participants, error: findErr } = await supabase
+      .from('friend_challenge_participants')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (findErr) throw findErr;
+    if (!participants || participants.length === 0) {
+      return res.json({ updated: 0 });
+    }
+
+    const now = new Date().toISOString();
+    const updatePromises = participants.map((p) =>
+      supabase
+        .from('friend_challenge_participants')
+        .update({ score: (p.score || 0) + 1, updated_at: now })
+        .eq('id', p.id)
+    );
+
+    await Promise.all(updatePromises);
+    return res.json({ updated: participants.length });
+  } catch (error) {
+    console.error('Error incrementing challenge score', error);
+    return res.status(500).json({ error: 'Failed to increment score' });
+  }
+});
+
 export default router;

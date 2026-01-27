@@ -3,12 +3,14 @@ import { Plus, Filter, Loader2, Gift } from 'lucide-react';
 import { format } from 'date-fns';
 import { useHabits, HabitWithStats, Habit } from '@/hooks/useHabits';
 import { useDailyReward } from '@/hooks/useDailyReward';
+import { useAuth } from '@/contexts/useAuth';
 import { Header } from '@/components/Header';
 import { HabitCard } from '@/components/HabitCard';
 import { HabitFormModal } from '@/components/HabitFormModal';
 import { DailyRewardModal } from '@/components/DailyRewardModal';
 import { StatsOverview } from '@/components/StatsOverview';
 import { Button } from '@/components/ui/button';
+import { API_URL } from '@/config/api';
 import {
   Select,
   SelectContent,
@@ -31,6 +33,7 @@ import { HabitProgressPie } from '@/components/HabitProgressPie';
 type FilterType = 'all' | 'completed' | 'pending';
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const { habits, isLoading, createHabit, updateHabit, deleteHabit, toggleHabitCompletion } = useHabits();
   const { data: reward } = useDailyReward();
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -40,6 +43,7 @@ export default function Dashboard() {
   const [showDailyReward, setShowDailyReward] = useState(false);
 
   const today = format(new Date(), 'EEEE, MMMM d');
+  const youId = (user as any)?._id || (user as any)?.id;
 
   // Show daily reward modal on first load if user can claim today
   useEffect(() => {
@@ -85,8 +89,25 @@ export default function Dashboard() {
     }
   };
 
-  const handleToggle = (habitId: string, date: string, completed: boolean) => {
+  const handleToggle = async (habitId: string, date: string, completed: boolean) => {
     toggleHabitCompletion.mutate({ habitId, date, completed });
+    
+    // Increment challenge score when habit is completed
+    if (completed && youId) {
+      try {
+        const token = localStorage.getItem('token');
+        await fetch(`${API_URL}/api/challenges/increment-score`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ userId: youId }),
+        });
+      } catch (err) {
+        console.error('Failed to update challenge score:', err);
+      }
+    }
   };
 
   if (isLoading) {
