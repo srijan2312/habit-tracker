@@ -109,6 +109,7 @@ export default function FriendChallenges() {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
+        body: JSON.stringify({ userId: youId }),
       });
       if (!res.ok) throw new Error('Failed to delete challenge');
       return res.json();
