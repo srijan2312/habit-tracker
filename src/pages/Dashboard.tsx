@@ -120,7 +120,7 @@ export default function Dashboard() {
                     variant="outline"
                     size="sm"
                     onClick={() => setShowDailyReward(true)}
-                    className="h-10 px-3 text-sm font-medium sm:h-12 sm:px-4 sm:text-base"
+                    className="h-10 px-3 text-sm font-medium sm:hidden"
                   >
                     <Gift className="mr-2 h-5 w-5" />
                     Daily Reward
@@ -129,6 +129,15 @@ export default function Dashboard() {
                 <p className="text-muted-foreground">{today}</p>
               </div>
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setShowDailyReward(true)}
+                  className="hidden h-12 justify-center gap-2 sm:inline-flex sm:w-44"
+                >
+                  <Gift className="mr-2 h-5 w-5" />
+                  Daily Reward
+                </Button>
                 {habits.length > 0 && (
                   <Button
                     onClick={() => setIsFormOpen(true)}
