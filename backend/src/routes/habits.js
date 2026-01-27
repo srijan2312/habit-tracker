@@ -11,9 +11,13 @@ router.post('/logs', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
     
+    // Use upsert to avoid duplicate key errors
     const { data, error } = await supabase
       .from('habit_logs')
-      .insert([{ habit_id, user_id, date, completed: completed !== false }])
+      .upsert([{ habit_id, user_id, date, completed: completed !== false }], {
+        onConflict: 'habit_id,user_id,date',
+        ignoreDuplicates: false
+      })
       .select();
     
     if (error) throw error;
