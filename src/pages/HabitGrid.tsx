@@ -49,7 +49,7 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
       // Count frozen days as protected completions for stats display
       if (habit.freezeDates && habit.freezeDates.length) {
         habit.freezeDates.forEach(dateStr => {
-          if (dateStr >= monthStartStr && dateStr <= effectiveEndStr) {
+          if (dateStr >= monthStartStr && dateStr <= monthEndStr) {
             completedDates.add(dateStr);
           }
         });
