@@ -97,11 +97,14 @@ export default function Dashboard() {
       const today = format(new Date(), 'yyyy-MM-dd');
       const dateStr = format(new Date(date), 'yyyy-MM-dd');
       
+      console.log('📊 Challenge score check:', { youId, dateStr, today, isToday: dateStr === today });
+      
       // Only increment if the completed date is today
       if (dateStr === today) {
         try {
           const token = localStorage.getItem('token');
-          await fetch(`${API_URL}/api/challenges/increment-score`, {
+          console.log('🚀 Incrementing challenge score for userId:', youId);
+          const response = await fetch(`${API_URL}/api/challenges/increment-score`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -109,9 +112,13 @@ export default function Dashboard() {
             },
             body: JSON.stringify({ userId: youId }),
           });
+          const data = await response.json();
+          console.log('✅ Challenge score response:', data);
         } catch (err) {
-          console.error('Failed to update challenge score:', err);
+          console.error('❌ Failed to update challenge score:', err);
         }
+      } else {
+        console.log('⏭️ Skipping score update - not today\'s date');
       }
     }
   };

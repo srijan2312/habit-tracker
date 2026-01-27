@@ -1,7 +1,8 @@
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Sparkles, Trophy, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 interface CelebrationDialogProps {
   open: boolean;
@@ -33,6 +34,9 @@ export const CelebrationDialog: React.FC<CelebrationDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-md overflow-hidden border-2 border-primary/20">
+        <VisuallyHidden>
+          <DialogTitle>Habit Completion Celebration</DialogTitle>
+        </VisuallyHidden>
         {/* Confetti Animation */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           {confetti.map((item) => (
