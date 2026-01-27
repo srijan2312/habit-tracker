@@ -9,7 +9,7 @@ export interface User {
 export interface AuthContextType {
 	user: User | null;
 	loading: boolean;
-	signUp: (email: string, password: string) => Promise<{ error: string | null }>;
+	signUp: (email: string, password: string, fullName?: string) => Promise<{ error: string | null }>;
 	signIn: (email: string, password: string) => Promise<{ error: string | null }>;
 	signOut: () => void;
 }

@@ -50,7 +50,7 @@ export default function SignUp() {
 
     setIsLoading(true);
     try {
-      const { error } = await signUp(email, password);
+      const { error } = await signUp(email, password, fullName);
       if (error) {
         toast.error(error);
       } else {

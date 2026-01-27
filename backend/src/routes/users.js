@@ -9,12 +9,12 @@ const router = express.Router();
 // Register
 router.post('/register', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, fullName } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     
     const { data, error } = await supabase
       .from('users')
-      .insert([{ email, password: hashedPassword }])
+      .insert([{ email, password: hashedPassword, name: fullName }])
       .select();
     
     if (error) throw error;
@@ -42,7 +42,7 @@ router.post('/login', async (req, res) => {
     
     // Token expires in 1 hour for security
     const token = jwt.sign({ userId: data.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.json({ token, userId: data.id });
+    res.json({ token, userId: data.id, name: data.name });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
