@@ -7,11 +7,11 @@ import { cn } from '@/lib/utils';
 // Helper to check if a date is a scheduled day for the habit
 const isScheduledDay = (habit: HabitWithStats, date: Date): boolean => {
   if (habit.frequency === 'daily') return true;
-  if (habit.frequency === 'custom' && habit.custom_days) {
+  const hasSchedule = habit.custom_days && habit.custom_days.length > 0;
+  if ((habit.frequency === 'weekly' || habit.frequency === 'custom') && hasSchedule) {
     const dayOfWeek = getDay(date); // 0=Sun, 1=Mon, ..., 6=Sat
-    return habit.custom_days.includes(dayOfWeek);
+    return habit.custom_days!.includes(dayOfWeek);
   }
-  // For weekly or other frequencies, allow all days for now
   return true;
 };
 
@@ -58,9 +58,9 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
         });
       }
       
-      // For custom frequency habits, only count scheduled days in elapsed calculation
+      // For custom/weekly frequency habits, only count scheduled days in elapsed calculation
       let daysElapsed;
-      if (habit.frequency === 'custom' && habit.custom_days && habit.custom_days.length > 0) {
+      if ((habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.custom_days && habit.custom_days.length > 0) {
         // Count how many scheduled days have occurred so far this month
         let scheduledDaysCount = 0;
         let checkDate = new Date(monthStart);
@@ -72,7 +72,7 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
         }
         daysElapsed = scheduledDaysCount;
       } else {
-        // For daily/weekly, count all days elapsed
+        // For daily or unscheduled, count all days elapsed
         daysElapsed = Math.floor((effectiveEnd.getTime() - monthStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
       }
       

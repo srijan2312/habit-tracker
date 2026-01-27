@@ -112,11 +112,11 @@ router.get('/:userId', async (req, res) => {
       
       // Helper to check if date is scheduled for custom habits
       const isScheduledDay = (date, habit) => {
-        if (habit.frequency === 'custom' && habit.custom_days && habit.custom_days.length > 0) {
+        if ((habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.custom_days && habit.custom_days.length > 0) {
           const dayOfWeek = date.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
           return habit.custom_days.includes(dayOfWeek);
         }
-        return true; // Daily and weekly count all days
+        return true; // Daily counts all days
       };
 
       let currentStreak = 0;
@@ -180,7 +180,7 @@ router.get('/:userId', async (req, res) => {
       
       // For custom frequency habits, only count scheduled days in elapsed calculation
       let daysElapsed;
-      if (habit.frequency === 'custom' && habit.custom_days && habit.custom_days.length > 0) {
+      if ((habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.custom_days && habit.custom_days.length > 0) {
         // Count how many scheduled days have occurred so far this month
         let scheduledDaysCount = 0;
         let checkDate = new Date(monthStart);

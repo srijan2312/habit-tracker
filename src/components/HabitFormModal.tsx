@@ -83,7 +83,9 @@ export const HabitFormModal: React.FC<HabitFormModalProps> = ({
       title: title.trim(),
       description: description.trim() || null,
       frequency,
-      custom_days: frequency === 'custom' ? customDays : null,
+      custom_days: frequency === 'custom' || (frequency === 'weekly' && customDays.length)
+        ? customDays
+        : null,
       start_date: startDate,
       reminder_time: reminderTime || null,
     });
@@ -95,6 +97,10 @@ export const HabitFormModal: React.FC<HabitFormModalProps> = ({
         ? prev.filter(d => d !== day)
         : [...prev, day].sort()
     );
+  };
+
+  const selectWeeklyDay = (day: number) => {
+    setCustomDays([day]);
   };
 
   return (
@@ -199,6 +205,28 @@ export const HabitFormModal: React.FC<HabitFormModalProps> = ({
               />
             </div>
           </div>
+
+          {frequency === 'weekly' && (
+            <div className="space-y-2">
+              <Label>Select day of week</Label>
+              <div className="flex flex-wrap gap-2">
+                {DAYS.map(day => (
+                  <button
+                    key={day.value}
+                    type="button"
+                    onClick={() => selectWeeklyDay(day.value)}
+                    className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                      customDays.includes(day.value)
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                    }`}
+                  >
+                    {day.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="flex justify-end gap-3 pt-4">
             <Button type="button" variant="outline" onClick={onClose}>

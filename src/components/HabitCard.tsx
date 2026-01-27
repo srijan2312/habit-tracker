@@ -29,9 +29,9 @@ export const HabitCard: React.FC<HabitCardProps> = ({
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   
-  // For custom frequency habits, count only scheduled days
+  // For custom/weekly frequency habits, count only scheduled days
   let daysElapsed;
-  if (habit.frequency === 'custom' && habit.custom_days && habit.custom_days.length > 0) {
+  if ((habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.custom_days && habit.custom_days.length > 0) {
     let scheduledDaysCount = 0;
     let checkDate = new Date(monthStart);
     while (checkDate <= now) {

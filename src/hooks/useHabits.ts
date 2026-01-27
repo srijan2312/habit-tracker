@@ -301,7 +301,7 @@ const computeStreak = (logs: HabitLog[], freezeDates: string[], habit?: { freque
 
   // Helper to check if date is scheduled
   const isScheduledDay = (date: Date): boolean => {
-    if (habit?.frequency === 'custom' && habit.custom_days && habit.custom_days.length > 0) {
+    if ((habit?.frequency === 'custom' || habit?.frequency === 'weekly') && habit?.custom_days && habit.custom_days.length > 0) {
       const dayOfWeek = date.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
       return habit.custom_days.includes(dayOfWeek);
     }
