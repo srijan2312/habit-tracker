@@ -39,8 +39,8 @@ export default function Leaderboard() {
     <div className="flex min-h-screen flex-col bg-background">
       <Header />
 
-      <main className="flex-1 py-8">
-        <div className="container space-y-8">
+      <main className="flex-1 py-6 sm:py-8">
+        <div className="container px-4 sm:px-6 space-y-6 sm:space-y-8">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="w-5 h-5" />
@@ -54,9 +54,9 @@ export default function Leaderboard() {
           </div>
 
           <Card>
-            <CardContent className="pt-6 space-y-6">
+            <CardContent className="pt-4 sm:pt-6 space-y-4 sm:space-y-6">
               <Tabs defaultValue="streak" onValueChange={(value) => setMetric(value as 'streak' | 'completion')} className="w-full">
-                <TabsList className="grid w-full max-w-sm grid-cols-2">
+                <TabsList className="grid w-full max-w-sm grid-cols-2 mx-auto sm:mx-0">
                   <TabsTrigger value="streak" className="gap-2">
                     <Flame className="w-4 h-4" />
                     Longest Streak
@@ -121,7 +121,7 @@ function LeaderboardTable({ leaderboard, userRank, isLoading, metric, currentUse
   if (isLoading) {
     return (
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="pt-4 sm:pt-6">
           <div className="space-y-4">
             {[...Array(10)].map((_, i) => (
               <div key={i} className="flex items-center justify-between gap-4">
@@ -148,17 +148,17 @@ function LeaderboardTable({ leaderboard, userRank, isLoading, metric, currentUse
 
   return (
     <Card>
-      <CardContent className="pt-6">
-        <div className="space-y-2">
+      <CardContent className="pt-4 sm:pt-6">
+        <div className="space-y-3 sm:space-y-2">
           {leaderboard?.map((entry) => (
             <div
               key={entry.userId}
-              className={`flex items-center justify-between p-4 rounded-lg transition-colors border border-border/40 ${
+              className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg transition-colors border border-border/40 ${
                 entry.userId === currentUserId ? 'bg-primary/5 hover:bg-primary/10' : 'hover:bg-accent/50'
               }`}
             >
-              <div className="flex items-center gap-4 flex-1">
-                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 font-bold text-primary min-w-max">
+              <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 font-bold text-primary min-w-[3rem]">
                   {entry.rank === 1 ? (
                     <Trophy className="w-6 h-6 text-yellow-500" />
                   ) : entry.rank === 2 ? (
@@ -179,16 +179,16 @@ function LeaderboardTable({ leaderboard, userRank, isLoading, metric, currentUse
                 </div>
               </div>
 
-              <div className="flex items-center gap-8 min-w-max">
-                <div className="text-right">
-                  <div className="flex items-center gap-1 justify-end">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-w-[150px] sm:min-w-max text-left sm:text-right">
+                <div className="sm:text-right">
+                  <div className="flex sm:justify-end items-center gap-1">
                     <Flame className="w-4 h-4 text-red-500" />
-                    <span className="font-bold text-lg">{entry.highestStreak}</span>
+                    <span className="font-bold text-base sm:text-lg">{entry.highestStreak}</span>
                   </div>
                   <p className="text-xs text-muted-foreground">day streak</p>
                 </div>
-                <div className="text-right">
-                  <div className="font-bold text-lg">{entry.avgCompletion.toFixed(0)}%</div>
+                <div className="sm:text-right">
+                  <div className="font-bold text-base sm:text-lg">{entry.avgCompletion.toFixed(0)}%</div>
                   <p className="text-xs text-muted-foreground">completion</p>
                 </div>
               </div>
@@ -204,10 +204,10 @@ function LeaderboardTable({ leaderboard, userRank, isLoading, metric, currentUse
                 <div className="h-px bg-border flex-1"></div>
               </div>
               <div
-                className="flex items-center justify-between p-4 rounded-lg bg-primary/5 border-2 border-primary/20 hover:bg-primary/10 transition-colors"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg bg-primary/5 border-2 border-primary/20 hover:bg-primary/10 transition-colors"
               >
-                <div className="flex items-center gap-4 flex-1">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/60 font-bold text-primary-foreground min-w-max">
+                <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/60 font-bold text-primary-foreground min-w-[3rem]">
                     <Crown className="w-6 h-6" />
                   </div>
                   <div className="flex-1">
@@ -218,20 +218,20 @@ function LeaderboardTable({ leaderboard, userRank, isLoading, metric, currentUse
                   </div>
                 </div>
 
-                <div className="flex items-center gap-8 min-w-max">
-                  <div className="text-right">
-                    <div className="flex items-center gap-1 justify-end">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-w-[150px] sm:min-w-max text-left sm:text-right">
+                  <div className="sm:text-right">
+                    <div className="flex sm:justify-end items-center gap-1">
                       <Flame className="w-4 h-4 text-red-500" />
-                      <span className="font-bold text-lg">{userRank.highestStreak}</span>
+                      <span className="font-bold text-base sm:text-lg">{userRank.highestStreak}</span>
                     </div>
                     <p className="text-xs text-muted-foreground">day streak</p>
                   </div>
-                  <div className="text-right">
-                    <div className="font-bold text-lg">{userRank.avgCompletion.toFixed(0)}%</div>
+                  <div className="sm:text-right">
+                    <div className="font-bold text-base sm:text-lg">{userRank.avgCompletion.toFixed(0)}%</div>
                     <p className="text-xs text-muted-foreground">completion</p>
                   </div>
-                  <div className="text-right pl-4 border-l border-border">
-                    <div className="font-bold text-xl text-primary">#{userRank.rank}</div>
+                  <div className="sm:text-right sm:pl-4 sm:border-l border-border">
+                    <div className="font-bold text-lg sm:text-xl text-primary">#{userRank.rank}</div>
                     <p className="text-xs text-muted-foreground">rank</p>
                   </div>
                 </div>
