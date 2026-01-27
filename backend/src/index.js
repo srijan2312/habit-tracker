@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import habitRoutes from './routes/habits.js';
 import userRoutes from './routes/users.js';
 import leaderboardRoutes from './routes/leaderboard.js';
+import rewardsRoutes from './routes/rewards.js';
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use('/api/habits', habitRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
+app.use('/api/rewards', rewardsRoutes);
 
 const PORT = process.env.PORT || 5000;
 

@@ -1,10 +1,12 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Plus, Filter, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useHabits, HabitWithStats, Habit } from '@/hooks/useHabits';
+import { useDailyReward } from '@/hooks/useDailyReward';
 import { Header } from '@/components/Header';
 import { HabitCard } from '@/components/HabitCard';
 import { HabitFormModal } from '@/components/HabitFormModal';
+import { DailyRewardModal } from '@/components/DailyRewardModal';
 import { StatsOverview } from '@/components/StatsOverview';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,12 +32,21 @@ type FilterType = 'all' | 'completed' | 'pending';
 
 export default function Dashboard() {
   const { habits, isLoading, createHabit, updateHabit, deleteHabit, toggleHabitCompletion } = useHabits();
+  const { data: reward } = useDailyReward();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingHabit, setEditingHabit] = useState<HabitWithStats | null>(null);
   const [deletingHabitId, setDeletingHabitId] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterType>('all');
+  const [showDailyReward, setShowDailyReward] = useState(false);
 
   const today = format(new Date(), 'EEEE, MMMM d');
+
+  // Show daily reward modal on first load if user can claim today
+  useEffect(() => {
+    if (reward && reward.canClaimToday) {
+      setShowDailyReward(true);
+    }
+  }, [reward?.canClaimToday]);
 
   const filteredHabits = useMemo(() => {
     switch (filter) {
@@ -219,6 +230,9 @@ export default function Dashboard() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Daily Signin Reward Modal */}
+      <DailyRewardModal open={showDailyReward} onOpenChange={setShowDailyReward} />
     </div>
   );
 }
