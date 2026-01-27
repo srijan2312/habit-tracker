@@ -148,7 +148,7 @@ function LeaderboardTable({ leaderboard, userRank, isLoading, metric, currentUse
                   ) : entry.rank === 3 ? (
                     <Trophy className="w-6 h-6 text-orange-600" />
                   ) : (
-                    entry.rank
+                    <span>#{entry.rank}</span>
                   )}
                 </div>
                 <div className="flex-1">
@@ -158,7 +158,6 @@ function LeaderboardTable({ leaderboard, userRank, isLoading, metric, currentUse
                       <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full font-medium">You</span>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground">{entry.habitCount} habit{entry.habitCount !== 1 ? 's' : ''} tracked</p>
                 </div>
               </div>
 
@@ -198,7 +197,6 @@ function LeaderboardTable({ leaderboard, userRank, isLoading, metric, currentUse
                       <p className="font-bold">{userRank.name}</p>
                       <span className="text-xs bg-primary/30 text-primary px-2 py-0.5 rounded-full font-bold">You</span>
                     </div>
-                    <p className="text-xs text-muted-foreground">{userRank.habitCount} habit{userRank.habitCount !== 1 ? 's' : ''} tracked</p>
                   </div>
                 </div>
 
