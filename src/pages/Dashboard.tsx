@@ -127,14 +127,16 @@ export default function Dashboard() {
                 <Gift className="mr-2 h-5 w-5" />
                 Daily Reward
               </Button>
-              <Button
-                onClick={() => setIsFormOpen(true)}
-                size="lg"
-                className="h-12 w-full justify-center gap-2 sm:w-44"
-              >
-                <Plus className="mr-2 h-5 w-5" />
-                New Habit
-              </Button>
+              {habits.length > 0 && (
+                <Button
+                  onClick={() => setIsFormOpen(true)}
+                  size="lg"
+                  className="h-12 w-full justify-center gap-2 sm:w-44"
+                >
+                  <Plus className="mr-2 h-5 w-5" />
+                  New Habit
+                </Button>
+              )}
             </div>
           </div>
 
