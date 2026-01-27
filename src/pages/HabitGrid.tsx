@@ -33,19 +33,16 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
   }, [selectedMonth]);
 
   const habitStats = useMemo(() => {
-    const now = new Date();
     const monthStart = startOfMonth(selectedMonth);
     const monthEnd = endOfMonth(selectedMonth);
-    const isCurrentMonth = monthStart.getFullYear() === now.getFullYear() && monthStart.getMonth() === now.getMonth();
-    const effectiveEnd = isCurrentMonth ? now : monthEnd;
     const monthStartStr = format(monthStart, 'yyyy-MM-dd');
-    const effectiveEndStr = format(effectiveEnd, 'yyyy-MM-dd');
+    const monthEndStr = format(monthEnd, 'yyyy-MM-dd');
     
     return habits.map(habit => {
       // Count unique completed days within the selected month range
       const completedDates = new Set(
         habit.logs
-          .filter(log => log.date >= monthStartStr && log.date <= effectiveEndStr && log.completed)
+          .filter(log => log.date >= monthStartStr && log.date <= monthEndStr && log.completed)
           .map(log => log.date)
       );
 
@@ -58,30 +55,29 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
         });
       }
       
-      // For custom/weekly frequency habits, only count scheduled days in elapsed calculation
-      let daysElapsed;
+      // For custom/weekly frequency habits, total scheduled days across the whole month
+      let totalScheduledDays;
       if ((habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.custom_days && habit.custom_days.length > 0) {
-        // Count how many scheduled days have occurred so far this month
         let scheduledDaysCount = 0;
         let checkDate = new Date(monthStart);
-        while (checkDate <= effectiveEnd) {
+        while (checkDate <= monthEnd) {
           if (habit.custom_days.includes(getDay(checkDate))) {
             scheduledDaysCount++;
           }
           checkDate.setDate(checkDate.getDate() + 1);
         }
-        daysElapsed = scheduledDaysCount;
+        totalScheduledDays = scheduledDaysCount;
       } else {
-        // For daily or unscheduled, count all days elapsed
-        daysElapsed = Math.floor((effectiveEnd.getTime() - monthStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        // For daily or unscheduled, count all days in the month
+        totalScheduledDays = Math.floor((monthEnd.getTime() - monthStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
       }
       
       const completedDays = completedDates.size;
-      const rawPercent = daysElapsed > 0 ? Math.round((completedDays / daysElapsed) * 100) : 0;
+      const rawPercent = totalScheduledDays > 0 ? Math.round((completedDays / totalScheduledDays) * 100) : 0;
       return {
         habitId: habit._id,
         completedDays,
-        totalDays: daysElapsed,
+        totalDays: totalScheduledDays,
         percentage: Math.min(rawPercent, 100)
       };
     });
@@ -223,7 +219,7 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
                   >
                     {Math.min(stats?.percentage || 0, 100)}%
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1">{daysInMonth} day progress</div>
+                  <div className="text-xs text-muted-foreground mt-1">{stats?.totalDays} scheduled days</div>
                 </td>
               </tr>
             );
