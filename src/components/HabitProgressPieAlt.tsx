@@ -11,10 +11,16 @@ interface HabitProgressPieAltProps {
 }
 
 export const HabitProgressPieAlt: React.FC<HabitProgressPieAltProps> = ({ data }) => {
+  const filteredData = data.filter(d => d.progress > 0);
+  const chartData = filteredData.length ? filteredData : data;
+
   const option = {
     tooltip: {
       trigger: 'item',
-      formatter: '{b}: {c}%' // Show name and percent
+      formatter: '{b}: {c}%', // Show name and percent
+      backgroundColor: '#111827',
+      borderColor: '#1f2937',
+      textStyle: { color: '#e5e7eb' },
     },
     legend: {
       show: false,
@@ -23,7 +29,7 @@ export const HabitProgressPieAlt: React.FC<HabitProgressPieAltProps> = ({ data }
       {
         name: 'Habit Progress',
         type: 'pie',
-        radius: ['70%', '90%'], // Doughnut style, small
+        radius: ['68%', '88%'], // Doughnut style, small
         avoidLabelOverlap: false,
         label: {
           show: false,
@@ -33,7 +39,7 @@ export const HabitProgressPieAlt: React.FC<HabitProgressPieAltProps> = ({ data }
             show: false,
           },
         },
-        data: data.map((d, i) => ({
+        data: chartData.map((d, i) => ({
           value: d.progress,
           name: d.name,
           itemStyle: {
