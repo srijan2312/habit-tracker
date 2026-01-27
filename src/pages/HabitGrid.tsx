@@ -4,6 +4,17 @@ import { HabitWithStats } from '@/hooks/useHabits';
 import { format, eachDayOfInterval, startOfMonth, endOfMonth, getDay, isAfter, startOfDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 
+// Helper to check if a date is a scheduled day for the habit
+const isScheduledDay = (habit: HabitWithStats, date: Date): boolean => {
+  if (habit.frequency === 'daily') return true;
+  if (habit.frequency === 'custom' && habit.custom_days) {
+    const dayOfWeek = getDay(date); // 0=Sun, 1=Mon, ..., 6=Sat
+    return habit.custom_days.includes(dayOfWeek);
+  }
+  // For weekly or other frequencies, allow all days for now
+  return true;
+};
+
 interface HabitGridProps { habits: HabitWithStats[]; selectedMonth: Date; onToggle: (habitId: string, date: string, currentlyCompleted: boolean) => void; onUseFreeze: (habitId: string, date: string) => void; }
 
 export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onToggle, onUseFreeze }) => {
@@ -27,7 +38,6 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
     const monthEnd = endOfMonth(selectedMonth);
     const isCurrentMonth = monthStart.getFullYear() === now.getFullYear() && monthStart.getMonth() === now.getMonth();
     const effectiveEnd = isCurrentMonth ? now : monthEnd;
-    const daysElapsed = Math.floor((effectiveEnd.getTime() - monthStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     const monthStartStr = format(monthStart, 'yyyy-MM-dd');
     const effectiveEndStr = format(effectiveEnd, 'yyyy-MM-dd');
     
@@ -47,6 +57,25 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
           }
         });
       }
+      
+      // For custom frequency habits, only count scheduled days in elapsed calculation
+      let daysElapsed;
+      if (habit.frequency === 'custom' && habit.custom_days && habit.custom_days.length > 0) {
+        // Count how many scheduled days have occurred so far this month
+        let scheduledDaysCount = 0;
+        let checkDate = new Date(monthStart);
+        while (checkDate <= effectiveEnd) {
+          if (habit.custom_days.includes(getDay(checkDate))) {
+            scheduledDaysCount++;
+          }
+          checkDate.setDate(checkDate.getDate() + 1);
+        }
+        daysElapsed = scheduledDaysCount;
+      } else {
+        // For daily/weekly, count all days elapsed
+        daysElapsed = Math.floor((effectiveEnd.getTime() - monthStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      }
+      
       const completedDays = completedDates.size;
       const rawPercent = daysElapsed > 0 ? Math.round((completedDays / daysElapsed) * 100) : 0;
       return {
@@ -134,6 +163,7 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
                   const isFrozen = isDateFrozen(habit._id, day);
                   const isFuture = isFutureDate(day);
                   const isToday = dateStr === today;
+                  const isScheduled = isScheduledDay(habit, day);
                   // Use habit start_date if present, otherwise fall back to created_at (older habits should allow freezing past days)
                   const startDate = habit.start_date
                     ? startOfDay(new Date(habit.start_date))
@@ -142,12 +172,12 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
                       : startOfDay(new Date(0));
                   const isBeforeStart = startOfDay(day) < startDate;
                   const isPast = startOfDay(day) < startOfDay(new Date());
-                  const locked = isFuture || isBeforeStart || (isPast && !isToday);
-                  const canUseFreeze = locked && !isFuture && !isBeforeStart && !isCompleted && !isFrozen;
+                  const locked = isFuture || isBeforeStart || !isScheduled || (isPast && !isToday);
+                  const canUseFreeze = locked && !isFuture && !isBeforeStart && isScheduled && !isCompleted && !isFrozen;
 
                   const handleClick = () => {
                     if (locked) {
-                      if (!isCompleted && !isFrozen && !isBeforeStart && !isFuture) {
+                      if (!isCompleted && !isFrozen && !isBeforeStart && !isFuture && isScheduled) {
                         onUseFreeze(habit._id, dateStr);
                       }
                       return;
@@ -166,10 +196,11 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
                         isCompleted ? "border-primary bg-primary text-primary-foreground" :
                         isFrozen ? "border-blue-400 bg-blue-50 text-blue-700" :
                         canUseFreeze ? "border-dashed border-blue-500 bg-blue-50/60 hover:bg-blue-100" :
+                        !isScheduled ? "border-muted-foreground/10 bg-muted/20" :
                         "border-muted-foreground/30 bg-background hover:border-primary/50",
-                        (isFuture || isBeforeStart) && "opacity-30 cursor-not-allowed"
+                        (isFuture || isBeforeStart || !isScheduled) && "opacity-30 cursor-not-allowed"
                       )}
-                      title={locked ? (isBeforeStart ? "Starts later" : !isToday ? (canUseFreeze ? "Click to use a freeze and restore this day" : "Day locked.") : undefined) : "Mark complete"}
+                      title={locked ? (isBeforeStart ? "Starts later" : !isScheduled ? "Not a scheduled day" : !isToday ? (canUseFreeze ? "Click to use a freeze and restore this day" : "Day locked.") : undefined) : "Mark complete"}
                       aria-label={canUseFreeze ? "Use a freeze to restore this day" : locked ? "Locked day" : "Toggle completion"}
                     >
                       {isCompleted && <Check className="h-4 w-4" />}

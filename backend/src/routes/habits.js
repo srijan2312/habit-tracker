@@ -109,6 +109,15 @@ router.get('/:userId', async (req, res) => {
       const completedDates = Array.from(new Set(habitLogs.map(log => log.date))).sort();
       const habitFreezes = freezeMap.get(habit.id) || [];
       
+      // Helper to check if date is scheduled for custom habits
+      const isScheduledDay = (date, habit) => {
+        if (habit.frequency === 'custom' && habit.custom_days && habit.custom_days.length > 0) {
+          const dayOfWeek = date.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+          return habit.custom_days.includes(dayOfWeek);
+        }
+        return true; // Daily and weekly count all days
+      };
+
       let currentStreak = 0;
       if (completedDates.length > 0) {
         let streak = 0;
@@ -118,11 +127,17 @@ router.get('/:userId', async (req, res) => {
         
         while (true) {
           const dateStr = checkDate.toISOString().slice(0, 10);
-          if (dateSet.has(dateStr) || freezeSet.has(dateStr)) {
-            streak++;
-            checkDate.setDate(checkDate.getDate() - 1);
+          // Only count scheduled days for streak
+          if (isScheduledDay(checkDate, habit)) {
+            if (dateSet.has(dateStr) || freezeSet.has(dateStr)) {
+              streak++;
+              checkDate.setDate(checkDate.getDate() - 1);
+            } else {
+              break;
+            }
           } else {
-            break;
+            // Skip unscheduled days
+            checkDate.setDate(checkDate.getDate() - 1);
           }
         }
         currentStreak = streak;
@@ -162,8 +177,24 @@ router.get('/:userId', async (req, res) => {
         }
       });
       
-      // Count days elapsed in current month
-      const daysElapsed = Math.floor((now - monthStart) / (1000 * 60 * 60 * 24)) + 1;
+      // For custom frequency habits, only count scheduled days in elapsed calculation
+      let daysElapsed;
+      if (habit.frequency === 'custom' && habit.custom_days && habit.custom_days.length > 0) {
+        // Count how many scheduled days have occurred so far this month
+        let scheduledDaysCount = 0;
+        let checkDate = new Date(monthStart);
+        while (checkDate <= now) {
+          if (habit.custom_days.includes(checkDate.getDay())) {
+            scheduledDaysCount++;
+          }
+          checkDate.setDate(checkDate.getDate() + 1);
+        }
+        daysElapsed = scheduledDaysCount;
+      } else {
+        // For daily/weekly, count all days elapsed
+        daysElapsed = Math.floor((now - monthStart) / (1000 * 60 * 60 * 24)) + 1;
+      }
+      
       const completionPercentage = daysElapsed > 0 ? Math.round((completedDatesInMonth.size / daysElapsed) * 100) : 0;
       const todayCompleted = completedDates.includes(today);
       

@@ -1,5 +1,5 @@
 import { Flame, MoreHorizontal, Pencil, Trash2, Calendar, Zap } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, getDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { HabitWithStats } from '@/hooks/useHabits';
 import { Button } from '@/components/ui/button';
@@ -28,7 +28,22 @@ export const HabitCard: React.FC<HabitCardProps> = ({
   // Calculate days elapsed in current month (matching backend calculation)
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const daysElapsed = Math.floor((now.getTime() - monthStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+  
+  // For custom frequency habits, count only scheduled days
+  let daysElapsed;
+  if (habit.frequency === 'custom' && habit.custom_days && habit.custom_days.length > 0) {
+    let scheduledDaysCount = 0;
+    let checkDate = new Date(monthStart);
+    while (checkDate <= now) {
+      if (habit.custom_days.includes(checkDate.getDay())) {
+        scheduledDaysCount++;
+      }
+      checkDate.setDate(checkDate.getDate() + 1);
+    }
+    daysElapsed = scheduledDaysCount;
+  } else {
+    daysElapsed = Math.floor((now.getTime() - monthStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+  }
 
   const frequencyLabel = habit.frequency === 'daily' 
     ? 'Daily' 

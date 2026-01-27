@@ -222,7 +222,7 @@ export const useHabits = () => {
         const habits = queryClient.getQueryData<HabitWithStats[]>(['habits', user?._id]);
         const habit = habits?.find(h => h._id === data.habitId);
         if (habit) {
-          const streak = computeStreak(habit.logs, habit.freezeDates || []);
+          const streak = computeStreak(habit.logs, habit.freezeDates || [], { frequency: habit.frequency, custom_days: habit.custom_days });
           setCelebrationData({
             open: true,
             habitTitle: habit.title,
@@ -294,21 +294,36 @@ export const useHabits = () => {
 };
 
 // Compute current streak counting freeze dates as protected days
-const computeStreak = (logs: HabitLog[], freezeDates: string[]) => {
+const computeStreak = (logs: HabitLog[], freezeDates: string[], habit?: { frequency: string; custom_days: number[] | null }) => {
   const today = startOfDay(new Date());
   const completed = new Set(logs.filter(l => l.completed).map(l => l.date));
   freezeDates.forEach(d => completed.add(d));
+
+  // Helper to check if date is scheduled
+  const isScheduledDay = (date: Date): boolean => {
+    if (habit?.frequency === 'custom' && habit.custom_days && habit.custom_days.length > 0) {
+      const dayOfWeek = date.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+      return habit.custom_days.includes(dayOfWeek);
+    }
+    return true;
+  };
 
   let streak = 0;
   let cursor = today;
 
   while (true) {
     const dateStr = format(cursor, 'yyyy-MM-dd');
-    if (completed.has(dateStr)) {
-      streak += 1;
-      cursor = subDays(cursor, 1);
+    // Only count scheduled days
+    if (isScheduledDay(cursor)) {
+      if (completed.has(dateStr)) {
+        streak += 1;
+        cursor = subDays(cursor, 1);
+      } else {
+        break;
+      }
     } else {
-      break;
+      // Skip unscheduled days
+      cursor = subDays(cursor, 1);
     }
   }
 
