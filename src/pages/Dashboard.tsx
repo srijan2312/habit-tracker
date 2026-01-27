@@ -122,7 +122,7 @@ export default function Dashboard() {
                 variant="outline"
                 size="lg"
                 onClick={() => setShowDailyReward(true)}
-                className="flex-1 sm:flex-none min-w-[176px] w-[176px] h-11"
+                className="w-44 h-11 justify-center gap-2"
               >
                 <Gift className="mr-2 h-5 w-5" />
                 Daily Reward
@@ -130,7 +130,7 @@ export default function Dashboard() {
               <Button
                 onClick={() => setIsFormOpen(true)}
                 size="lg"
-                className="flex-1 sm:flex-none min-w-[176px] w-[176px] h-11"
+                className="w-44 h-11 justify-center gap-2"
               >
                 <Plus className="mr-2 h-5 w-5" />
                 New Habit
