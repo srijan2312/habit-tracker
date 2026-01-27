@@ -144,20 +144,25 @@ router.get('/:userId', async (req, res) => {
         currentStreak = streak;
       }
       
+      // Longest streak should count freezes as protected completions and only consider scheduled days
       let longestStreak = 0;
-      let tempStreak = 1;
-      if (completedDates.length > 0) {
-        longestStreak = 1;
-        for (let i = 1; i < completedDates.length; i++) {
-          const prevDate = new Date(completedDates[i - 1]);
-          const currDate = new Date(completedDates[i]);
-          const diff = Math.floor((currDate - prevDate) / (1000 * 60 * 60 * 24));
-          if (diff === 1) {
-            tempStreak++;
-          } else {
-            tempStreak = 1;
+      const completedOrFrozen = new Set([...completedDates, ...habitFreezes]);
+      if (completedOrFrozen.size > 0) {
+        const sortedDates = Array.from(completedOrFrozen).sort();
+        const cursor = new Date(sortedDates[0]);
+        const lastDate = new Date(sortedDates[sortedDates.length - 1]);
+        let tempStreak = 0;
+        while (cursor <= lastDate) {
+          const dateStr = cursor.toISOString().slice(0, 10);
+          if (isScheduledDay(cursor, habit)) {
+            if (completedOrFrozen.has(dateStr)) {
+              tempStreak++;
+              if (tempStreak > longestStreak) longestStreak = tempStreak;
+            } else {
+              tempStreak = 0;
+            }
           }
-          if (tempStreak > longestStreak) longestStreak = tempStreak;
+          cursor.setDate(cursor.getDate() + 1);
         }
       }
       
