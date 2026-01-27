@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Plus, Filter, Loader2 } from 'lucide-react';
+import { Plus, Filter, Loader2, Gift } from 'lucide-react';
 import { format } from 'date-fns';
 import { useHabits, HabitWithStats, Habit } from '@/hooks/useHabits';
 import { useDailyReward } from '@/hooks/useDailyReward';
@@ -43,10 +43,14 @@ export default function Dashboard() {
 
   // Show daily reward modal on first load if user can claim today
   useEffect(() => {
-    if (reward && reward.canClaimToday) {
-      setShowDailyReward(true);
+    if (reward && reward.canClaimToday && !showDailyReward) {
+      // Small delay to ensure everything is rendered
+      const timer = setTimeout(() => {
+        setShowDailyReward(true);
+      }, 500);
+      return () => clearTimeout(timer);
     }
-  }, [reward?.canClaimToday]);
+  }, [reward]);
 
   const filteredHabits = useMemo(() => {
     switch (filter) {
@@ -113,10 +117,16 @@ export default function Dashboard() {
               </h1>
               <p className="mt-1 text-muted-foreground">{today}</p>
             </div>
-            <Button onClick={() => setIsFormOpen(true)} size="lg">
-              <Plus className="mr-2 h-5 w-5" />
-              New Habit
-            </Button>
+            <div className="flex flex-wrap gap-3 justify-end">
+              <Button variant="outline" onClick={() => setShowDailyReward(true)}>
+                <Gift className="mr-2 h-5 w-5" />
+                Daily Reward
+              </Button>
+              <Button onClick={() => setIsFormOpen(true)} size="lg">
+                <Plus className="mr-2 h-5 w-5" />
+                New Habit
+              </Button>
+            </div>
           </div>
 
           {/* Stats Overview */}
