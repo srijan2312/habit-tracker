@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { useAuth } from '@/contexts/useAuth';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -36,54 +36,61 @@ export default function Leaderboard() {
   }
 
   return (
-    <div className="space-y-8 pb-20">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-4xl font-bold tracking-tight mb-2">Leaderboard</h1>
-            <p className="text-muted-foreground">
-              See how you stack up against other habit builders. Rankings based on your highest streak and monthly completion rate.
-            </p>
+    <div className="flex min-h-screen flex-col bg-background">
+      <Header />
+
+      <main className="flex-1 py-8">
+        <div className="container space-y-8">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-4xl font-bold tracking-tight mb-2">Leaderboard</h1>
+              <p className="text-muted-foreground">
+                See how you stack up against other habit builders. Rankings based on your highest streak and monthly completion rate.
+              </p>
+            </div>
           </div>
+
+          <Card>
+            <CardContent className="pt-6 space-y-6">
+              <Tabs defaultValue="streak" onValueChange={(value) => setMetric(value as 'streak' | 'completion')} className="w-full">
+                <TabsList className="grid w-full max-w-sm grid-cols-2">
+                  <TabsTrigger value="streak" className="gap-2">
+                    <Flame className="w-4 h-4" />
+                    Longest Streak
+                  </TabsTrigger>
+                  <TabsTrigger value="completion" className="gap-2">
+                    <TrendingUp className="w-4 h-4" />
+                    Completion %
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="streak" className="space-y-4">
+                  <LeaderboardTable 
+                    leaderboard={leaderboard?.users} 
+                    userRank={leaderboard?.userRank}
+                    isLoading={isLoading} 
+                    metric="streak" 
+                    currentUserId={user?._id || (user as any)?.id}
+                  />
+                </TabsContent>
+
+                <TabsContent value="completion" className="space-y-4">
+                  <LeaderboardTable 
+                    leaderboard={leaderboard?.users} 
+                    userRank={leaderboard?.userRank}
+                    isLoading={isLoading} 
+                    metric="completion"
+                    currentUserId={user?._id || (user as any)?.id}
+                  />
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
         </div>
-        <ThemeToggle />
-      </div>
-
-      <Tabs defaultValue="streak" onValueChange={(value) => setMetric(value as 'streak' | 'completion')} className="w-full">
-        <TabsList className="grid w-full max-w-sm grid-cols-2">
-          <TabsTrigger value="streak" className="gap-2">
-            <Flame className="w-4 h-4" />
-            Longest Streak
-          </TabsTrigger>
-          <TabsTrigger value="completion" className="gap-2">
-            <TrendingUp className="w-4 h-4" />
-            Completion %
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="streak" className="space-y-4">
-          <LeaderboardTable 
-            leaderboard={leaderboard?.users} 
-            userRank={leaderboard?.userRank}
-            isLoading={isLoading} 
-            metric="streak" 
-            currentUserId={user?._id || (user as any)?.id}
-          />
-        </TabsContent>
-
-        <TabsContent value="completion" className="space-y-4">
-          <LeaderboardTable 
-            leaderboard={leaderboard?.users} 
-            userRank={leaderboard?.userRank}
-            isLoading={isLoading} 
-            metric="completion"
-            currentUserId={user?._id || (user as any)?.id}
-          />
-        </TabsContent>
-      </Tabs>
+      </main>
     </div>
   );
 }
