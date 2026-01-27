@@ -9,6 +9,7 @@ import HabitFormModal from './HabitFormModal';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/useAuth';
 import { Button } from '@/components/ui/button';
+import { NavLink } from './NavLink';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +22,9 @@ export const Header: React.FC = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showHabitModal, setShowHabitModal] = useState(false);
+
+  const navLinkClasses = 'text-sm font-medium text-muted-foreground transition-colors hover:text-foreground px-3 py-1 rounded-full';
+  const activeNavLinkClasses = 'text-foreground bg-primary/10 shadow-sm';
 
   const handleSignOut = async () => {
     await signOut();
@@ -47,24 +51,27 @@ export const Header: React.FC = () => {
         {/* Centered Menu */}
         {user && (
           <nav className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center gap-10">
-            <Link 
+            <NavLink 
               to="/dashboard" 
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className={navLinkClasses}
+              activeClassName={activeNavLinkClasses}
             >
               Dashboard
-            </Link>
-            <Link 
+            </NavLink>
+            <NavLink 
               to="/monthly-tracker" 
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className={navLinkClasses}
+              activeClassName={activeNavLinkClasses}
             >
               Monthly Tracker
-            </Link>
-            <Link 
+            </NavLink>
+            <NavLink 
               to="/calendar" 
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className={navLinkClasses}
+              activeClassName={activeNavLinkClasses}
             >
               Calendar
-            </Link>
+            </NavLink>
           </nav>
         )}
 
@@ -109,27 +116,30 @@ export const Header: React.FC = () => {
               {mobileMenuOpen && (
                 <div className="absolute left-0 top-16 w-full border-b bg-card p-4 md:hidden z-50">
                   <nav className="flex flex-col gap-4">
-                    <Link 
+                    <NavLink 
                       to="/dashboard" 
-                      className="text-sm font-medium"
+                      className="text-sm font-medium px-2 py-1 rounded"
+                      activeClassName="text-foreground bg-primary/10"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Dashboard
-                    </Link>
-                    <Link 
+                    </NavLink>
+                    <NavLink 
                       to="/monthly-tracker" 
-                      className="text-sm font-medium"
+                      className="text-sm font-medium px-2 py-1 rounded"
+                      activeClassName="text-foreground bg-primary/10"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Monthly Tracker
-                    </Link>
-                    <Link 
+                    </NavLink>
+                    <NavLink 
                       to="/calendar" 
-                      className="text-sm font-medium"
+                      className="text-sm font-medium px-2 py-1 rounded"
+                      activeClassName="text-foreground bg-primary/10"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Calendar
-                    </Link>
+                    </NavLink>
                     <hr className="border-border" />
                     <button 
                       onClick={handleSignOut}
