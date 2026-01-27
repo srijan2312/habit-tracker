@@ -14,10 +14,7 @@ router.post('/logs', async (req, res) => {
     // Use upsert to avoid duplicate key errors
     const { data, error } = await supabase
       .from('habit_logs')
-      .upsert([{ habit_id, user_id, date, completed: completed !== false }], {
-        onConflict: 'habit_id,user_id,date',
-        ignoreDuplicates: false
-      })
+      .upsert({ habit_id, user_id, date, completed: completed !== false })
       .select();
     
     if (error) throw error;
