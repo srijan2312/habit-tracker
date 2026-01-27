@@ -42,6 +42,21 @@ interface User {
   email: string;
 }
 
+interface SupabaseHabit {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  frequency: string;
+  custom_days: number[] | null;
+  start_date: string;
+  reminder_time: string | null;
+  created_at: string;
+  updated_at: string;
+  freezeDates?: string[];
+  freezesUsed?: number;
+}
+
 export const useHabits = () => {
   const auth = useAuth();
   const user = (auth && typeof auth === 'object' && 'user' in auth) ? (auth.user as User | null) : null;
@@ -63,7 +78,7 @@ export const useHabits = () => {
       if (!res.ok) throw new Error('Failed to fetch habits');
       const data = await res.json();
       // Transform Supabase data (id, user_id) to frontend format (_id, userId)
-      return data.map((habit: any) => ({
+      return data.map((habit: SupabaseHabit) => ({
         ...habit,
         _id: habit.id,
         userId: habit.user_id,
@@ -199,7 +214,12 @@ export const useHabits = () => {
         return { ...habit, logs };
       });
 
-      qu// Wait a bit for the query to refetch, then show celebration with updated streak
+      queryClient.setQueryData(['habits', user._id], updated);
+      return { previousHabits };
+    },
+    onSuccess: (data) => {
+      if (data && data.completed && data.date === format(new Date(), 'yyyy-MM-dd')) {
+        // Wait a bit for the query to refetch, then show celebration with updated streak
         setTimeout(() => {
           const habits = queryClient.getQueryData<HabitWithStats[]>(['habits', user?._id]);
           const habit = habits?.find(h => h._id === data.habitId);
@@ -210,12 +230,7 @@ export const useHabits = () => {
               streak: habit.currentStreak,
             });
           }
-        }, 300);   `💪 You're crushing it! "${habit.title}" is done!`,
-          ];
-          toast.success(messages[Math.floor(Math.random() * messages.length)], {
-            duration: 3000,
-          });
-        }
+        }, 300);
       }
     },
     onError: (error: unknown, _variables, context) => {
