@@ -117,12 +117,21 @@ export default function Dashboard() {
               </h1>
               <p className="mt-1 text-muted-foreground">{today}</p>
             </div>
-            <div className="flex flex-wrap gap-3 justify-end">
-              <Button variant="outline" onClick={() => setShowDailyReward(true)}>
+            <div className="flex flex-wrap gap-3 justify-end w-full sm:w-auto">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setShowDailyReward(true)}
+                className="flex-1 sm:flex-none min-w-[176px] w-[176px] h-11"
+              >
                 <Gift className="mr-2 h-5 w-5" />
                 Daily Reward
               </Button>
-              <Button onClick={() => setIsFormOpen(true)} size="lg">
+              <Button
+                onClick={() => setIsFormOpen(true)}
+                size="lg"
+                className="flex-1 sm:flex-none min-w-[176px] w-[176px] h-11"
+              >
                 <Plus className="mr-2 h-5 w-5" />
                 New Habit
               </Button>
