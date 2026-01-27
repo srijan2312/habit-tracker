@@ -129,15 +129,6 @@ export default function Dashboard() {
                 <p className="text-muted-foreground">{today}</p>
               </div>
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => setShowDailyReward(true)}
-                  className="hidden h-12 justify-center gap-2 sm:inline-flex sm:w-44"
-                >
-                  <Gift className="mr-2 h-5 w-5" />
-                  Daily Reward
-                </Button>
                 {habits.length > 0 && (
                   <Button
                     onClick={() => setIsFormOpen(true)}
@@ -148,6 +139,15 @@ export default function Dashboard() {
                     New Habit
                   </Button>
                 )}
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setShowDailyReward(true)}
+                  className="hidden h-12 justify-center gap-2 sm:inline-flex sm:w-44"
+                >
+                  <Gift className="mr-2 h-5 w-5" />
+                  Daily Reward
+                </Button>
               </div>
             </div>
 
