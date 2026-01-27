@@ -21,42 +21,42 @@ export const HabitGrid: React.FC<HabitGridProps> = ({ habits, selectedMonth, onT
     return { days: allDays, weeks: weekGroups };
   }, [selectedMonth]);
 
-  const habitStats = useMemo(() => habits.map(habit => {
+  const habitStats = useMemo(() => {
+    const now = new Date();
     const monthStart = startOfMonth(selectedMonth);
     const monthEnd = endOfMonth(selectedMonth);
-    const now = new Date();
     const isCurrentMonth = monthStart.getFullYear() === now.getFullYear() && monthStart.getMonth() === now.getMonth();
     const effectiveEnd = isCurrentMonth ? now : monthEnd;
-    const daysInRange = eachDayOfInterval({ start: monthStart, end: effectiveEnd });
-    // Only count unique completed days within the selected month
-    const completedDates = new Set(
-      habit.logs
-        .filter(log => {
-          const d = new Date(log.date);
-          return d >= monthStart && d <= effectiveEnd && d.getMonth() === monthStart.getMonth() && d.getFullYear() === monthStart.getFullYear() && log.completed;
-        })
-        .map(log => log.date)
-    );
+    const daysElapsed = Math.floor((effectiveEnd.getTime() - monthStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const monthStartStr = format(monthStart, 'yyyy-MM-dd');
+    const effectiveEndStr = format(effectiveEnd, 'yyyy-MM-dd');
+    
+    return habits.map(habit => {
+      // Count unique completed days within the selected month range
+      const completedDates = new Set(
+        habit.logs
+          .filter(log => log.date >= monthStartStr && log.date <= effectiveEndStr && log.completed)
+          .map(log => log.date)
+      );
 
-    // Count frozen days as protected completions for stats display
-    if (habit.freezeDates && habit.freezeDates.length) {
-      habit.freezeDates.forEach(dateStr => {
-        const d = new Date(dateStr);
-        if (d >= monthStart && d <= effectiveEnd && d.getMonth() === monthStart.getMonth() && d.getFullYear() === monthStart.getFullYear()) {
-          completedDates.add(dateStr);
-        }
-      });
-    }
-    const completedDays = completedDates.size;
-    // Cap percentage at 100
-    const rawPercent = daysInRange.length > 0 ? Math.round((completedDays / daysInRange.length) * 100) : 0;
-    return {
-      habitId: habit._id,
-      completedDays,
-      totalDays: daysInRange.length,
-      percentage: Math.min(rawPercent, 100)
-    };
-  }), [habits, selectedMonth]);
+      // Count frozen days as protected completions for stats display
+      if (habit.freezeDates && habit.freezeDates.length) {
+        habit.freezeDates.forEach(dateStr => {
+          if (dateStr >= monthStartStr && dateStr <= effectiveEndStr) {
+            completedDates.add(dateStr);
+          }
+        });
+      }
+      const completedDays = completedDates.size;
+      const rawPercent = daysElapsed > 0 ? Math.round((completedDays / daysElapsed) * 100) : 0;
+      return {
+        habitId: habit._id,
+        completedDays,
+        totalDays: daysElapsed,
+        percentage: Math.min(rawPercent, 100)
+      };
+    });
+  }, [habits, selectedMonth]);
 
   const logMap = useMemo(() => {
     const map = new Map<string, Set<string>>();
