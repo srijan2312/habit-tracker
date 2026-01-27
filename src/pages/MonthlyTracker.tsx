@@ -63,7 +63,7 @@ export default function MonthlyTracker() {
       <main className="flex-1 py-6">
         <div className="container space-y-6">
           {/* Month Selector */}
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="grid gap-4 lg:grid-cols-[1fr_auto_1fr] items-center">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 rounded-lg border bg-card p-1">
                 <Select value={currentYear.toString()} onValueChange={handleYearChange}>
@@ -92,10 +92,12 @@ export default function MonthlyTracker() {
                 <Button variant="ghost" size="icon" onClick={handleNextMonth}><ChevronRight className="h-5 w-5" /></Button>
               </div>
             </div>
-            <h1 className="font-display text-3xl font-bold text-foreground uppercase">{format(selectedMonth, 'MMMM yyyy')}</h1>
-            <div className="rounded-lg border bg-primary px-4 py-2 text-center">
-              <p className="text-xs text-primary-foreground/80">Today's Date:</p>
-              <p className="text-sm font-semibold text-primary-foreground">{format(new Date(), 'MMMM d, yyyy')}</p>
+            <h1 className="text-center font-display text-3xl font-bold text-foreground uppercase">{format(selectedMonth, 'MMMM yyyy')}</h1>
+            <div className="flex justify-end">
+              <div className="rounded-lg border bg-primary px-4 py-2 text-center">
+                <p className="text-xs text-primary-foreground/80">Today's Date:</p>
+                <p className="text-sm font-semibold text-primary-foreground">{format(new Date(), 'MMMM d, yyyy')}</p>
+              </div>
             </div>
           </div>
 
