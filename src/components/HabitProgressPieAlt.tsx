@@ -18,9 +18,11 @@ export const HabitProgressPieAlt: React.FC<HabitProgressPieAltProps> = ({ data }
     tooltip: {
       trigger: 'item',
       formatter: '{b}: {c}%', // Show name and percent
-      backgroundColor: '#111827',
-      borderColor: '#1f2937',
-      textStyle: { color: '#e5e7eb' },
+      backgroundColor: 'hsl(var(--popover))',
+      borderColor: 'hsl(var(--border))',
+      textStyle: { color: 'hsl(var(--foreground))', fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, sans-serif' },
+      shadowBlur: 12,
+      shadowColor: 'rgba(0,0,0,0.08)',
     },
     legend: {
       show: false,

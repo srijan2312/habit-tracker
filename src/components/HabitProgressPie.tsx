@@ -27,14 +27,17 @@ export const HabitProgressPie: React.FC<HabitProgressPieProps> = ({ data }) => {
 
   const option = {
     textStyle: {
-      color: '#e5e7eb',
+      color: 'hsl(var(--foreground))',
+      fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, sans-serif',
     },
     tooltip: {
       trigger: 'item',
       formatter: '{b}: {c}%',
-      backgroundColor: '#111827',
-      borderColor: '#1f2937',
-      textStyle: { color: '#e5e7eb' },
+      backgroundColor: 'hsl(var(--popover))',
+      borderColor: 'hsl(var(--border))',
+      textStyle: { color: 'hsl(var(--foreground))' },
+      shadowBlur: 16,
+      shadowColor: 'rgba(0,0,0,0.08)',
     },
     legend: {
       type: 'scroll',
@@ -47,7 +50,7 @@ export const HabitProgressPie: React.FC<HabitProgressPieProps> = ({ data }) => {
       itemHeight: 14,
       itemGap: 14,
       textStyle: {
-        color: '#e5e7eb',
+        color: 'hsl(var(--muted-foreground))',
         fontSize: 14,
       },
     },
@@ -60,13 +63,13 @@ export const HabitProgressPie: React.FC<HabitProgressPieProps> = ({ data }) => {
         avoidLabelOverlap: true,
         label: {
           show: false,
-          color: '#e5e7eb',
+          color: 'hsl(var(--foreground))',
         },
-        labelLine: { lineStyle: { color: '#9ca3af' } },
+        labelLine: { lineStyle: { color: 'hsl(var(--muted-foreground))' } },
         emphasis: {
           label: {
             show: true,
-            color: '#e5e7eb',
+            color: 'hsl(var(--foreground))',
             fontSize: 16,
             fontWeight: 'bold',
           },
