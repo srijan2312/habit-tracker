@@ -202,4 +202,41 @@ router.post('/increment-score', async (req, res) => {
   }
 });
 
+router.delete('/:challengeId', async (req, res) => {
+  const { challengeId } = req.params;
+  const { userId } = req.body || {};
+
+  if (!challengeId || !userId) {
+    return res.status(400).json({ error: 'challengeId and userId are required' });
+  }
+
+  try {
+    const { data: challenge, error: findErr } = await supabase
+      .from('friend_challenges')
+      .select('*')
+      .eq('id', challengeId)
+      .single();
+
+    if (findErr || !challenge) {
+      return res.status(404).json({ error: 'Challenge not found' });
+    }
+
+    if (challenge.owner_id !== userId) {
+      return res.status(403).json({ error: 'Only the challenge owner can delete it' });
+    }
+
+    const { error: deleteErr } = await supabase
+      .from('friend_challenges')
+      .delete()
+      .eq('id', challengeId);
+
+    if (deleteErr) throw deleteErr;
+
+    return res.json({ success: true, message: 'Challenge deleted' });
+  } catch (error) {
+    console.error('Error deleting challenge', error);
+    return res.status(500).json({ error: 'Failed to delete challenge' });
+  }
+});
+
 export default router;

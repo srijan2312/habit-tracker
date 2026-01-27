@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Copy, Link2, PartyPopper, ShieldCheck, Users } from 'lucide-react';
+import { Copy, Link2, PartyPopper, ShieldCheck, Users, Trash2 } from 'lucide-react';
 import { API_URL } from '@/config/api';
 
 type Participant = {
@@ -98,6 +98,27 @@ export default function FriendChallenges() {
     },
     onError: (err: any) => {
       toast.error(err.message || 'Could not join challenge');
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (challengeId: string) => {
+      const res = await fetch(`${API_URL}/api/challenges/${challengeId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (!res.ok) throw new Error('Failed to delete challenge');
+      return res.json();
+    },
+    onSuccess: () => {
+      toast.success('Challenge deleted');
+      queryClient.invalidateQueries({ queryKey: ['friend-challenges', youId] });
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Could not delete challenge');
     },
   });
 
@@ -276,9 +297,22 @@ export default function FriendChallenges() {
                               <p className="text-sm font-medium text-muted-foreground">{challenge.code}</p>
                               <p className="text-lg font-semibold">{challenge.name}</p>
                             </div>
-                            <Badge variant={challenge.status === 'active' ? 'default' : 'secondary'}>
-                              {challenge.status === 'active' ? 'Active' : 'Pending'}
-                            </Badge>
+                            <div className="flex items-center gap-2">
+                              <Badge variant={challenge.status === 'active' ? 'default' : 'secondary'}>
+                                {challenge.status === 'active' ? 'Active' : 'Pending'}
+                              </Badge>
+                              {challenge.ownerId === youId && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => deleteMutation.mutate(challenge.id)}
+                                  disabled={deleteMutation.isPending}
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
                           </div>
                           <Separator />
                           <div className="space-y-2">
