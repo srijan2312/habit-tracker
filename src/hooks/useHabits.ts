@@ -82,7 +82,7 @@ const computeMonthlyCompletion = (habit: HabitWithStats | SupabaseHabit): number
   let totalScheduledDays;
   if ((habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.custom_days && habit.custom_days.length > 0) {
     let scheduledDaysCount = 0;
-    let checkDate = new Date(monthStart);
+    const checkDate = new Date(monthStart);
     while (checkDate <= monthEnd) {
       if (habit.custom_days.includes(checkDate.getDay())) {
         scheduledDaysCount++;
