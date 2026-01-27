@@ -65,9 +65,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: data.error || 'Login failed' };
       }
       localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify({ _id: data.userId, email }));
+      const userName = data.name || email.split('@')[0];
+      localStorage.setItem('user', JSON.stringify({ _id: data.userId, email, name: userName }));
       localStorage.setItem('lastActivityTime', Date.now().toString());
-      setUser({ _id: data.userId, email });
+      setUser({ _id: data.userId, email, name: userName });
       return { error: null };
     } catch (err: unknown) {
       if (err instanceof Error) {
