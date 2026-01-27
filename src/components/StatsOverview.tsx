@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Target, Flame, Trophy, TrendingUp, Star } from 'lucide-react';
 import { HabitWithStats } from '@/hooks/useHabits';
-import { format } from 'date-fns';
+import { format, endOfMonth } from 'date-fns';
 
 interface StatsOverviewProps {
   habits: HabitWithStats[];
@@ -9,6 +9,7 @@ interface StatsOverviewProps {
 
 export const StatsOverview: React.FC<StatsOverviewProps> = ({ habits }) => {
   const today = format(new Date(), 'yyyy-MM-dd');
+  const daysInMonth = endOfMonth(new Date()).getDate();
 
   const stats = useMemo(() => {
     const totalHabits = habits.length;
@@ -66,7 +67,7 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({ habits }) => {
     {
       title: 'Avg. Completion',
       value: `${stats.avgCompletion}%`,
-      subtitle: 'Last 30 days',
+      subtitle: `Last ${daysInMonth} days`,
       icon: TrendingUp,
       color: 'text-success',
       bgColor: 'bg-success/10',
