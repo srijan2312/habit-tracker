@@ -38,11 +38,23 @@ export const useDailyReward = () => {
       };
 
       const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/api/rewards/daily-signin/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error('Failed to fetch daily reward status');
-      return await res.json();
+      try {
+        const res = await fetch(`${API_URL}/api/rewards/daily-signin/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error('Failed to fetch daily reward status');
+        return await res.json();
+      } catch (error) {
+        // If table doesn't exist yet, return default state but still mark as can claim
+        console.error('Daily reward error:', error);
+        return {
+          currentDay: 1,
+          lastClaimedDate: null,
+          totalPoints: 0,
+          freezeTokens: 0,
+          canClaimToday: true,
+        };
+      }
     },
     enabled: !!userId,
     staleTime: 1000 * 60 * 5, // 5 minutes

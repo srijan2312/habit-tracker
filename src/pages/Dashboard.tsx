@@ -110,19 +110,19 @@ export default function Dashboard() {
       <main className="flex-1 py-8">
         <div className="container space-y-8">
           {/* Page Header */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="font-display text-3xl font-bold text-foreground">
                 Dashboard
               </h1>
               <p className="mt-1 text-muted-foreground">{today}</p>
             </div>
-            <div className="flex flex-wrap gap-3 justify-end w-full sm:w-auto">
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
               <Button
                 variant="outline"
                 size="lg"
                 onClick={() => setShowDailyReward(true)}
-                className="w-44 h-11 justify-center gap-2"
+                className="h-12 w-full justify-center gap-2 sm:w-44"
               >
                 <Gift className="mr-2 h-5 w-5" />
                 Daily Reward
@@ -130,7 +130,7 @@ export default function Dashboard() {
               <Button
                 onClick={() => setIsFormOpen(true)}
                 size="lg"
-                className="w-44 h-11 justify-center gap-2"
+                className="h-12 w-full justify-center gap-2 sm:w-44"
               >
                 <Plus className="mr-2 h-5 w-5" />
                 New Habit
