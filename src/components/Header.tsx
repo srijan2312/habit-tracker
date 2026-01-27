@@ -77,7 +77,7 @@ export const Header: React.FC = () => {
               className={navLinkClasses}
               activeClassName={activeNavLinkClasses}
             >
-              Leaderboard
+              Challenges
             </NavLink>
           </nav>
         )}
@@ -153,7 +153,7 @@ export const Header: React.FC = () => {
                       activeClassName="text-foreground bg-primary/10"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      Leaderboard
+                      Challenges
                     </NavLink>
                     <hr className="border-border" />
                     <button 
