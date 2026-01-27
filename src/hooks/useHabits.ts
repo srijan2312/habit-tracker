@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/useAuth';
-import { format, startOfMonth, endOfMonth, differenceInDays } from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfDay, subDays } from 'date-fns';
 import { toast } from 'sonner';
 import { API_URL } from '@/config/api';
 import { useState } from 'react';
@@ -219,18 +219,16 @@ export const useHabits = () => {
     },
     onSuccess: (data) => {
       if (data && data.completed && data.date === format(new Date(), 'yyyy-MM-dd')) {
-        // Wait a bit for the query to refetch, then show celebration with updated streak
-        setTimeout(() => {
-          const habits = queryClient.getQueryData<HabitWithStats[]>(['habits', user?._id]);
-          const habit = habits?.find(h => h._id === data.habitId);
-          if (habit) {
-            setCelebrationData({
-              open: true,
-              habitTitle: habit.title,
-              streak: habit.currentStreak,
-            });
-          }
-        }, 300);
+        const habits = queryClient.getQueryData<HabitWithStats[]>(['habits', user?._id]);
+        const habit = habits?.find(h => h._id === data.habitId);
+        if (habit) {
+          const streak = computeStreak(habit.logs, habit.freezeDates || []);
+          setCelebrationData({
+            open: true,
+            habitTitle: habit.title,
+            streak,
+          });
+        }
       }
     },
     onError: (error: unknown, _variables, context) => {
@@ -293,4 +291,26 @@ export const useHabits = () => {
       }
     },
   };
+};
+
+// Compute current streak counting freeze dates as protected days
+const computeStreak = (logs: HabitLog[], freezeDates: string[]) => {
+  const today = startOfDay(new Date());
+  const completed = new Set(logs.filter(l => l.completed).map(l => l.date));
+  freezeDates.forEach(d => completed.add(d));
+
+  let streak = 0;
+  let cursor = today;
+
+  while (true) {
+    const dateStr = format(cursor, 'yyyy-MM-dd');
+    if (completed.has(dateStr)) {
+      streak += 1;
+      cursor = subDays(cursor, 1);
+    } else {
+      break;
+    }
+  }
+
+  return streak;
 };
