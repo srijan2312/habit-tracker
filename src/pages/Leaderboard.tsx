@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/useAuth';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,10 +9,12 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Copy, Link2, PartyPopper, Plus, ShieldCheck, Users } from 'lucide-react';
+import { Copy, Link2, PartyPopper, ShieldCheck, Users } from 'lucide-react';
+import { API_URL } from '@/config/api';
 
 type Participant = {
   id: string;
+  userId: string;
   name: string;
   score: number;
   updatedAt: string;
@@ -23,122 +26,96 @@ type Challenge = {
   name: string;
   status: 'pending' | 'active';
   createdAt: string;
+  ownerId?: string;
   participants: Participant[];
 };
-
-const STORAGE_KEY = 'habitly.friend-challenges.v1';
-
-const randomCode = () => Math.random().toString(36).slice(2, 6).toUpperCase();
-const randomScore = () => Math.floor(Math.random() * 60) + 20;
 
 export default function FriendChallenges() {
   const { user } = useAuth();
   const youId = (user as any)?._id || (user as any)?.id || 'you';
   const youName = user?.name || (user as any)?.fullName || user?.email?.split('@')[0] || 'You';
-
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
-  const [hydrated, setHydrated] = useState(false);
   const [newName, setNewName] = useState('Weekend Sprint');
   const [joinCode, setJoinCode] = useState('');
   const [friendName, setFriendName] = useState('');
-  const [lastInvite, setLastInvite] = useState<{ code: string; link: string } | null>(null);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        setChallenges(JSON.parse(stored));
-      }
-    } catch (err) {
-      console.error('Failed to load challenges', err);
-    } finally {
-      setHydrated(true);
-    }
-  }, []);
+  const queryClient = useQueryClient();
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
-  useEffect(() => {
-    if (!hydrated) return;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(challenges));
-    } catch (err) {
-      console.error('Failed to persist challenges', err);
-    }
-  }, [challenges, hydrated]);
+  const challengesQuery = useQuery({
+    queryKey: ['friend-challenges', youId],
+    enabled: Boolean(youId),
+    queryFn: async (): Promise<Challenge[]> => {
+      const res = await fetch(`${API_URL}/api/challenges?userId=${youId}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error('Failed to load challenges');
+      const data = await res.json();
+      return data.challenges || [];
+    },
+  });
 
-  const shareLinkFor = (code: string) => `${window.location.origin}/join/${code}`;
-
-  const createChallenge = () => {
-    const code = randomCode();
-    const now = new Date().toISOString();
-    const challenge: Challenge = {
-      id: `ch-${now}`,
-      code,
-      name: newName || 'New Challenge',
-      status: 'active',
-      createdAt: now,
-      participants: [
-        {
-          id: youId,
-          name: youName,
-          score: randomScore(),
-          updatedAt: now,
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`${API_URL}/api/challenges`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        {
-          id: 'rival',
-          name: 'Rival (sample)',
-          score: randomScore(),
-          updatedAt: now,
+        body: JSON.stringify({ userId: youId, userName: youName, name: newName }),
+      });
+      if (!res.ok) throw new Error('Failed to create challenge');
+      return res.json();
+    },
+    onSuccess: (data) => {
+      toast.success('Challenge created — share the link with a friend!');
+      queryClient.invalidateQueries({ queryKey: ['friend-challenges', youId] });
+      setJoinCode(data.challenge?.code || '');
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Could not create challenge');
+    },
+  });
+
+  const joinMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`${API_URL}/api/challenges/join`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-      ],
-    };
+        body: JSON.stringify({ code: joinCode, userId: youId, userName: friendName || youName }),
+      });
+      if (!res.ok) throw new Error('Failed to join challenge');
+      return res.json();
+    },
+    onSuccess: () => {
+      toast.success('Joined challenge');
+      queryClient.invalidateQueries({ queryKey: ['friend-challenges', youId] });
+      setFriendName('');
+      setJoinCode('');
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Could not join challenge');
+    },
+  });
 
-    setChallenges((prev) => [challenge, ...prev]);
-    setLastInvite({ code, link: shareLinkFor(code) });
-    toast.success('Challenge created — share the link with a friend!');
-  };
-
-  const addFriendToChallenge = () => {
-    if (!joinCode.trim()) {
-      toast.error('Enter a join code');
-      return;
-    }
-    const target = challenges.find((c) => c.code.toUpperCase() === joinCode.trim().toUpperCase());
-    if (!target) {
-      toast.error('No challenge found for that code');
-      return;
-    }
-    const now = new Date().toISOString();
-    const name = friendName.trim() || 'Friend';
-    const updated = {
-      ...target,
-      participants: [
-        ...target.participants,
-        {
-          id: `${name}-${now}`,
-          name,
-          score: randomScore(),
-          updatedAt: now,
-        },
-      ],
-    };
-
-    setChallenges((prev) => prev.map((c) => (c.id === target.id ? updated : c)));
-    toast.success(`${name} added to the challenge!`);
-    setFriendName('');
-    setJoinCode('');
-  };
+  const challenges = challengesQuery.data || [];
 
   const leaderboard = useMemo(() => {
-    if (!challenges.length) return [] as Participant[];
+    if (!challenges.length) return [] as Array<Participant & { challengeName: string }>;
     const all = challenges.flatMap((c) => c.participants.map((p) => ({ ...p, challengeName: c.name })));
     return all.sort((a, b) => b.score - a.score);
   }, [challenges]);
 
+  const lastInviteCode = challenges[0]?.code;
+  const lastInviteLink = lastInviteCode ? `${window.location.origin}/join/${lastInviteCode}` : '';
+
   const handleCopy = async () => {
-    if (!lastInvite) return;
+    if (!lastInviteLink) return;
     try {
-      await navigator.clipboard.writeText(lastInvite.link);
+      await navigator.clipboard.writeText(lastInviteLink);
       toast.success('Invite link copied');
     } catch (err) {
       console.error(err);
@@ -182,18 +159,18 @@ export default function FriendChallenges() {
               <CardHeader className="pb-2">
                 <CardDescription>Latest invite</CardDescription>
                 <CardTitle className="text-xl">
-                  {lastInvite ? lastInvite.code : 'Create one to share'}
+                  {lastInviteCode || 'Create one to share'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex flex-wrap items-center gap-3">
                 <Badge variant="secondary" className="uppercase tracking-wide">
-                  {lastInvite ? lastInvite.code : '----'}
+                  {lastInviteCode || '----'}
                 </Badge>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleCopy}
-                  disabled={!lastInvite}
+                  disabled={!lastInviteCode}
                   className="gap-2"
                 >
                   <Copy className="h-4 w-4" />
@@ -218,15 +195,15 @@ export default function FriendChallenges() {
                     placeholder="e.g., 7-day pushups"
                   />
                 </div>
-                <Button className="w-full sm:w-auto" onClick={createChallenge}>
+                <Button className="w-full sm:w-auto" onClick={() => createMutation.mutate()} disabled={createMutation.isPending}>
                   <Link2 className="h-4 w-4 mr-2" />
-                  Create & share
+                  {createMutation.isPending ? 'Creating...' : 'Create & share'}
                 </Button>
-                {lastInvite && (
+                {lastInviteCode && (
                   <div className="rounded-lg border bg-muted/40 p-3 text-sm space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant="secondary">Code: {lastInvite.code}</Badge>
-                      <span className="text-muted-foreground truncate">{lastInvite.link}</span>
+                      <Badge variant="secondary">Code: {lastInviteCode}</Badge>
+                      <span className="text-muted-foreground truncate">{lastInviteLink}</span>
                     </div>
                     <p className="text-muted-foreground">Send this link to your friend so they can join.</p>
                   </div>
@@ -256,9 +233,14 @@ export default function FriendChallenges() {
                     placeholder="Their display name"
                   />
                 </div>
-                <Button className="w-full sm:w-auto" variant="outline" onClick={addFriendToChallenge}>
+                <Button
+                  className="w-full sm:w-auto"
+                  variant="outline"
+                  onClick={() => joinMutation.mutate()}
+                  disabled={joinMutation.isPending}
+                >
                   <Users className="h-4 w-4 mr-2" />
-                  Add friend
+                  {joinMutation.isPending ? 'Joining...' : 'Add friend'}
                 </Button>
               </CardContent>
             </Card>
@@ -277,7 +259,11 @@ export default function FriendChallenges() {
                 </TabsList>
 
                 <TabsContent value="challenges" className="space-y-4">
-                  {challenges.length === 0 ? (
+                  {challengesQuery.isLoading ? (
+                    <div className="rounded-lg border border-dashed bg-muted/40 p-6 text-center text-muted-foreground">
+                      Loading challenges...
+                    </div>
+                  ) : challenges.length === 0 ? (
                     <div className="rounded-lg border border-dashed bg-muted/40 p-6 text-center text-muted-foreground">
                       Create a challenge to start competing with a friend.
                     </div>
