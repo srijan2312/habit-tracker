@@ -57,6 +57,47 @@ interface SupabaseHabit {
   freezesUsed?: number;
 }
 
+// Calculate completion percentage for the current month using full scheduled days
+const computeMonthlyCompletion = (habit: HabitWithStats | SupabaseHabit): number => {
+  const today = new Date();
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const monthStartStr = monthStart.toISOString().slice(0, 10);
+  const monthEndStr = monthEnd.toISOString().slice(0, 10);
+
+  const logs = 'logs' in habit ? habit.logs || [] : [];
+  const freezeDates = (habit as HabitWithStats).freezeDates || [];
+  const completedDates = new Set(
+    logs
+      .filter(log => log.date >= monthStartStr && log.date <= monthEndStr && log.completed)
+      .map(log => log.date)
+  );
+
+  freezeDates.forEach(dateStr => {
+    if (dateStr >= monthStartStr && dateStr <= monthEndStr) {
+      completedDates.add(dateStr);
+    }
+  });
+
+  let totalScheduledDays;
+  if ((habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.custom_days && habit.custom_days.length > 0) {
+    let scheduledDaysCount = 0;
+    let checkDate = new Date(monthStart);
+    while (checkDate <= monthEnd) {
+      if (habit.custom_days.includes(checkDate.getDay())) {
+        scheduledDaysCount++;
+      }
+      checkDate.setDate(checkDate.getDate() + 1);
+    }
+    totalScheduledDays = scheduledDaysCount;
+  } else {
+    totalScheduledDays = Math.floor((monthEnd.getTime() - monthStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+  }
+
+  const percentage = totalScheduledDays > 0 ? Math.round((completedDates.size / totalScheduledDays) * 100) : 0;
+  return Math.min(percentage, 100);
+};
+
 export const useHabits = () => {
   const auth = useAuth();
   const user = (auth && typeof auth === 'object' && 'user' in auth) ? (auth.user as User | null) : null;
@@ -78,12 +119,18 @@ export const useHabits = () => {
       if (!res.ok) throw new Error('Failed to fetch habits');
       const data = await res.json();
       // Transform Supabase data (id, user_id) to frontend format (_id, userId)
-      return data.map((habit: SupabaseHabit) => ({
+      const transformed = data.map((habit: SupabaseHabit) => ({
         ...habit,
         _id: habit.id,
         userId: habit.user_id,
         freezeDates: habit.freezeDates || [],
         freezesUsed: habit.freezesUsed ?? habit.freezesUsed ?? 0,
+      }));
+
+      // Align completion percentage with monthly tracker by recalculating on the client
+      return transformed.map(habit => ({
+        ...habit,
+        completionPercentage: computeMonthlyCompletion(habit),
       }));
     },
     enabled: !!user,
