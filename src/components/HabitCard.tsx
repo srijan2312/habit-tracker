@@ -25,24 +25,24 @@ export const HabitCard: React.FC<HabitCardProps> = ({
   onDelete,
 }) => {
   const navigate = useNavigate();
-  // Calculate days elapsed in current month (matching backend calculation)
+  // Calculate scheduled days for the full current month (matches monthly tracker)
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
   
-  // For custom/weekly frequency habits, count only scheduled days
-  let daysElapsed;
+  let totalScheduledDays;
   if ((habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.custom_days && habit.custom_days.length > 0) {
     let scheduledDaysCount = 0;
     let checkDate = new Date(monthStart);
-    while (checkDate <= now) {
+    while (checkDate <= monthEnd) {
       if (habit.custom_days.includes(checkDate.getDay())) {
         scheduledDaysCount++;
       }
       checkDate.setDate(checkDate.getDate() + 1);
     }
-    daysElapsed = scheduledDaysCount;
+    totalScheduledDays = scheduledDaysCount;
   } else {
-    daysElapsed = Math.floor((now.getTime() - monthStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    totalScheduledDays = Math.floor((monthEnd.getTime() - monthStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
   }
 
   const frequencyLabel = habit.frequency === 'daily' 
@@ -130,7 +130,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({
       {/* Progress Bar */}
       <div className="mt-4 space-y-1.5">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">{daysElapsed} day progress</span>
+          <span className="text-muted-foreground">{totalScheduledDays} day progress</span>
           <span className="font-medium text-foreground">{Math.min(habit.completionPercentage, 100)}%</span>
         </div>
         <Progress value={Math.min(habit.completionPercentage, 100)} className="h-1.5" />

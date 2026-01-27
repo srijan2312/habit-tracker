@@ -164,39 +164,39 @@ router.get('/:userId', async (req, res) => {
       // Calculate percentage based on current month (matching monthly tracker)
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       const monthStartStr = monthStart.toISOString().slice(0, 10);
-      
-      // Count unique completed days in current month
+      const monthEndStr = monthEnd.toISOString().slice(0, 10);
+
+      // Count unique completed days in the full current month window
       const completedDatesInMonth = new Set(
-        habitLogs.filter(log => log.date >= monthStartStr && log.date <= today).map(log => log.date)
+        habitLogs.filter(log => log.date >= monthStartStr && log.date <= monthEndStr).map(log => log.date)
       );
       
       // Add freeze dates as protected completions
       habitFreezes.forEach(dateStr => {
-        if (dateStr >= monthStartStr && dateStr <= today) {
+        if (dateStr >= monthStartStr && dateStr <= monthEndStr) {
           completedDatesInMonth.add(dateStr);
         }
       });
       
-      // For custom frequency habits, only count scheduled days in elapsed calculation
-      let daysElapsed;
+      // For custom/weekly frequency habits, total scheduled days across the whole month
+      let totalScheduledDays;
       if ((habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.custom_days && habit.custom_days.length > 0) {
-        // Count how many scheduled days have occurred so far this month
         let scheduledDaysCount = 0;
         let checkDate = new Date(monthStart);
-        while (checkDate <= now) {
+        while (checkDate <= monthEnd) {
           if (habit.custom_days.includes(checkDate.getDay())) {
             scheduledDaysCount++;
           }
           checkDate.setDate(checkDate.getDate() + 1);
         }
-        daysElapsed = scheduledDaysCount;
+        totalScheduledDays = scheduledDaysCount;
       } else {
-        // For daily/weekly, count all days elapsed
-        daysElapsed = Math.floor((now - monthStart) / (1000 * 60 * 60 * 24)) + 1;
+        totalScheduledDays = Math.floor((monthEnd - monthStart) / (1000 * 60 * 60 * 24)) + 1;
       }
       
-      const completionPercentage = daysElapsed > 0 ? Math.round((completedDatesInMonth.size / daysElapsed) * 100) : 0;
+      const completionPercentage = totalScheduledDays > 0 ? Math.round((completedDatesInMonth.size / totalScheduledDays) * 100) : 0;
       const todayCompleted = completedDates.includes(today);
       
       return {
