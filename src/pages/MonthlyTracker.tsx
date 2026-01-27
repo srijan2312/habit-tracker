@@ -7,6 +7,7 @@ import { MonthlyStats } from './MonthlyStats';
 import { MonthlyProgressChart } from './MonthlyProgressChart';
 import { MonthlyProgressRing } from './MonthlyProgressRing';
 import { HabitGrid } from './HabitGrid';
+import { CelebrationDialog } from '@/components/CelebrationDialog';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -19,12 +20,29 @@ import {
 export default function MonthlyTracker() {
   const { habits, isLoading, toggleHabitCompletion, useFreeze } = useHabits();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
+  const [celebrationData, setCelebrationData] = useState<{ open: boolean; habitTitle: string; streak: number }>({
+    open: false,
+    habitTitle: '',
+    streak: 0,
+  });
 
   const handlePrevMonth = () => setSelectedMonth(prev => subMonths(prev, 1));
   const handleNextMonth = () => setSelectedMonth(prev => addMonths(prev, 1));
 
   const handleToggle = (habitId: string, date: string, currentlyCompleted: boolean) => {
     toggleHabitCompletion.mutate({ habitId, date, completed: currentlyCompleted });
+    
+    // Show celebration if completing today's habit
+    if (currentlyCompleted && date === format(new Date(), 'yyyy-MM-dd')) {
+      const habit = habits.find(h => h._id === habitId);
+      if (habit) {
+        setCelebrationData({
+          open: true,
+          habitTitle: habit.title,
+          streak: habit.currentStreak + 1,
+        });
+      }
+    }
   };
 
   const currentYear = selectedMonth.getFullYear();
@@ -126,6 +144,14 @@ export default function MonthlyTracker() {
           </div>
         </div>
       </main>
+
+      {/* Celebration Dialog */}
+      <CelebrationDialog
+        open={celebrationData.open}
+        onClose={() => setCelebrationData({ open: false, habitTitle: '', streak: 0 })}
+        habitTitle={celebrationData.habitTitle}
+        streak={celebrationData.streak}
+      />
     </div>
   );
 }
