@@ -25,10 +25,10 @@ export const HabitCard: React.FC<HabitCardProps> = ({
   onDelete,
 }) => {
   const navigate = useNavigate();
-  // Calculate days in current month
+  // Calculate days elapsed in current month (matching backend calculation)
   const now = new Date();
-  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  const daysInMonth = monthEnd.getDate();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const daysElapsed = Math.floor((now.getTime() - monthStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
   const frequencyLabel = habit.frequency === 'daily' 
     ? 'Daily' 
@@ -115,7 +115,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({
       {/* Progress Bar */}
       <div className="mt-4 space-y-1.5">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">{daysInMonth} day progress</span>
+          <span className="text-muted-foreground">{daysElapsed} day progress</span>
           <span className="font-medium text-foreground">{Math.min(habit.completionPercentage, 100)}%</span>
         </div>
         <Progress value={Math.min(habit.completionPercentage, 100)} className="h-1.5" />

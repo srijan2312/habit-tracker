@@ -145,10 +145,15 @@ router.get('/:userId', async (req, res) => {
         }
       }
       
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      const last30DaysLogs = habitLogs.filter(log => new Date(log.date) >= thirtyDaysAgo);
-      const completionPercentage = Math.round((last30DaysLogs.length / 30) * 100);
+      // Calculate percentage based on current month (matching monthly tracker)
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const monthStartStr = monthStart.toISOString().slice(0, 10);
+      const currentMonthLogs = habitLogs.filter(log => log.date >= monthStartStr && log.date <= today);
+      
+      // Count days elapsed in current month
+      const daysElapsed = Math.floor((now - monthStart) / (1000 * 60 * 60 * 24)) + 1;
+      const completionPercentage = daysElapsed > 0 ? Math.round((currentMonthLogs.length / daysElapsed) * 100) : 0;
       const todayCompleted = completedDates.includes(today);
       
       return {
