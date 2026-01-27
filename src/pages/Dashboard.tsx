@@ -111,34 +111,36 @@ export default function Dashboard() {
         <div className="container space-y-8">
           {/* Page Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="font-display text-3xl font-bold text-foreground">
-                Dashboard
-              </h1>
-              <p className="mt-1 text-muted-foreground">{today}</p>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between gap-3">
+                  <h1 className="font-display text-3xl font-bold text-foreground">
+                    Dashboard
+                  </h1>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowDailyReward(true)}
+                    className="h-10 px-3 text-sm font-medium sm:h-12 sm:px-4 sm:text-base"
+                  >
+                    <Gift className="mr-2 h-5 w-5" />
+                    Daily Reward
+                  </Button>
+                </div>
+                <p className="text-muted-foreground">{today}</p>
+              </div>
+              <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+                {habits.length > 0 && (
+                  <Button
+                    onClick={() => setIsFormOpen(true)}
+                    size="lg"
+                    className="h-12 w-full justify-center gap-2 sm:w-44"
+                  >
+                    <Plus className="mr-2 h-5 w-5" />
+                    New Habit
+                  </Button>
+                )}
+              </div>
             </div>
-            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => setShowDailyReward(true)}
-                className="h-12 w-full justify-center gap-2 sm:w-44"
-              >
-                <Gift className="mr-2 h-5 w-5" />
-                Daily Reward
-              </Button>
-              {habits.length > 0 && (
-                <Button
-                  onClick={() => setIsFormOpen(true)}
-                  size="lg"
-                  className="h-12 w-full justify-center gap-2 sm:w-44"
-                >
-                  <Plus className="mr-2 h-5 w-5" />
-                  New Habit
-                </Button>
-              )}
-            </div>
-          </div>
 
           {/* Stats Overview */}
           <StatsOverview habits={habits} />
