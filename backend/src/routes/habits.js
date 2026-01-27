@@ -149,11 +149,22 @@ router.get('/:userId', async (req, res) => {
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const monthStartStr = monthStart.toISOString().slice(0, 10);
-      const currentMonthLogs = habitLogs.filter(log => log.date >= monthStartStr && log.date <= today);
+      
+      // Count unique completed days in current month
+      const completedDatesInMonth = new Set(
+        habitLogs.filter(log => log.date >= monthStartStr && log.date <= today).map(log => log.date)
+      );
+      
+      // Add freeze dates as protected completions
+      habitFreezes.forEach(dateStr => {
+        if (dateStr >= monthStartStr && dateStr <= today) {
+          completedDatesInMonth.add(dateStr);
+        }
+      });
       
       // Count days elapsed in current month
       const daysElapsed = Math.floor((now - monthStart) / (1000 * 60 * 60 * 24)) + 1;
-      const completionPercentage = daysElapsed > 0 ? Math.round((currentMonthLogs.length / daysElapsed) * 100) : 0;
+      const completionPercentage = daysElapsed > 0 ? Math.round((completedDatesInMonth.size / daysElapsed) * 100) : 0;
       const todayCompleted = completedDates.includes(today);
       
       return {
