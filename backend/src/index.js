@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import habitRoutes from './routes/habits.js';
 import userRoutes from './routes/users.js';
+import leaderboardRoutes from './routes/leaderboard.js';
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ const corsOptions = {
   origin: [
     'https://habit-tracker-001.netlify.app',
     'http://localhost:5173',
+    'http://localhost:8080',
     process.env.FRONTEND_URL,
   ].filter(Boolean),
   credentials: true,
@@ -24,6 +26,7 @@ app.use(express.json());
 
 app.use('/api/habits', habitRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
 
 const PORT = process.env.PORT || 5000;
 
