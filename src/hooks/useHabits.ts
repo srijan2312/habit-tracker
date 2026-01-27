@@ -174,6 +174,7 @@ export const useHabits = () => {
         }
         if (!res.ok) throw new Error('Failed to delete log');
       }
+      return { habitId, date, completed };
     },
     onMutate: async ({ habitId, date, completed }) => {
       await queryClient.cancelQueries({ queryKey: ['habits', user?._id] });
@@ -194,6 +195,23 @@ export const useHabits = () => {
 
       queryClient.setQueryData(['habits', user._id], updated);
       return { previousHabits };
+    },
+    onSuccess: (data) => {
+      if (data && data.completed && data.date === format(new Date(), 'yyyy-MM-dd')) {
+        const habits = queryClient.getQueryData<HabitWithStats[]>(['habits', user?._id]);
+        const habit = habits?.find(h => h._id === data.habitId);
+        if (habit) {
+          const messages = [
+            `🎉 Awesome! You completed "${habit.title}" today!`,
+            `🔥 Great job! Keep the streak going with "${habit.title}"!`,
+            `⭐ Well done! "${habit.title}" completed for today!`,
+            `💪 You're crushing it! "${habit.title}" is done!`,
+          ];
+          toast.success(messages[Math.floor(Math.random() * messages.length)], {
+            duration: 3000,
+          });
+        }
+      }
     },
     onError: (error: unknown, _variables, context) => {
       if (context?.previousHabits && user) {
