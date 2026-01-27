@@ -85,7 +85,7 @@ export const Header: React.FC = () => {
                       <User className="h-4 w-4 text-primary" />
                     </div>
                     <span className="max-w-[150px] truncate text-sm">
-                      {user.email}
+                      {user.name || user.email}
                     </span>
                   </Button>
                 </DropdownMenuTrigger>

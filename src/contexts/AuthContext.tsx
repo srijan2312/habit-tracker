@@ -23,7 +23,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const token = localStorage.getItem('token');
     const userStr = localStorage.getItem('user');
     if (token && userStr) {
-      setUser(JSON.parse(userStr));
+      const parsedUser = JSON.parse(userStr);
+      // Ensure name is set (for old users without name in localStorage)
+      if (!parsedUser.name && parsedUser.email) {
+        parsedUser.name = parsedUser.email.split('@')[0];
+      }
+      setUser(parsedUser);
     }
     setLoading(false);
   }, []);
