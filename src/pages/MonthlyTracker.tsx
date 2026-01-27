@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { format, addMonths, subMonths } from 'date-fns';
 import { useHabits } from '@/hooks/useHabits';
+import { useAuth } from '@/contexts/useAuth';
 import { Header } from '@/components/Header';
 import { MonthlyStats } from './MonthlyStats';
 import { MonthlyProgressChart } from './MonthlyProgressChart';
 import { MonthlyProgressRing } from './MonthlyProgressRing';
 import { HabitGrid } from './HabitGrid';
 import { CelebrationDialog } from '@/components/CelebrationDialog';
+import { API_URL } from '@/config/api';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -18,14 +20,46 @@ import {
 } from '@/components/ui/select';
 
 export default function MonthlyTracker() {
+  const { user } = useAuth();
+  const youId = (user as any)?._id || (user as any)?.id;
   const { habits, isLoading, toggleHabitCompletion, useFreeze, celebrationData, setCelebrationData } = useHabits();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
 
   const handlePrevMonth = () => setSelectedMonth(prev => subMonths(prev, 1));
   const handleNextMonth = () => setSelectedMonth(prev => addMonths(prev, 1));
 
-  const handleToggle = (habitId: string, date: string, currentlyCompleted: boolean) => {
+  const handleToggle = async (habitId: string, date: string, currentlyCompleted: boolean) => {
     toggleHabitCompletion.mutate({ habitId, date, completed: currentlyCompleted });
+    
+    // Increment challenge score only when completing habits for today
+    if (currentlyCompleted && youId) {
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const dateStr = format(new Date(date), 'yyyy-MM-dd');
+      
+      console.log('📋 Challenge score check:', { youId, dateStr, today, isToday: dateStr === today });
+      
+      // Only increment if the completed date is today
+      if (dateStr === today) {
+        try {
+          const token = localStorage.getItem('token');
+          console.log('🚀 Incrementing challenge score for userId:', youId);
+          const response = await fetch(`${API_URL}/api/challenges/increment-score`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify({ userId: youId }),
+          });
+          const data = await response.json();
+          console.log('✅ Challenge score response:', data);
+        } catch (err) {
+          console.error('❌ Failed to update challenge score:', err);
+        }
+      } else {
+        console.log('⏭️ Skipping score update - not today\'s date');
+      }
+    }
   };
 
   const currentYear = selectedMonth.getFullYear();
