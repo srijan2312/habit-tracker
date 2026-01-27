@@ -179,7 +179,7 @@ function LeaderboardTable({ leaderboard, userRank, isLoading, metric, currentUse
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-w-[150px] sm:min-w-max text-left sm:text-right">
+              <div className="grid grid-cols-2 sm:flex sm:items-center gap-3 sm:gap-6 w-full sm:w-auto text-left sm:text-right">
                 <div className="sm:text-right">
                   <div className="flex sm:justify-end items-center gap-1">
                     <Flame className="w-4 h-4 text-red-500" />
@@ -218,7 +218,7 @@ function LeaderboardTable({ leaderboard, userRank, isLoading, metric, currentUse
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-w-[150px] sm:min-w-max text-left sm:text-right">
+                <div className="grid grid-cols-2 sm:flex sm:items-center gap-3 sm:gap-6 w-full sm:w-auto text-left sm:text-right">
                   <div className="sm:text-right">
                     <div className="flex sm:justify-end items-center gap-1">
                       <Flame className="w-4 h-4 text-red-500" />
