@@ -18,31 +18,14 @@ import {
 } from '@/components/ui/select';
 
 export default function MonthlyTracker() {
-  const { habits, isLoading, toggleHabitCompletion, useFreeze } = useHabits();
+  const { habits, isLoading, toggleHabitCompletion, useFreeze, celebrationData, setCelebrationData } = useHabits();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
-  const [celebrationData, setCelebrationData] = useState<{ open: boolean; habitTitle: string; streak: number }>({
-    open: false,
-    habitTitle: '',
-    streak: 0,
-  });
 
   const handlePrevMonth = () => setSelectedMonth(prev => subMonths(prev, 1));
   const handleNextMonth = () => setSelectedMonth(prev => addMonths(prev, 1));
 
   const handleToggle = (habitId: string, date: string, currentlyCompleted: boolean) => {
     toggleHabitCompletion.mutate({ habitId, date, completed: currentlyCompleted });
-    
-    // Show celebration if completing today's habit
-    if (currentlyCompleted && date === format(new Date(), 'yyyy-MM-dd')) {
-      const habit = habits.find(h => h._id === habitId);
-      if (habit) {
-        setCelebrationData({
-          open: true,
-          habitTitle: habit.title,
-          streak: habit.currentStreak + 1,
-        });
-      }
-    }
   };
 
   const currentYear = selectedMonth.getFullYear();

@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/useAuth';
 import { format, startOfMonth, endOfMonth, differenceInDays } from 'date-fns';
 import { toast } from 'sonner';
 import { API_URL } from '@/config/api';
+import { useState } from 'react';
 
 export interface Habit {
   _id: string;
@@ -45,6 +46,11 @@ export const useHabits = () => {
   const auth = useAuth();
   const user = (auth && typeof auth === 'object' && 'user' in auth) ? (auth.user as User | null) : null;
   const queryClient = useQueryClient();
+  const [celebrationData, setCelebrationData] = useState<{ open: boolean; habitTitle: string; streak: number }>({
+    open: false,
+    habitTitle: '',
+    streak: 0,
+  });
 
   const habitsQuery = useQuery({
     queryKey: ['habits', user?._id],
@@ -193,19 +199,18 @@ export const useHabits = () => {
         return { ...habit, logs };
       });
 
-      queryClient.setQueryData(['habits', user._id], updated);
-      return { previousHabits };
-    },
-    onSuccess: (data) => {
-      if (data && data.completed && data.date === format(new Date(), 'yyyy-MM-dd')) {
-        const habits = queryClient.getQueryData<HabitWithStats[]>(['habits', user?._id]);
-        const habit = habits?.find(h => h._id === data.habitId);
-        if (habit) {
-          const messages = [
-            `🎉 Awesome! You completed "${habit.title}" today!`,
-            `🔥 Great job! Keep the streak going with "${habit.title}"!`,
-            `⭐ Well done! "${habit.title}" completed for today!`,
-            `💪 You're crushing it! "${habit.title}" is done!`,
+      qu// Wait a bit for the query to refetch, then show celebration with updated streak
+        setTimeout(() => {
+          const habits = queryClient.getQueryData<HabitWithStats[]>(['habits', user?._id]);
+          const habit = habits?.find(h => h._id === data.habitId);
+          if (habit) {
+            setCelebrationData({
+              open: true,
+              habitTitle: habit.title,
+              streak: habit.currentStreak,
+            });
+          }
+        }, 300);   `💪 You're crushing it! "${habit.title}" is done!`,
           ];
           toast.success(messages[Math.floor(Math.random() * messages.length)], {
             duration: 3000,
@@ -250,6 +255,8 @@ export const useHabits = () => {
     toggleHabitCompletion,
     getMonthLogs,
     refetch: habitsQuery.refetch,
+    celebrationData,
+    setCelebrationData,
     useFreeze: async (habitId: string, date: string) => {
       if (!user) return;
       const token = localStorage.getItem('token');
