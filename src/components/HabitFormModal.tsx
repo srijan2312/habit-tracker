@@ -170,7 +170,7 @@ export const HabitFormModal: React.FC<HabitFormModalProps> = ({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="startDate" className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-foreground" />
+                <Calendar className="h-5 w-5 text-primary" />
                 Start Date
               </Label>
               <Input
@@ -184,7 +184,7 @@ export const HabitFormModal: React.FC<HabitFormModalProps> = ({
 
             <div className="space-y-2">
               <Label htmlFor="reminderTime" className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-foreground" />
+                <Clock className="h-5 w-5 text-primary" />
                 Reminder (optional)
               </Label>
               <Input
