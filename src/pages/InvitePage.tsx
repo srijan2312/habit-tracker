@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Copy, Share2, Users, Gift, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -106,11 +107,85 @@ export default function InvitePage() {
     return (
       <div className="min-h-screen">
         <Header />
-        <div className="container mx-auto py-8 px-4">
-          <Card>
+        <div className="container mx-auto py-8 px-4 max-w-4xl">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-2">Invite Friends</h1>
+            <p className="text-muted-foreground">
+              Share Habitly with friends and earn 5 freeze tokens for each friend who signs up!
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3 mb-8">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Users className="w-4 h-4 text-primary" />
+                  Total Referrals
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-16" />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Gift className="w-4 h-4 text-green-600" />
+                  Tokens Earned
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-20" />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Share2 className="w-4 h-4 text-blue-600" />
+                  Your Code
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-7 w-24" />
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="mb-8">
             <CardHeader>
-              <CardTitle>Loading...</CardTitle>
+              <CardTitle>Your Referral Link</CardTitle>
+              <CardDescription>
+                Share this link with friends. When they sign up, you'll get 5 freeze tokens!
+              </CardDescription>
             </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-2">
+                <Skeleton className="h-10 w-full" />
+                <Button variant="outline" className="shrink-0" disabled>
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copy
+                </Button>
+              </div>
+
+              <div className="flex gap-2">
+                <Button className="w-full" disabled>
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Share Link
+                </Button>
+              </div>
+
+              <div className="p-4 bg-muted rounded-lg">
+                <h3 className="font-semibold mb-2">How it works:</h3>
+                <ul className="space-y-1 text-sm text-muted-foreground">
+                  <li>• Share your referral link with friends</li>
+                  <li>• They sign up using your link</li>
+                  <li>• You get 5 freeze tokens added to your account</li>
+                  <li>• They start building great habits!</li>
+                </ul>
+              </div>
+            </CardContent>
           </Card>
         </div>
       </div>
