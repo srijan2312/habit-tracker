@@ -227,7 +227,6 @@ router.post('/apply', verifyToken, async (req, res) => {
       .update({
         freezes_available: newFreezeCount,
         total_referrals: newTotalReferrals,
-        updated_at: new Date().toISOString(),
       })
       .eq('id', referrer.id)
       .select();
