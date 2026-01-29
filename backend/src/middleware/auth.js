@@ -14,7 +14,7 @@ const ensureJwksAccessible = async (jwksUrl, headers) => {
   const res = await fetch(jwksUrl, { method: 'GET', headers });
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`JWKS fetch failed: ${res.status} ${res.statusText} ${text.slice(0, 200)}`);
+    throw new Error(`JWKS fetch failed (${jwksUrl}): ${res.status} ${res.statusText} ${text.slice(0, 200)}`);
   }
 };
 
