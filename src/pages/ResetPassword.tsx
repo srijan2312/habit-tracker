@@ -34,6 +34,8 @@ export default function ResetPassword() {
           
           if (accessToken) {
             console.log('Recovery token found, setting session...');
+            console.log('Access token length:', accessToken.length);
+            console.log('Refresh token:', refreshToken ? 'present' : 'missing');
             
             // Manually set the session with the recovery token
             const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
@@ -41,17 +43,20 @@ export default function ResetPassword() {
               refresh_token: refreshToken || '',
             });
             
+            console.log('setSession result:', { sessionData, sessionError });
+            
             if (sessionError) {
               console.error('Session error:', sessionError);
-              setError('Invalid or expired recovery link. Please request a new one.');
+              setError(`Session error: ${sessionError.message}`);
             } else if (sessionData.session) {
               console.log('Session established successfully');
               setHasSession(true);
             } else {
-              setError('Could not establish recovery session.');
+              console.error('No session in response');
+              setError('Could not establish recovery session. Session data missing.');
             }
           } else {
-            setError('Invalid recovery link format.');
+            setError('Invalid recovery link format - no access token found.');
           }
         } else {
           // No recovery token in URL
