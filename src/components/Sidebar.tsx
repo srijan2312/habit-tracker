@@ -36,7 +36,7 @@ export const Sidebar: React.FC = () => {
           variant="ghost"
           size="icon"
           onClick={() => setIsOpen(!isOpen)}
-          className="bg-card border"
+          className="h-10 w-10 bg-primary text-primary-foreground hover:bg-primary/90"
         >
           {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>

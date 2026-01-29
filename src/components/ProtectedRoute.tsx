@@ -31,7 +31,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       <Header />
       <div className="flex flex-1">
         <Sidebar />
-        <main className="flex-1 lg:ml-64">
+        <main className="flex-1 lg:ml-64 pt-16 lg:pt-0 px-4 lg:px-0">
           {children}
         </main>
       </div>
