@@ -226,7 +226,7 @@ export default function HistoryPage() {
             <CardContent className="text-sm text-muted-foreground space-y-2">
               <p>✓ All your personal data is encrypted and stored securely.</p>
               <p>✓ You can export your data at any time in CSV or JSON format.</p>
-              <p>✓ You can delete your account anytime from Settings > Danger Zone.</p>
+              <p>✓ You can delete your account anytime from Settings &gt; Danger Zone.</p>
               <p>
                 ✓ We comply with GDPR and data protection regulations. Your privacy is our priority.
               </p>
