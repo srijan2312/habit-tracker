@@ -10,8 +10,17 @@ export const verifyToken = (req, res, next) => {
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
     
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId; // Attach verified userId to request
+    const secret = process.env.SUPABASE_JWT_SECRET || process.env.JWT_SECRET;
+    if (!secret) {
+      return res.status(500).json({ error: 'Missing JWT secret' });
+    }
+
+    const decoded = jwt.verify(token, secret);
+    const userId = decoded.sub || decoded.userId || decoded.user_id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Invalid token payload' });
+    }
+    req.userId = userId; // Attach verified userId to request
     req.user = decoded; // Attach full user data
     
     next();

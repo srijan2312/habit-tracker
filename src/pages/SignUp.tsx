@@ -50,9 +50,12 @@ export default function SignUp() {
 
     setIsLoading(true);
     try {
-      const { error } = await signUp(email, password, fullName);
+      const { error, needsEmailConfirmation } = await signUp(email, password, fullName);
       if (error) {
         toast.error(error);
+      } else if (needsEmailConfirmation) {
+        toast.success('Check your email to confirm your account before signing in.');
+        navigate('/signin');
       } else {
         toast.success('Account created successfully!');
         navigate('/dashboard');

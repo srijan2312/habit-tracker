@@ -1,14 +1,15 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { AuthContext, AuthContextType, User } from './AuthContextContext';
-import { API_URL } from '@/config/api';
 import { useInactivityLogout } from '@/hooks/useInactivityLogout';
+import { supabase } from '@/lib/supabaseClient';
 
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const signOut = useCallback(() => {
+  const signOut = useCallback(async () => {
+    await supabase.auth.signOut();
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('lastActivityTime');
@@ -18,32 +19,77 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useInactivityLogout(signOut, Boolean(user));
 
   useEffect(() => {
-    // Check for token and user in localStorage
-    const token = localStorage.getItem('token');
-    const userStr = localStorage.getItem('user');
-    if (token && userStr) {
-      const parsedUser = JSON.parse(userStr);
-      // Ensure name is set (for old users without name in localStorage)
-      if (!parsedUser.name && parsedUser.email) {
-        parsedUser.name = parsedUser.email.split('@')[0];
+    let isMounted = true;
+
+    const syncSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!isMounted) return;
+
+      const session = data.session;
+      if (session?.user) {
+        const nameFromMeta = session.user.user_metadata?.full_name as string | undefined;
+        const displayName = nameFromMeta || session.user.email?.split('@')[0] || 'User';
+        const newUser: User = {
+          _id: session.user.id,
+          email: session.user.email || '',
+          name: displayName,
+        };
+        localStorage.setItem('token', session.access_token);
+        localStorage.setItem('user', JSON.stringify(newUser));
+        setUser(newUser);
+      } else {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setUser(null);
       }
-      setUser(parsedUser);
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+
+    syncSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) return;
+      if (session?.user) {
+        const nameFromMeta = session.user.user_metadata?.full_name as string | undefined;
+        const displayName = nameFromMeta || session.user.email?.split('@')[0] || 'User';
+        const newUser: User = {
+          _id: session.user.id,
+          email: session.user.email || '',
+          name: displayName,
+        };
+        localStorage.setItem('token', session.access_token);
+        localStorage.setItem('user', JSON.stringify(newUser));
+        setUser(newUser);
+      } else {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setUser(null);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, fullName?: string) => {
     try {
-      const res = await fetch(`${API_URL}/api/users/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, fullName }),
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName },
+          emailRedirectTo: `${window.location.origin}/signin`,
+        },
       });
-      if (!res.ok) {
-        const data = await res.json();
-        return { error: data.error || 'Registration failed' };
+
+      if (error) {
+        return { error: error.message };
       }
-      return { error: null };
+
+      const needsEmailConfirmation = !data.session;
+      return { error: null, needsEmailConfirmation };
     } catch (err: unknown) {
       if (err instanceof Error) {
         return { error: err.message };
@@ -54,20 +100,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     try {
-      const res = await fetch(`${API_URL}/api/users/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
-      const data = await res.json();
-      if (!res.ok) {
-        return { error: data.error || 'Login failed' };
+
+      if (error) {
+        return { error: error.message };
       }
-      localStorage.setItem('token', data.token);
-      const userName = data.name || email.split('@')[0];
-      localStorage.setItem('user', JSON.stringify({ _id: data.userId, email, name: userName }));
+
+      if (!data.session?.user) {
+        return { error: 'Email not confirmed. Please check your inbox.' };
+      }
+
+      localStorage.setItem('token', data.session.access_token);
+      const userName = (data.session.user.user_metadata?.full_name as string | undefined) || email.split('@')[0];
+      localStorage.setItem('user', JSON.stringify({ _id: data.session.user.id, email, name: userName }));
       localStorage.setItem('lastActivityTime', Date.now().toString());
-      setUser({ _id: data.userId, email, name: userName });
+      setUser({ _id: data.session.user.id, email, name: userName });
       return { error: null };
     } catch (err: unknown) {
       if (err instanceof Error) {

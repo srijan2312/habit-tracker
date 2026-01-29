@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes in milliseconds
 const LAST_ACTIVITY_KEY = 'lastActivityTime';
 
-export const useInactivityLogout = (signOut: () => void, enabled = true) => {
+export const useInactivityLogout = (signOut: () => void | Promise<void>, enabled = true) => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const signOutRef = useRef(signOut);
 

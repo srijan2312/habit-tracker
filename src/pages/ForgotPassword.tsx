@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Link } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { API_URL } from '@/config/api';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function ForgotPassword({ onBack }: { onBack: () => void }) {
   const [email, setEmail] = useState('');
@@ -17,13 +17,10 @@ export default function ForgotPassword({ onBack }: { onBack: () => void }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`${API_URL}/api/users/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+      const { error: authError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to send email');
+      if (authError) throw new Error(authError.message || 'Failed to send email');
       setSent(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An error occurred');

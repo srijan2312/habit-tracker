@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Leaf } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { API_URL } from '@/config/api';
+import { supabase } from '@/lib/supabaseClient';
 
 
 export default function ResetPassword() {
@@ -14,26 +14,28 @@ export default function ResetPassword() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [hasSession, setHasSession] = useState(true);
   const navigate = useNavigate();
-  const search = new URLSearchParams(useLocation().search);
-  const token = search.get('token');
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setHasSession(Boolean(data.session));
+    };
+    checkSession();
+  }, []);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (!token) return setError('Invalid or expired link');
+    if (!hasSession) return setError('Invalid or expired link');
     if (password.length < 6) return setError('Password must be at least 6 characters');
     if (password !== confirm) return setError('Passwords do not match');
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/users/reset-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to reset password');
+      const { error: authError } = await supabase.auth.updateUser({ password });
+      if (authError) throw new Error(authError.message || 'Failed to reset password');
       setSuccess(true);
       setTimeout(() => navigate('/signin'), 2000);
     } catch (err: unknown) {
