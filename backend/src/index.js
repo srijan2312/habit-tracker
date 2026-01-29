@@ -26,6 +26,16 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    message: 'Habit Tracker API is running',
+    timestamp: new Date().toISOString(),
+    endpoints: ['/api/habits', '/api/users', '/api/challenges', '/api/rewards']
+  });
+});
+
 app.use('/api/habits', habitRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
