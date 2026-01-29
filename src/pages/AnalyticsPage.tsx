@@ -43,9 +43,21 @@ export default function AnalyticsPage() {
     ];
 
     // Category breakdown
-    const categoryBreakdown: Record<string, any> = {};
+    const categoryBreakdown: Record<string, { name: string; total: number; completed: number }> = {};
+    const normalizeCategory = (value: unknown) => {
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        return trimmed ? trimmed : 'Uncategorized';
+      }
+      if (value && typeof value === 'object' && 'name' in (value as any)) {
+        const name = String((value as any).name).trim();
+        return name ? name : 'Uncategorized';
+      }
+      return 'Uncategorized';
+    };
+
     habits.forEach((habit) => {
-      const cat = habit.category || 'Other';
+      const cat = normalizeCategory((habit as any).category);
       if (!categoryBreakdown[cat]) {
         categoryBreakdown[cat] = { name: cat, total: 0, completed: 0 };
       }
@@ -53,7 +65,7 @@ export default function AnalyticsPage() {
       if (habit.isCompletedToday) categoryBreakdown[cat].completed++;
     });
 
-    const categoryData = Object.values(categoryBreakdown);
+    const categoryData = Object.values(categoryBreakdown).sort((a, b) => b.total - a.total);
 
     // Frequency breakdown
     const frequencyBreakdown: Record<string, number> = {};

@@ -40,13 +40,15 @@ router.get('/history', verifyToken, async (req, res) => {
     }
 
     const { limit = 50, offset = 0, action } = req.query;
+    const safeLimit = Number.parseInt(String(limit), 10) || 50;
+    const safeOffset = Number.parseInt(String(offset), 10) || 0;
 
     let query = supabase
       .from('activity_log')
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-      .range(parseInt(offset as string), parseInt(offset as string) + parseInt(limit as string) - 1);
+      .range(safeOffset, safeOffset + safeLimit - 1);
 
     if (action && action !== 'all') {
       query = query.eq('action', action);

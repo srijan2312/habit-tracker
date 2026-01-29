@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useHabits, HabitWithStats } from '@/hooks/useHabits';
 import { Header } from '@/components/Header';
 import { HabitCard } from '@/components/HabitCard';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -17,33 +17,57 @@ import {
 import { Search, X } from 'lucide-react';
 
 type SortType = 'name' | 'frequency' | 'streak' | 'created';
-type FilterType = 'all' | 'completed' | 'pending' | 'Health' | 'Learning' | 'Fitness' | 'Productivity' | 'Wellness' | 'Personal';
+type StatusFilter = 'all' | 'completed' | 'pending';
 
-const CATEGORIES = ['Health', 'Learning', 'Fitness', 'Productivity', 'Wellness', 'Personal'];
+type HabitCategory = string | { name?: string } | null | undefined;
+type HabitWithCategory = HabitWithStats & { category?: HabitCategory };
+
+const hasName = (value: unknown): value is { name?: string } => {
+  return typeof value === 'object' && value !== null && 'name' in value;
+};
+
+const normalizeCategory = (value: unknown) => {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed ? trimmed : 'Uncategorized';
+  }
+  if (hasName(value)) {
+    const name = String(value.name ?? '').trim();
+    return name ? name : 'Uncategorized';
+  }
+  return 'Uncategorized';
+};
 
 export default function SearchPage() {
   const { habits, isLoading } = useHabits();
+  const typedHabits = habits as HabitWithCategory[];
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortType>('name');
-  const [filterCategory, setFilterCategory] = useState<FilterType>('all');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'completed' | 'pending'>('all');
+  const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<StatusFilter>('all');
+
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    typedHabits.forEach((habit) => set.add(normalizeCategory(habit.category)));
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [typedHabits]);
 
   const filteredAndSorted = useMemo(() => {
-    let result = habits;
+    let result = typedHabits;
 
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
         (h) =>
-          h.name.toLowerCase().includes(query) ||
+          h.title.toLowerCase().includes(query) ||
           (h.description?.toLowerCase().includes(query) ?? false)
       );
     }
 
     // Filter by category
     if (filterCategory !== 'all') {
-      result = result.filter((h) => h.category === filterCategory);
+      result = result.filter((h) => normalizeCategory(h.category) === filterCategory);
     }
 
     // Filter by completion status
@@ -57,13 +81,14 @@ export default function SearchPage() {
     result = [...result].sort((a, b) => {
       switch (sortBy) {
         case 'name':
-          return a.name.localeCompare(b.name);
-        case 'frequency':
+          return a.title.localeCompare(b.title);
+        case 'frequency': {
           const freqMap = { daily: 1, weekly: 2, monthly: 3 };
           return (
             (freqMap[a.frequency as keyof typeof freqMap] || 0) -
             (freqMap[b.frequency as keyof typeof freqMap] || 0)
           );
+        }
         case 'streak':
           return (b.currentStreak ?? 0) - (a.currentStreak ?? 0);
         case 'created':
@@ -74,7 +99,7 @@ export default function SearchPage() {
     });
 
     return result;
-  }, [habits, searchQuery, sortBy, filterCategory, filterStatus]);
+  }, [typedHabits, searchQuery, sortBy, filterCategory, filterStatus]);
 
   const handleClearFilters = () => {
     setSearchQuery('');
@@ -133,13 +158,13 @@ export default function SearchPage() {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Category</label>
-                  <Select value={filterCategory} onValueChange={(v) => setFilterCategory(v as FilterType)}>
+                  <Select value={filterCategory} onValueChange={(v) => setFilterCategory(v)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Categories</SelectItem>
-                      {CATEGORIES.map((cat) => (
+                      {categories.map((cat) => (
                         <SelectItem key={cat} value={cat}>
                           {cat}
                         </SelectItem>
@@ -150,7 +175,7 @@ export default function SearchPage() {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Status</label>
-                  <Select value={filterStatus} onValueChange={(v) => setFilterStatus(v as any)}>
+                  <Select value={filterStatus} onValueChange={(v) => setFilterStatus(v as StatusFilter)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -227,8 +252,8 @@ export default function SearchPage() {
               <div>
                 <h3 className="text-lg font-semibold mb-4">Category Breakdown</h3>
                 <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-                  {CATEGORIES.map((cat) => {
-                    const count = filteredAndSorted.filter((h) => h.category === cat).length;
+                  {categories.map((cat) => {
+                    const count = filteredAndSorted.filter((h) => normalizeCategory(h.category) === cat).length;
                     if (count === 0) return null;
                     return (
                       <Card key={cat}>

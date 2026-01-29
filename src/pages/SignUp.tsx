@@ -87,15 +87,15 @@ export default function SignUp() {
                 await response.json();
               }
               sessionStorage.removeItem('pending_referral_code');
-            } catch (err) {
-              console.error('Failed to apply referral:', err);
+            } catch {
+              // Silent failure for referral apply
             }
           }
         }
         
         navigate('/dashboard');
       }
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred');
     } finally {
       setIsLoading(false);

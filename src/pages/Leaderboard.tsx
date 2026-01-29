@@ -30,10 +30,27 @@ type Challenge = {
   participants: Participant[];
 };
 
+type AuthUser = {
+  _id?: string;
+  id?: string;
+  name?: string;
+  fullName?: string;
+  email?: string;
+};
+
+type LeaderboardEntry = Participant & { challengeName: string };
+
+const getErrorMessage = (err: unknown) => {
+  if (err instanceof Error) return err.message;
+  if (typeof err === 'string') return err;
+  return 'Something went wrong';
+};
+
 export default function FriendChallenges() {
   const { user } = useAuth();
-  const youId = (user as any)?._id || (user as any)?.id || 'you';
-  const youName = user?.name || (user as any)?.fullName || user?.email?.split('@')[0] || 'You';
+  const authUser = user as AuthUser | null;
+  const youId = authUser?._id || authUser?.id || 'you';
+  const youName = authUser?.name || authUser?.fullName || authUser?.email?.split('@')[0] || 'You';
   const [newName, setNewName] = useState('Weekend Sprint');
   const [joinCode, setJoinCode] = useState('');
   const [friendName, setFriendName] = useState('');
@@ -72,8 +89,8 @@ export default function FriendChallenges() {
       queryClient.invalidateQueries({ queryKey: ['friend-challenges', youId] });
       setJoinCode(data.challenge?.code || '');
     },
-    onError: (err: any) => {
-      toast.error(err.message || 'Could not create challenge');
+    onError: (err: unknown) => {
+      toast.error(getErrorMessage(err) || 'Could not create challenge');
     },
   });
 
@@ -96,8 +113,8 @@ export default function FriendChallenges() {
       setFriendName('');
       setJoinCode('');
     },
-    onError: (err: any) => {
-      toast.error(err.message || 'Could not join challenge');
+    onError: (err: unknown) => {
+      toast.error(getErrorMessage(err) || 'Could not join challenge');
     },
   });
 
@@ -118,15 +135,18 @@ export default function FriendChallenges() {
       toast.success('Challenge deleted');
       queryClient.invalidateQueries({ queryKey: ['friend-challenges', youId] });
     },
-    onError: (err: any) => {
-      toast.error(err.message || 'Could not delete challenge');
+    onError: (err: unknown) => {
+      toast.error(getErrorMessage(err) || 'Could not delete challenge');
     },
   });
 
-  const challenges = challengesQuery.data || [];
+  const challenges = useMemo<Challenge[]>(
+    () => challengesQuery.data || [],
+    [challengesQuery.data]
+  );
 
-  const leaderboard = useMemo(() => {
-    if (!challenges.length) return [] as Array<Participant & { challengeName: string }>;
+  const leaderboard = useMemo<LeaderboardEntry[]>(() => {
+    if (!challenges.length) return [];
     const all = challenges.flatMap((c) => c.participants.map((p) => ({ ...p, challengeName: c.name })));
     return all.sort((a, b) => b.score - a.score);
   }, [challenges]);
@@ -367,7 +387,7 @@ export default function FriendChallenges() {
                               {p.name}
                               {p.id === youId && <ShieldCheck className="h-4 w-4 text-primary" />}
                             </p>
-                            <p className="text-xs text-muted-foreground">{(p as any).challengeName}</p>
+                            <p className="text-xs text-muted-foreground">{p.challengeName}</p>
                           </div>
                         </div>
                         <p className="text-lg font-semibold">{p.score} pts</p>

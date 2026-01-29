@@ -14,13 +14,29 @@ import { toast } from 'sonner';
 import { User, Lock, Bell, Trash2, LogOut } from 'lucide-react';
 import { API_URL } from '@/config/api';
 
+type UserProfile = {
+  id: string;
+  email: string;
+  name?: string | null;
+  full_name?: string | null;
+  created_at: string;
+  total_referrals?: number | null;
+  freezes_available?: number | null;
+};
+
+const getErrorMessage = (err: unknown) => {
+  if (err instanceof Error) return err.message;
+  if (typeof err === 'string') return err;
+  return 'Something went wrong';
+};
+
 export default function SettingsPage() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
   // Profile state
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [name, setName] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(true);
@@ -56,8 +72,7 @@ export default function SettingsPage() {
         setName(data.profile.name || '');
         setFullName(data.profile.full_name || '');
       } catch (err) {
-        console.error('Failed to load profile:', err);
-        toast.error('Failed to load profile');
+        toast.error(getErrorMessage(err) || 'Failed to load profile');
       }
     };
 
@@ -72,7 +87,7 @@ export default function SettingsPage() {
         setEmailDigest(data.preferences?.email_digest || false);
         setPushNotifications(data.preferences?.push_notifications || false);
       } catch (err) {
-        console.error('Failed to load preferences:', err);
+        toast.error(getErrorMessage(err) || 'Failed to load preferences');
       } finally {
         setLoading(false);
       }
@@ -105,9 +120,8 @@ export default function SettingsPage() {
       const data = await res.json();
       setProfile(data.profile);
       toast.success('Profile updated successfully');
-    } catch (err: any) {
-      console.error('Error:', err);
-      toast.error(err.message || 'Failed to update profile');
+    } catch (err) {
+      toast.error(getErrorMessage(err) || 'Failed to update profile');
     } finally {
       setSavingProfile(false);
     }
@@ -149,9 +163,8 @@ export default function SettingsPage() {
       setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
-    } catch (err: any) {
-      console.error('Error:', err);
-      toast.error(err.message || 'Failed to change password');
+    } catch (err) {
+      toast.error(getErrorMessage(err) || 'Failed to change password');
     } finally {
       setChangingPassword(false);
     }
@@ -175,9 +188,8 @@ export default function SettingsPage() {
 
       if (!res.ok) throw new Error('Failed to save preferences');
       toast.success('Preferences updated successfully');
-    } catch (err: any) {
-      console.error('Error:', err);
-      toast.error(err.message || 'Failed to save preferences');
+    } catch (err) {
+      toast.error(getErrorMessage(err) || 'Failed to save preferences');
     } finally {
       setSavingPrefs(false);
     }
@@ -210,9 +222,8 @@ export default function SettingsPage() {
         await signOut();
         navigate('/');
       }, 1000);
-    } catch (err: any) {
-      console.error('Error:', err);
-      toast.error(err.message || 'Failed to delete account');
+    } catch (err) {
+      toast.error(getErrorMessage(err) || 'Failed to delete account');
       setDeletePassword('');
     } finally {
       setDeletingAccount(false);

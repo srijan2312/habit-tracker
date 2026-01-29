@@ -11,6 +11,12 @@ import { toast } from 'sonner';
 import { BookOpen, Edit2, Save, X, Trash2 } from 'lucide-react';
 import { API_URL } from '@/config/api';
 
+const getErrorMessage = (err: unknown) => {
+  if (err instanceof Error) return err.message;
+  if (typeof err === 'string') return err;
+  return 'Something went wrong';
+};
+
 interface Note {
   id: string;
   habit_id: string;
@@ -69,8 +75,8 @@ export default function JournalPage() {
       toast.success('Note updated!');
       setEditingNoteId(null);
       notesQuery.refetch();
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to update note');
+    } catch (err) {
+      toast.error(getErrorMessage(err) || 'Failed to update note');
     }
   };
 
@@ -87,8 +93,8 @@ export default function JournalPage() {
       
       toast.success('Note deleted');
       notesQuery.refetch();
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to delete note');
+    } catch (err) {
+      toast.error(getErrorMessage(err) || 'Failed to delete note');
     }
   };
 
