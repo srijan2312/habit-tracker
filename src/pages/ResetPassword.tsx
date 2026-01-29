@@ -23,26 +23,43 @@ export default function ResetPassword() {
 
     const checkSession = async () => {
       try {
-        // Wait a moment for Supabase to process the URL fragment
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Check if we have a recovery token in the URL
+        const hash = window.location.hash;
         
-        const { data } = await supabase.auth.getSession();
-        if (data.session) {
-          setHasSession(true);
-        } else {
-          // Try to get the session from URL fragment
-          const hash = window.location.hash;
-          if (hash.includes('access_token') && hash.includes('type=recovery')) {
-            // Session might be loading, give it another moment
-            await new Promise(resolve => setTimeout(resolve, 500));
-            const { data: retryData } = await supabase.auth.getSession();
-            if (retryData.session) {
+        if (hash.includes('access_token') && hash.includes('type=recovery')) {
+          // Extract access_token from hash
+          const params = new URLSearchParams(hash.substring(1));
+          const accessToken = params.get('access_token');
+          const refreshToken = params.get('refresh_token');
+          
+          if (accessToken) {
+            console.log('Recovery token found, setting session...');
+            
+            // Manually set the session with the recovery token
+            const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken || '',
+            });
+            
+            if (sessionError) {
+              console.error('Session error:', sessionError);
+              setError('Invalid or expired recovery link. Please request a new one.');
+            } else if (sessionData.session) {
+              console.log('Session established successfully');
               setHasSession(true);
             } else {
-              setError('Recovery link has expired or is invalid. Please request a new password reset email.');
+              setError('Could not establish recovery session.');
             }
           } else {
-            setError('No recovery link found. Please use the link from your email.');
+            setError('Invalid recovery link format.');
+          }
+        } else {
+          // No recovery token in URL
+          const { data } = await supabase.auth.getSession();
+          if (data.session) {
+            setHasSession(true);
+          } else {
+            setError('No recovery link found. Please use the link from your reset email.');
           }
         }
       } catch (err) {
