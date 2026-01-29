@@ -74,6 +74,29 @@ router.post('/daily-signin/claim/:userId', verifyToken, async (req, res) => {
     
     console.log('Claiming reward for userId:', userId);
     console.log('User object:', req.user);
+    
+    // First, ensure the user exists in public.users table to satisfy FK constraint
+    const adminClient = supabaseAdmin || supabase;
+    const { data: existingUser, error: selectError } = await adminClient
+      .from('users')
+      .select('id')
+      .eq('id', userId)
+      .single();
+    
+    if (!existingUser && selectError?.code === 'PGRST116') {
+      // User doesn't exist, create a placeholder record
+      console.log('User does not exist in users table, creating one...');
+      const { error: insertError } = await adminClient
+        .from('users')
+        .insert({ 
+          id: userId,
+          email: req.user?.email || 'unknown@example.com'
+        });
+      
+      if (insertError && !insertError.message.includes('duplicate')) {
+        console.error('Error creating user record:', insertError);
+      }
+    }
 
     // Get current reward record
     const { data: existingReward } = await supabase
