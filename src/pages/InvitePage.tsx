@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/useAuth';
+import { Header } from '@/components/Header';
 import { API_URL } from '@/config/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -87,31 +88,39 @@ export default function InvitePage() {
 
   if (!user) {
     return (
-      <div className="container mx-auto py-8 px-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Sign in required</CardTitle>
-            <CardDescription>Please sign in to view your referral code</CardDescription>
-          </CardHeader>
-        </Card>
+      <div className="min-h-screen">
+        <Header />
+        <div className="container mx-auto py-8 px-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sign in required</CardTitle>
+              <CardDescription>Please sign in to view your referral code</CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8 px-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Loading...</CardTitle>
-          </CardHeader>
-        </Card>
+      <div className="min-h-screen">
+        <Header />
+        <div className="container mx-auto py-8 px-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Loading...</CardTitle>
+            </CardHeader>
+          </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
+    <div className="min-h-screen">
+      <Header />
+      <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Invite Friends</h1>
         <p className="text-muted-foreground">
@@ -253,6 +262,7 @@ export default function InvitePage() {
           </CardContent>
         </Card>
       )}
+      </div>
     </div>
   );
 }
