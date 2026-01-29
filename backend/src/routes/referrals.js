@@ -99,11 +99,13 @@ router.post('/apply', verifyToken, async (req, res) => {
     const newUserId = req.userId; // The newly signed up user
     const db = supabaseAdmin || supabase;
 
+    console.log(`\n=== REFERRAL APPLY START ===`);
+    console.log(`Code: ${referralCode}, NewUserId: ${newUserId}`);
+
     if (!referralCode) {
+      console.log('❌ No referral code provided');
       return res.status(400).json({ error: 'Referral code is required' });
     }
-
-    console.log(`Applying referral: code=${referralCode}, newUserId=${newUserId}`);
 
     // Ensure new user exists in public.users table and has referral code
     const { data: newUser, error: newUserCheckError } = await db
@@ -111,11 +113,14 @@ router.post('/apply', verifyToken, async (req, res) => {
       .select('id, referral_code')
       .eq('id', newUserId);
 
-    if (newUserCheckError) throw newUserCheckError;
+    if (newUserCheckError) {
+      console.error('❌ Error checking new user:', newUserCheckError);
+      throw newUserCheckError;
+    }
 
     if (!newUser || newUser.length === 0) {
       // User doesn't exist, create one with default password hash
-      console.log('New user not in public.users, creating...');
+      console.log('ℹ️ New user not in public.users, creating...');
       const defaultPasswordHash = '$2a$10$' + crypto.randomBytes(53).toString('base64').substring(0, 53);
       const { error: createError } = await db
         .from('users')
@@ -127,53 +132,73 @@ router.post('/apply', verifyToken, async (req, res) => {
         });
       
       if (createError) {
-        console.error('Error creating new user:', createError);
+        console.error('❌ Error creating new user:', createError);
         throw createError;
       }
+      console.log('✅ New user created');
     } else if (!newUser[0].referral_code) {
       // User exists but no referral code, generate one
-      console.log('New user exists but no referral code, generating...');
+      console.log('ℹ️ New user exists but no referral code, generating...');
       const { error: updateError } = await db
         .from('users')
         .update({ referral_code: generateReferralCode(newUserId) })
         .eq('id', newUserId);
       
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('❌ Error generating referral code:', updateError);
+        throw updateError;
+      }
+      console.log('✅ Referral code generated for new user');
     }
 
     // Find referrer by code
-    const { data: referrer, error: referrerError } = await db
+    console.log(`\nℹ️ Looking up referrer with code: ${referralCode.toUpperCase()}`);
+    const { data: referrers, error: referrerError } = await db
       .from('users')
       .select('id, freezes_available, total_referrals, email')
-      .eq('referral_code', referralCode.toUpperCase())
-      .single();
+      .eq('referral_code', referralCode.toUpperCase());
 
-    if (referrerError || !referrer) {
-      console.error('Referrer not found:', referrerError);
+    if (referrerError) {
+      console.error('❌ Error finding referrer:', referrerError);
+      throw referrerError;
+    }
+
+    if (!referrers || referrers.length === 0) {
+      console.error('❌ Referrer not found with code:', referralCode.toUpperCase());
       return res.status(404).json({ error: 'Invalid referral code' });
     }
 
-    console.log(`Found referrer: ${referrer.email}, current freezes: ${referrer.freezes_available}`);
+    const referrer = referrers[0];
+    console.log(`✅ Found referrer: ${referrer.email}`);
+    console.log(`   Current freezes: ${referrer.freezes_available}, referrals: ${referrer.total_referrals}`);
 
     // Prevent self-referral
     if (referrer.id === newUserId) {
+      console.log('❌ Self-referral attempt');
       return res.status(400).json({ error: 'Cannot refer yourself' });
     }
 
     // Check if this referral already exists
-    const { data: existingReferral, error: existingCheckError } = await db
+    console.log(`\nℹ️ Checking for existing referral...`);
+    const { data: existingReferrals, error: existingCheckError } = await db
       .from('referrals')
       .select('id')
       .eq('referrer_id', referrer.id)
-      .eq('referred_user_id', newUserId)
-      .single();
+      .eq('referred_user_id', newUserId);
 
-    if (existingReferral) {
-      console.log('Referral already exists');
-      return res.status(400).json({ error: 'Referral already applied' });
+    if (existingCheckError) {
+      console.error('❌ Error checking existing referral:', existingCheckError);
+      throw existingCheckError;
     }
 
+    if (existingReferrals && existingReferrals.length > 0) {
+      console.log('❌ Referral already exists');
+      return res.status(400).json({ error: 'Referral already applied' });
+    }
+    console.log('✅ No existing referral found');
+
     // Create referral record
+    console.log(`\nℹ️ Creating referral record...`);
     const { data: createdReferral, error: referralError } = await db
       .from('referrals')
       .insert({
@@ -184,17 +209,18 @@ router.post('/apply', verifyToken, async (req, res) => {
       .select();
 
     if (referralError) {
-      console.error('Error creating referral:', referralError);
+      console.error('❌ Error creating referral:', referralError);
       throw referralError;
     }
-
-    console.log('Referral record created:', createdReferral);
+    console.log('✅ Referral record created');
 
     // Update referrer: add 5 freeze tokens and increment total_referrals
     const newFreezeCount = (referrer.freezes_available || 0) + 5;
     const newTotalReferrals = (referrer.total_referrals || 0) + 1;
 
-    console.log(`Updating referrer freezes: ${referrer.freezes_available} → ${newFreezeCount}, referrals: ${referrer.total_referrals} → ${newTotalReferrals}`);
+    console.log(`\nℹ️ Updating referrer...`);
+    console.log(`   New freezes: ${referrer.freezes_available} → ${newFreezeCount}`);
+    console.log(`   New referrals: ${referrer.total_referrals} → ${newTotalReferrals}`);
 
     const { data: updatedReferrer, error: updateError } = await db
       .from('users')
@@ -207,13 +233,13 @@ router.post('/apply', verifyToken, async (req, res) => {
       .select();
 
     if (updateError) {
-      console.error('Error updating referrer:', updateError);
+      console.error('❌ Error updating referrer:', updateError);
       throw updateError;
     }
-
-    console.log('Referrer updated:', updatedReferrer);
+    console.log('✅ Referrer updated successfully');
 
     // Update new user's referred_by field
+    console.log(`\nℹ️ Updating new user with referrer info...`);
     const { data: updatedNewUser, error: newUserError } = await db
       .from('users')
       .update({ referred_by: referrer.id })
@@ -221,11 +247,12 @@ router.post('/apply', verifyToken, async (req, res) => {
       .select();
 
     if (newUserError) {
-      console.error('Error updating new user:', newUserError);
+      console.error('❌ Error updating new user:', newUserError);
       throw newUserError;
     }
+    console.log('✅ New user updated');
 
-    console.log('New user updated with referrer info');
+    console.log(`\n=== REFERRAL APPLY SUCCESS ===\n`);
 
     res.json({
       success: true,
@@ -235,8 +262,10 @@ router.post('/apply', verifyToken, async (req, res) => {
       referrerNewFreezeCount: newFreezeCount,
     });
   } catch (err) {
-    console.error('Referral apply error:', err);
-    res.status(500).json({ error: err.message });
+    console.error(`\n❌ REFERRAL APPLY ERROR:`, err);
+    console.error(err.stack);
+    console.log(`=== REFERRAL APPLY FAILED ===\n`);
+    res.status(500).json({ error: err.message, details: err });
   }
 });
 
