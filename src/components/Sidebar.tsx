@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, LogOut, Dashboard, BookOpen, Search, BarChart3, HelpCircle, Clock, Settings, Trophy, Users, Calendar, Activity } from 'lucide-react';
+import { Menu, X, LogOut, LayoutDashboard, BookOpen, Search, BarChart3, HelpCircle, Clock, Settings, Trophy, Users, Calendar, Activity } from 'lucide-react';
 import { useAuth } from '@/contexts/useAuth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -13,7 +13,7 @@ export const Sidebar: React.FC = () => {
   if (!user) return null;
 
   const menuItems = [
-    { icon: Dashboard, label: 'Dashboard', href: '/dashboard' },
+    { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
     { icon: Activity, label: 'Monthly Tracker', href: '/monthly-tracker' },
     { icon: Calendar, label: 'Calendar', href: '/calendar' },
     { icon: Trophy, label: 'Challenges', href: '/leaderboard' },
