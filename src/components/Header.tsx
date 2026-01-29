@@ -48,9 +48,9 @@ export const Header: React.FC = () => {
           </span>
         </Link>
 
-        {/* Centered Menu */}
+        {/* Centered Menu - Desktop Only */}
         {user && (
-          <nav className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center gap-10">
+          <nav className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center gap-8">
             <NavLink 
               to="/dashboard" 
               className={navLinkClasses}
@@ -100,7 +100,7 @@ export const Header: React.FC = () => {
             <>
               {/* Desktop User Menu */}
               <DropdownMenu>
-                <DropdownMenuTrigger asChild className="hidden md:flex">
+                <DropdownMenuTrigger asChild className="hidden lg:flex">
                   <Button variant="ghost" className="gap-2">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
                       <User className="h-4 w-4 text-primary" />
@@ -121,14 +121,14 @@ export const Header: React.FC = () => {
               <Button 
                 variant="ghost" 
                 size="icon"
-                className="md:hidden"
+                className="lg:hidden"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
               {/* Mobile Menu */}
               {mobileMenuOpen && (
-                <div className="absolute left-0 top-16 w-full border-b bg-card p-4 md:hidden z-50">
+                <div className="absolute left-0 top-16 w-full border-b bg-card p-4 lg:hidden z-50">
                   <nav className="flex flex-col gap-4">
                     <NavLink 
                       to="/dashboard" 
