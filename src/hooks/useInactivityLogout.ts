@@ -17,6 +17,10 @@ export const useInactivityLogout = (signOut: () => void | Promise<void>, enabled
     if (!enabled) {
       return;
     }
+    
+    // Set initial last activity time immediately to prevent false inactivity detection
+    localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
+    
     const updateLastActivity = () => {
       localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
     };
@@ -49,19 +53,6 @@ export const useInactivityLogout = (signOut: () => void | Promise<void>, enabled
         handleLogout();
       }, INACTIVITY_TIMEOUT);
     };
-
-    // Set initial last activity time (reset to now on mount to avoid immediate logout)
-    updateLastActivity();
-    
-    // Check inactivity only if there was a previous session
-    const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
-    if (lastActivity) {
-      const timeSinceLastActivity = Date.now() - parseInt(lastActivity);
-      // Only check if the timestamp is reasonable (not from an old session)
-      if (timeSinceLastActivity > 0 && timeSinceLastActivity < 24 * 60 * 60 * 1000) {
-        checkInactivity();
-      }
-    }
 
     // Activity events to monitor
     const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
