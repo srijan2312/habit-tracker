@@ -23,36 +23,47 @@ export default function ResetPassword() {
     const initializeSession = async () => {
       try {
         const hash = window.location.hash;
-        
-        if (!hash.includes('access_token') || !hash.includes('type=recovery')) {
+        const search = window.location.search;
+
+        const hashParams = new URLSearchParams(hash.startsWith('#') ? hash.substring(1) : '');
+        const queryParams = new URLSearchParams(search);
+
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+        const hashType = hashParams.get('type');
+
+        const token = queryParams.get('token');
+        const queryType = queryParams.get('type');
+
+        if (accessToken && hashType === 'recovery') {
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || '',
+          });
+
+          if (error) {
+            setMessage(`❌ ${error.message || 'Failed to verify reset link'}`);
+            return;
+          }
+        } else if (token && queryType === 'recovery') {
+          const { error } = await supabase.auth.verifyOtp({
+            type: 'recovery',
+            token_hash: token,
+          });
+
+          if (error) {
+            setMessage(`❌ ${error.message || 'Failed to verify reset link'}`);
+            return;
+          }
+        } else {
           setMessage('❌ Invalid or missing reset link. Please request a new one from the login page.');
-          return;
-        }
-
-        const params = new URLSearchParams(hash.substring(1));
-        const accessToken = params.get('access_token');
-        const refreshToken = params.get('refresh_token');
-
-        if (!accessToken) {
-          setMessage('❌ Invalid reset link format.');
-          return;
-        }
-
-        // Set the session
-        const { error } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken || '',
-        });
-
-        if (error) {
-          setMessage(`❌ ${error.message || 'Failed to verify reset link'}`);
           return;
         }
 
         // Verify session was set
         const { data } = await supabase.auth.getSession();
         if (!data.session) {
-          setMessage('❌ Could not establish session. Please try the link again.');
+          setMessage('❌ Auth session missing. Please request a new reset link.');
           return;
         }
 
