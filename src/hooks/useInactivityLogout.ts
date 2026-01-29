@@ -1,12 +1,10 @@
 import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes in milliseconds
 const LAST_ACTIVITY_KEY = 'lastActivityTime';
 
 export const useInactivityLogout = (signOut: () => void, enabled = true) => {
-  const navigate = useNavigate();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const signOutRef = useRef(signOut);
 
@@ -27,7 +25,7 @@ export const useInactivityLogout = (signOut: () => void, enabled = true) => {
       signOutRef.current();
       localStorage.removeItem(LAST_ACTIVITY_KEY);
       toast.info('Logged out due to inactivity');
-      navigate('/');
+      window.location.assign('/');
     };
 
     const checkInactivity = () => {
@@ -85,5 +83,5 @@ export const useInactivityLogout = (signOut: () => void, enabled = true) => {
       });
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [navigate, signOut, enabled]);
+  }, [signOut, enabled]);
 };
