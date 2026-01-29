@@ -71,6 +71,9 @@ router.post('/daily-signin/claim/:userId', verifyToken, async (req, res) => {
   try {
     const userId = req.userId; // Get from verified token, ignore URL param
     const today = new Date().toISOString().slice(0, 10);
+    
+    console.log('Claiming reward for userId:', userId);
+    console.log('User object:', req.user);
 
     // Get current reward record
     const { data: existingReward } = await supabase
@@ -132,7 +135,21 @@ router.post('/daily-signin/claim/:userId', verifyToken, async (req, res) => {
       )
       .select();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Upsert error:', error);
+      // If foreign key constraint fails, the user might not exist in the table yet
+      // This can happen if the RLS policy prevented the user record from being created
+      // For now, we'll try to proceed - the user exists in auth.users
+      if (error.message && error.message.includes('foreign key')) {
+        console.log('Foreign key constraint issue, attempting workaround...');
+        // Return a message asking user to complete profile or try again
+        return res.status(400).json({ 
+          error: 'User record not found. Please complete your profile first.',
+          code: 'USER_NOT_FOUND'
+        });
+      }
+      throw error;
+    }
 
     const reward = updated[0];
 
