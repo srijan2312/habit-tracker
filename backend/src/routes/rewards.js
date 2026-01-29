@@ -1,12 +1,13 @@
 import express from 'express';
 import { supabase } from '../config/supabase.js';
+import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // Get user's daily signin reward status
-router.get('/daily-signin/:userId', async (req, res) => {
+router.get('/daily-signin/:userId', verifyToken, async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId = req.userId; // Get from verified token, ignore URL param
 
     // Get user's daily signin reward record
     const { data: reward, error } = await supabase
@@ -66,9 +67,9 @@ router.get('/daily-signin/:userId', async (req, res) => {
 });
 
 // Claim daily signin reward
-router.post('/daily-signin/claim/:userId', async (req, res) => {
+router.post('/daily-signin/claim/:userId', verifyToken, async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId = req.userId; // Get from verified token, ignore URL param
     const today = new Date().toISOString().slice(0, 10);
 
     // Get current reward record

@@ -1,13 +1,16 @@
 import express from 'express';
 import { supabase } from '../config/supabase.js';
+import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // Create a habit log
-router.post('/logs', async (req, res) => {
+router.post('/logs', verifyToken, async (req, res) => {
   try {
-    const { habit_id, user_id, date, completed } = req.body;
-    if (!habit_id || !user_id || !date) {
+    const { habit_id, date, completed } = req.body;
+    const user_id = req.userId; // Get from verified token
+    
+    if (!habit_id || !date) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
     
@@ -25,14 +28,12 @@ router.post('/logs', async (req, res) => {
 });
 
 // Delete a habit log by habitId and date for a user
-router.delete('/logs/:habitId/:date', async (req, res) => {
+router.delete('/logs/:habitId/:date', verifyToken, async (req, res) => {
   try {
     const { habitId, date } = req.params;
-    let userId = req.body.user_id || req.query.user_id;
-    if (!userId && req.headers.authorization) {
-      userId = req.headers['x-user-id'];
-    }
-    if (!habitId || !date || !userId) {
+    const userId = req.userId; // Get from verified token
+    
+    if (!habitId || !date) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
     
@@ -51,9 +52,9 @@ router.delete('/logs/:habitId/:date', async (req, res) => {
 });
 
 // Get all habit logs for a user (for monthly tracker, etc.)
-router.get('/logs/:userId', async (req, res) => {
+router.get('/logs/:userId', verifyToken, async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const userId = req.userId; // Get from verified token, ignore URL param
     
     const { data, error } = await supabase
       .from('habit_logs')
@@ -68,9 +69,9 @@ router.get('/logs/:userId', async (req, res) => {
 });
 
 // Get all habits for a user, with logs and stats
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', verifyToken, async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const userId = req.userId; // Get from verified token, ignore URL param
     
     const { data: habits, error: habitsError } = await supabase
       .from('habits')
@@ -223,11 +224,12 @@ router.get('/:userId', async (req, res) => {
 });
 
 // Create a new habit
-router.post('/', async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
   try {
+    const habitData = { ...req.body, user_id: req.userId }; // Enforce userId from token
     const { data, error } = await supabase
       .from('habits')
-      .insert([req.body])
+      .insert([habitData])
       .select();
     
     if (error) throw error;
@@ -238,15 +240,20 @@ router.post('/', async (req, res) => {
 });
 
 // Update a habit
-router.put('/:id', async (req, res) => {
+router.put('/:id', verifyToken, async (req, res) => {
   try {
+    const userId = req.userId;
     const { data, error } = await supabase
       .from('habits')
       .update(req.body)
       .eq('id', req.params.id)
+      .eq('user_id', userId) // Ensure user owns the habit
       .select();
     
     if (error) throw error;
+    if (!data || data.length === 0) {
+      return res.status(404).json({ error: 'Habit not found or unauthorized' });
+    }
     res.json(data[0]);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -254,12 +261,14 @@ router.put('/:id', async (req, res) => {
 });
 
 // Delete a habit
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
   try {
+    const userId = req.userId;
     const { error } = await supabase
       .from('habits')
       .delete()
-      .eq('id', req.params.id);
+      .eq('id', req.params.id)
+      .eq('user_id', userId); // Ensure user owns the habit
     
     if (error) throw error;
     res.json({ message: 'Habit deleted' });
@@ -269,13 +278,14 @@ router.delete('/:id', async (req, res) => {
 });
 
 // Use a freeze token for a habit
-router.post('/freeze/:habitId', async (req, res) => {
+router.post('/freeze/:habitId', verifyToken, async (req, res) => {
   try {
     const { habitId } = req.params;
-    const { user_id, date } = req.body;
+    const { date } = req.body;
+    const user_id = req.userId; // Get from verified token
     
-    if (!user_id || !date) {
-      return res.status(400).json({ error: 'Missing user_id or date' });
+    if (!date) {
+      return res.status(400).json({ error: 'Missing date' });
     }
 
     // Check if user has freeze tokens available

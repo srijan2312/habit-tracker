@@ -1,5 +1,6 @@
 import express from 'express';
 import { supabase } from '../config/supabase.js';
+import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -28,11 +29,8 @@ const buildChallengeResponse = (challengeRows = [], participantRows = []) => {
   }));
 };
 
-router.get('/', async (req, res) => {
-  const { userId } = req.query;
-  if (!userId) {
-    return res.status(400).json({ error: 'userId is required' });
-  }
+router.get('/', verifyToken, async (req, res) => {
+  const userId = req.userId; // Get from verified token
 
   try {
     const { data: memberRows, error: memberErr } = await supabase
@@ -66,9 +64,9 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
-  const { userId, userName, name } = req.body || {};
-  if (!userId) return res.status(400).json({ error: 'userId is required' });
+router.post('/', verifyToken, async (req, res) => {
+  const { userName, name } = req.body || {};
+  const userId = req.userId; // Get from verified token
 
   const now = new Date().toISOString();
   const code = Math.random().toString(36).slice(2, 6).toUpperCase();
@@ -114,10 +112,12 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.post('/join', async (req, res) => {
-  const { code, userId, userName } = req.body || {};
-  if (!code || !userId) {
-    return res.status(400).json({ error: 'code and userId are required' });
+router.post('/join', verifyToken, async (req, res) => {
+  const { code, userName } = req.body || {};
+  const userId = req.userId; // Get from verified token
+  
+  if (!code) {
+    return res.status(400).json({ error: 'code is required' });
   }
 
   try {
@@ -169,11 +169,8 @@ router.post('/join', async (req, res) => {
   }
 });
 
-router.post('/increment-score', async (req, res) => {
-  const { userId } = req.body || {};
-  if (!userId) {
-    return res.status(400).json({ error: 'userId is required' });
-  }
+router.post('/increment-score', verifyToken, async (req, res) => {
+  const userId = req.userId; // Get from verified token
 
   try {
     const { data: participants, error: findErr } = await supabase
@@ -202,12 +199,12 @@ router.post('/increment-score', async (req, res) => {
   }
 });
 
-router.delete('/:challengeId', async (req, res) => {
+router.delete('/:challengeId', verifyToken, async (req, res) => {
   const { challengeId } = req.params;
-  const { userId } = req.body || {};
+  const userId = req.userId; // Get from verified token
 
-  if (!challengeId || !userId) {
-    return res.status(400).json({ error: 'challengeId and userId are required' });
+  if (!challengeId) {
+    return res.status(400).json({ error: 'challengeId is required' });
   }
 
   try {
