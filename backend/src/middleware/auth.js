@@ -33,10 +33,12 @@ export const verifyToken = async (req, res, next) => {
       decoded = jwt.verify(token, secret, { algorithms: ['HS256'] });
     } else {
       const supabaseUrl = process.env.SUPABASE_URL;
-      if (!supabaseUrl) {
-        return res.status(500).json({ error: 'Missing SUPABASE_URL' });
+      const jwksUrl = process.env.SUPABASE_JWKS_URL || (supabaseUrl ? new URL('/auth/v1/keys', supabaseUrl).toString() : null);
+      if (!jwksUrl) {
+        return res.status(500).json({ error: 'Missing SUPABASE_URL for JWKS' });
       }
-      const jwks = createRemoteJWKSet(new URL(`${supabaseUrl}/auth/v1/keys`));
+      console.log('Using JWKS URL:', jwksUrl);
+      const jwks = createRemoteJWKSet(new URL(jwksUrl));
       const { payload } = await jwtVerify(token, jwks, { algorithms: ['ES256'] });
       decoded = payload;
     }
