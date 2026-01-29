@@ -10,6 +10,14 @@ const getJwtHeader = (token) => {
   }
 };
 
+const ensureJwksAccessible = async (jwksUrl) => {
+  const res = await fetch(jwksUrl, { method: 'GET' });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`JWKS fetch failed: ${res.status} ${res.statusText} ${text.slice(0, 200)}`);
+  }
+};
+
 export const verifyToken = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -38,6 +46,7 @@ export const verifyToken = async (req, res, next) => {
         return res.status(500).json({ error: 'Missing SUPABASE_URL for JWKS' });
       }
       console.log('Using JWKS URL:', jwksUrl);
+      await ensureJwksAccessible(jwksUrl);
       const jwks = createRemoteJWKSet(new URL(jwksUrl));
       const { payload } = await jwtVerify(token, jwks, { algorithms: ['ES256'] });
       decoded = payload;
