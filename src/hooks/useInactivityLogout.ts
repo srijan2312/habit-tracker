@@ -50,11 +50,18 @@ export const useInactivityLogout = (signOut: () => void | Promise<void>, enabled
       }, INACTIVITY_TIMEOUT);
     };
 
-    // Check inactivity on mount (handles browser close/reopen)
-    checkInactivity();
-
-    // Set initial last activity time
+    // Set initial last activity time (reset to now on mount to avoid immediate logout)
     updateLastActivity();
+    
+    // Check inactivity only if there was a previous session
+    const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
+    if (lastActivity) {
+      const timeSinceLastActivity = Date.now() - parseInt(lastActivity);
+      // Only check if the timestamp is reasonable (not from an old session)
+      if (timeSinceLastActivity > 0 && timeSinceLastActivity < 24 * 60 * 60 * 1000) {
+        checkInactivity();
+      }
+    }
 
     // Activity events to monitor
     const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
