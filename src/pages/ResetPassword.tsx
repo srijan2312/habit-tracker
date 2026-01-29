@@ -15,6 +15,7 @@ export default function ResetPassword() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasSession, setHasSession] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -72,6 +73,8 @@ export default function ResetPassword() {
       } catch (err) {
         console.error('Session check error:', err);
         setError('Failed to verify recovery session.');
+      } finally {
+        setCheckingSession(false);
       }
     };
 
@@ -142,6 +145,27 @@ export default function ResetPassword() {
             </div>
             <CardTitle>Password reset!</CardTitle>
             <p className="mt-2 text-muted-foreground">Redirecting to login...</p>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  if (checkingSession) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <div className="fixed right-4 top-4 z-50">
+          <ThemeToggle />
+        </div>
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-2">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
+                <Leaf className="h-6 w-6 text-primary-foreground" />
+              </div>
+            </div>
+            <CardTitle>Verifying reset link...</CardTitle>
+            <p className="mt-2 text-muted-foreground">Please wait</p>
           </CardHeader>
         </Card>
       </div>
