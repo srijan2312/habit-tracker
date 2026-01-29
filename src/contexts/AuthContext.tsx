@@ -118,6 +118,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('user', JSON.stringify({ _id: data.session.user.id, email, name: userName }));
       localStorage.setItem('lastActivityTime', Date.now().toString());
       setUser({ _id: data.session.user.id, email, name: userName });
+      
+      // Apply pending referral code after successful signin
+      const pendingReferralCode = sessionStorage.getItem('pending_referral_code');
+      if (pendingReferralCode) {
+        setTimeout(async () => {
+          try {
+            const API_URL = import.meta.env.VITE_API_URL || 'https://habit-tracker-y0b7.onrender.com';
+            const response = await fetch(`${API_URL}/api/referrals/apply`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${data.session.access_token}`,
+              },
+              body: JSON.stringify({ referralCode: pendingReferralCode }),
+            });
+            
+            if (response.ok) {
+              const result = await response.json();
+              console.log('Referral applied:', result);
+            }
+          } catch (err) {
+            console.error('Failed to apply referral:', err);
+          } finally {
+            sessionStorage.removeItem('pending_referral_code');
+          }
+        }, 1000);
+      }
+      
       return { error: null };
     } catch (err: unknown) {
       if (err instanceof Error) {

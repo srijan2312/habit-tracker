@@ -54,9 +54,15 @@ export default function SignUp() {
 
     setIsLoading(true);
     try {
+      // Store referral code in sessionStorage before signup
+      if (referralCode) {
+        sessionStorage.setItem('pending_referral_code', referralCode);
+      }
+      
       const { error, needsEmailConfirmation } = await signUp(email, password, fullName);
       if (error) {
         toast.error(error);
+        sessionStorage.removeItem('pending_referral_code');
       } else if (needsEmailConfirmation) {
         toast.success('Check your email to confirm your account before signing in.');
         navigate('/signin');
@@ -81,6 +87,7 @@ export default function SignUp() {
                 const data = await response.json();
                 toast.success(`Referral applied! Your friend earned ${data.tokensAwarded} freeze tokens! 🎉`);
               }
+              sessionStorage.removeItem('pending_referral_code');
             } catch (err) {
               console.error('Failed to apply referral:', err);
             }
