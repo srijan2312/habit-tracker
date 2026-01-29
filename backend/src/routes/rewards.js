@@ -1,5 +1,5 @@
 import express from 'express';
-import { supabase } from '../config/supabase.js';
+import { supabase, supabaseAdmin } from '../config/supabase.js';
 import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -115,8 +115,9 @@ router.post('/daily-signin/claim/:userId', verifyToken, async (req, res) => {
       newFreezeTokens = (existingReward?.freeze_tokens || 0) + 1;
     }
 
-    // Upsert reward record
-    const { data: updated, error } = await supabase
+    // Upsert reward record using admin client to bypass RLS
+    const adminClient = supabaseAdmin || supabase; // Fallback if service role not available
+    const { data: updated, error } = await adminClient
       .from('daily_signin_rewards')
       .upsert(
         {
