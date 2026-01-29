@@ -211,7 +211,7 @@ export default function ResetPassword() {
               />
             </div>
             {error && <div className="text-sm text-destructive">{error}</div>}
-            <Button className="w-full" type="submit" size="lg" disabled={loading}>
+            <Button className="w-full" type="submit" size="lg" disabled={loading || !hasSession}>
               {loading ? 'Resetting...' : 'Reset Password'}
             </Button>
           </form>
