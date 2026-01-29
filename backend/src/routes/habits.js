@@ -231,7 +231,8 @@ router.get('/:userId', verifyToken, async (req, res) => {
 router.post('/', verifyToken, async (req, res) => {
   try {
     const habitData = { ...req.body, user_id: req.userId }; // Enforce userId from token
-    const { data, error } = await supabase
+    const db = supabaseAdmin || supabase;
+    const { data, error } = await db
       .from('habits')
       .insert([habitData])
       .select();
@@ -247,7 +248,8 @@ router.post('/', verifyToken, async (req, res) => {
 router.put('/:id', verifyToken, async (req, res) => {
   try {
     const userId = req.userId;
-    const { data, error } = await supabase
+    const db = supabaseAdmin || supabase;
+    const { data, error } = await db
       .from('habits')
       .update(req.body)
       .eq('id', req.params.id)
@@ -268,7 +270,8 @@ router.put('/:id', verifyToken, async (req, res) => {
 router.delete('/:id', verifyToken, async (req, res) => {
   try {
     const userId = req.userId;
-    const { error } = await supabase
+    const db = supabaseAdmin || supabase;
+    const { error } = await db
       .from('habits')
       .delete()
       .eq('id', req.params.id)
@@ -287,13 +290,14 @@ router.post('/freeze/:habitId', verifyToken, async (req, res) => {
     const { habitId } = req.params;
     const { date } = req.body;
     const user_id = req.userId; // Get from verified token
+    const db = supabaseAdmin || supabase;
     
     if (!date) {
       return res.status(400).json({ error: 'Missing date' });
     }
 
     // Check if user has freeze tokens available
-    const { data: user, error: userError } = await supabase
+    const { data: user, error: userError } = await db
       .from('users')
       .select('freezes_available')
       .eq('id', user_id)
@@ -306,7 +310,7 @@ router.post('/freeze/:habitId', verifyToken, async (req, res) => {
     }
 
     // Check if freeze already exists for this habit on this date
-    const { data: existingFreeze } = await supabase
+    const { data: existingFreeze } = await db
       .from('streak_freezes')
       .select('*')
       .eq('habit_id', habitId)
@@ -319,7 +323,7 @@ router.post('/freeze/:habitId', verifyToken, async (req, res) => {
     }
 
     // Add freeze record
-    const { data: freeze, error: freezeError } = await supabase
+    const { data: freeze, error: freezeError } = await db
       .from('streak_freezes')
       .insert([{ habit_id: habitId, user_id, date }])
       .select();
@@ -327,7 +331,7 @@ router.post('/freeze/:habitId', verifyToken, async (req, res) => {
     if (freezeError) throw freezeError;
 
     // Decrement user's freeze tokens
-    const { error: updateError } = await supabase
+    const { error: updateError } = await db
       .from('users')
       .update({ freezes_available: user.freezes_available - 1 })
       .eq('id', user_id);
@@ -343,7 +347,8 @@ router.post('/freeze/:habitId', verifyToken, async (req, res) => {
 // Get user freeze tokens count
 router.get('/info/:userId', async (req, res) => {
   try {
-    const { data, error } = await supabase
+    const db = supabaseAdmin || supabase;
+    const { data, error } = await db
       .from('users')
       .select('freezes_available')
       .eq('id', req.params.userId)

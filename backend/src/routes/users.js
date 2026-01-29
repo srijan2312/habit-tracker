@@ -1,7 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { supabase } from '../config/supabase.js';
+import { supabase, supabaseAdmin } from '../config/supabase.js';
 import { sendResetEmail } from '../utils/sendgrid.js';
 
 const router = express.Router();
@@ -21,7 +21,8 @@ router.post('/register', async (req, res) => {
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    const { data, error } = await supabase
+    const db = supabaseAdmin || supabase;
+    const { data, error } = await db
       .from('users')
       .insert([{ email, password: hashedPassword, name: fullName }])
       .select();
@@ -41,7 +42,8 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
     
-    const { data, error } = await supabase
+    const db = supabaseAdmin || supabase;
+    const { data, error } = await db
       .from('users')
       .select('*')
       .eq('email', email)
@@ -68,7 +70,8 @@ router.post('/forgot-password', async (req, res) => {
       return res.status(400).json({ error: 'Email is required' });
     }
     
-    const { data, error } = await supabase
+    const db = supabaseAdmin || supabase;
+    const { data, error } = await db
       .from('users')
       .select('id')
       .eq('email', email)
@@ -107,7 +110,8 @@ router.post('/reset-password', async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    const { error } = await supabase
+    const db = supabaseAdmin || supabase;
+    const { error } = await db
       .from('users')
       .update({ password: hashedPassword })
       .eq('id', decoded.userId);

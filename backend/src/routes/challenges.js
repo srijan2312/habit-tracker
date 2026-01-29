@@ -1,5 +1,5 @@
 import express from 'express';
-import { supabase } from '../config/supabase.js';
+import { supabase, supabaseAdmin } from '../config/supabase.js';
 import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -33,7 +33,8 @@ router.get('/', verifyToken, async (req, res) => {
   const userId = req.userId; // Get from verified token
 
   try {
-    const { data: memberRows, error: memberErr } = await supabase
+    const db = supabaseAdmin || supabase;
+    const { data: memberRows, error: memberErr } = await db
       .from('friend_challenge_participants')
       .select('challenge_id')
       .eq('user_id', userId);
@@ -45,13 +46,13 @@ router.get('/', verifyToken, async (req, res) => {
 
     const challengeIds = Array.from(new Set(memberRows.map((r) => r.challenge_id)));
 
-    const { data: challengeRows, error: challengeErr } = await supabase
+    const { data: challengeRows, error: challengeErr } = await db
       .from('friend_challenges')
       .select('*')
       .in('id', challengeIds);
     if (challengeErr) throw challengeErr;
 
-    const { data: participantRows, error: partErr } = await supabase
+    const { data: participantRows, error: partErr } = await db
       .from('friend_challenge_participants')
       .select('*')
       .in('challenge_id', challengeIds);
@@ -72,7 +73,8 @@ router.post('/', verifyToken, async (req, res) => {
   const code = Math.random().toString(36).slice(2, 6).toUpperCase();
 
   try {
-    const { data: challengeRow, error: challengeErr } = await supabase
+    const db = supabaseAdmin || supabase;
+    const { data: challengeRow, error: challengeErr } = await db
       .from('friend_challenges')
       .insert([
         {
@@ -88,7 +90,7 @@ router.post('/', verifyToken, async (req, res) => {
 
     if (challengeErr) throw challengeErr;
 
-    const { data: participantRow, error: participantErr } = await supabase
+    const { data: participantRow, error: participantErr } = await db
       .from('friend_challenge_participants')
       .insert([
         {
@@ -121,7 +123,8 @@ router.post('/join', verifyToken, async (req, res) => {
   }
 
   try {
-    const { data: challengeRow, error: findErr } = await supabase
+    const db = supabaseAdmin || supabase;
+    const { data: challengeRow, error: findErr } = await db
       .from('friend_challenges')
       .select('*')
       .eq('code', code.toUpperCase())
@@ -131,7 +134,7 @@ router.post('/join', verifyToken, async (req, res) => {
       return res.status(404).json({ error: 'Challenge not found' });
     }
 
-    const { data: existingParticipant, error: existingErr } = await supabase
+    const { data: existingParticipant, error: existingErr } = await db
       .from('friend_challenge_participants')
       .select('*')
       .eq('challenge_id', challengeRow.id)
@@ -141,7 +144,7 @@ router.post('/join', verifyToken, async (req, res) => {
     if (existingErr) throw existingErr;
 
     if (!existingParticipant) {
-      const { error: insertErr } = await supabase
+      const { error: insertErr } = await db
         .from('friend_challenge_participants')
         .insert([
           {
@@ -155,7 +158,7 @@ router.post('/join', verifyToken, async (req, res) => {
       if (insertErr) throw insertErr;
     }
 
-    const { data: participants, error: partErr } = await supabase
+    const { data: participants, error: partErr } = await db
       .from('friend_challenge_participants')
       .select('*')
       .eq('challenge_id', challengeRow.id);
@@ -173,7 +176,8 @@ router.post('/increment-score', verifyToken, async (req, res) => {
   const userId = req.userId; // Get from verified token
 
   try {
-    const { data: participants, error: findErr } = await supabase
+    const db = supabaseAdmin || supabase;
+    const { data: participants, error: findErr } = await db
       .from('friend_challenge_participants')
       .select('*')
       .eq('user_id', userId);
@@ -185,7 +189,7 @@ router.post('/increment-score', verifyToken, async (req, res) => {
 
     const now = new Date().toISOString();
     const updatePromises = participants.map((p) =>
-      supabase
+      db
         .from('friend_challenge_participants')
         .update({ score: (p.score || 0) + 1, updated_at: now })
         .eq('id', p.id)
@@ -208,7 +212,8 @@ router.delete('/:challengeId', verifyToken, async (req, res) => {
   }
 
   try {
-    const { data: challenge, error: findErr } = await supabase
+    const db = supabaseAdmin || supabase;
+    const { data: challenge, error: findErr } = await db
       .from('friend_challenges')
       .select('*')
       .eq('id', challengeId)
@@ -222,7 +227,7 @@ router.delete('/:challengeId', verifyToken, async (req, res) => {
       return res.status(403).json({ error: 'Only the challenge owner can delete it' });
     }
 
-    const { error: deleteErr } = await supabase
+    const { error: deleteErr } = await db
       .from('friend_challenges')
       .delete()
       .eq('id', challengeId);

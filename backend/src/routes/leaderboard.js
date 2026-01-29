@@ -1,5 +1,5 @@
 import express from 'express';
-import { supabase } from '../config/supabase.js';
+import { supabase, supabaseAdmin } from '../config/supabase.js';
 import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -10,29 +10,30 @@ router.get('/', verifyToken, async (req, res) => {
     const { metric = 'completion', limit = 50 } = req.query;
     const userId = req.userId;
     const displayLimit = Math.min(parseInt(limit) || 50, 50); // Cap at 50
+    const db = supabaseAdmin || supabase;
     
     // Get all users
-    const { data: users, error: usersError } = await supabase
+    const { data: users, error: usersError } = await db
     .from('users')
     .select('id, name');
     
     if (usersError) throw usersError;
     
     // Get all habits and logs
-    const { data: habits, error: habitsError } = await supabase
+    const { data: habits, error: habitsError } = await db
       .from('habits')
       .select('*');
     
     if (habitsError) throw habitsError;
     
-    const { data: logs, error: logsError } = await supabase
+    const { data: logs, error: logsError } = await db
       .from('habit_logs')
       .select('*')
       .eq('completed', true);
     
     if (logsError) throw logsError;
     
-    const { data: freezes, error: freezesError } = await supabase
+    const { data: freezes, error: freezesError } = await db
       .from('streak_freezes')
       .select('*');
     
