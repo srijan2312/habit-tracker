@@ -26,6 +26,11 @@ const queryClient = new QueryClient();
 const AuthRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
   
+  // Don't redirect if user is in password reset mode
+  if (sessionStorage.getItem('in_password_reset') === 'true') {
+    return <>{children}</>;
+  }
+  
   if (loading) return null;
   if (user) return <Navigate to="/dashboard" replace />;
   

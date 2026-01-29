@@ -14,15 +14,23 @@ export default function ResetPassword() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [hasSession, setHasSession] = useState(true);
+  const [hasSession, setHasSession] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Mark that we're in password reset mode to prevent auth redirects
+    sessionStorage.setItem('in_password_reset', 'true');
+
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession();
       setHasSession(Boolean(data.session));
     };
     checkSession();
+
+    return () => {
+      // Clean up when leaving this page
+      sessionStorage.removeItem('in_password_reset');
+    };
   }, []);
 
 
