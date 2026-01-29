@@ -142,7 +142,6 @@ router.post('/daily-signin/claim/:userId', verifyToken, async (req, res) => {
     }
 
     // Upsert reward record using admin client to bypass RLS
-    const adminClient = supabaseAdmin || supabase; // Fallback if service role not available
     const { data: updated, error } = await adminClient
       .from('daily_signin_rewards')
       .upsert(
