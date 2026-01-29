@@ -45,13 +45,27 @@ export const verifyToken = async (req, res, next) => {
     } else {
       const supabaseUrl = process.env.SUPABASE_URL;
       const supabaseKey = process.env.SUPABASE_KEY || process.env.SUPABASE_ANON_KEY;
-      const jwksUrl = process.env.SUPABASE_JWKS_URL || (supabaseUrl ? new URL('/auth/v1/keys', supabaseUrl).toString() : null);
-      if (!jwksUrl) {
-        return res.status(500).json({ error: 'Missing SUPABASE_URL for JWKS' });
+      
+      if (!supabaseUrl) {
+        console.error('SUPABASE_URL env var is not set');
+        return res.status(500).json({ error: 'Server misconfiguration: missing SUPABASE_URL' });
       }
+      
+      if (!supabaseKey) {
+        console.error('SUPABASE_KEY env var is not set');
+        return res.status(500).json({ error: 'Server misconfiguration: missing SUPABASE_KEY' });
+      }
+      
+      const jwksUrl = process.env.SUPABASE_JWKS_URL || new URL('/auth/v1/keys', supabaseUrl).toString();
       console.log('Using JWKS URL:', jwksUrl);
+      console.log('SUPABASE_URL:', supabaseUrl);
+      
+      const jwksHeaders = {
+        apikey: supabaseKey,
+      };
+      
       await ensureJwksAccessible(jwksUrl);
-      const jwks = createRemoteJWKSet(new URL(jwksUrl));
+      const jwks = createRemoteJWKSet(new URL(jwksUrl), { headers: jwksHeaders });
       const { payload } = await jwtVerify(token, jwks, { algorithms: ['ES256'] });
       decoded = payload;
     }
