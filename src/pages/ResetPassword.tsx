@@ -22,9 +22,35 @@ export default function ResetPassword() {
     sessionStorage.setItem('in_password_reset', 'true');
 
     const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setHasSession(Boolean(data.session));
+      try {
+        // Wait a moment for Supabase to process the URL fragment
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const { data } = await supabase.auth.getSession();
+        if (data.session) {
+          setHasSession(true);
+        } else {
+          // Try to get the session from URL fragment
+          const hash = window.location.hash;
+          if (hash.includes('access_token') && hash.includes('type=recovery')) {
+            // Session might be loading, give it another moment
+            await new Promise(resolve => setTimeout(resolve, 500));
+            const { data: retryData } = await supabase.auth.getSession();
+            if (retryData.session) {
+              setHasSession(true);
+            } else {
+              setError('Recovery link has expired or is invalid. Please request a new password reset email.');
+            }
+          } else {
+            setError('No recovery link found. Please use the link from your email.');
+          }
+        }
+      } catch (err) {
+        console.error('Session check error:', err);
+        setError('Failed to verify recovery session.');
+      }
     };
+
     checkSession();
 
     return () => {
@@ -37,14 +63,37 @@ export default function ResetPassword() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (!hasSession) return setError('Invalid or expired link');
-    if (password.length < 6) return setError('Password must be at least 6 characters');
-    if (password !== confirm) return setError('Passwords do not match');
+    
+    if (!hasSession) {
+      setError('No active recovery session. Please use the link from your reset email.');
+      return;
+    }
+    
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+    
+    if (password !== confirm) {
+      setError('Passwords do not match');
+      return;
+    }
+    
     setLoading(true);
     try {
+      // Verify we still have a session before updating
+      const { data: sessionCheck } = await supabase.auth.getSession();
+      if (!sessionCheck.session) {
+        throw new Error('Session expired. Please request a new reset link.');
+      }
+
       const { error: authError } = await supabase.auth.updateUser({ password });
       if (authError) throw new Error(authError.message || 'Failed to reset password');
+      
       setSuccess(true);
+      // Sign out the recovery session
+      await supabase.auth.signOut();
+      
       setTimeout(() => navigate('/signin'), 2000);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An error occurred');
