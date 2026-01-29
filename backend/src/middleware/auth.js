@@ -11,9 +11,13 @@ const getJwtHeader = (token) => {
 };
 
 const ensureJwksAccessible = async (jwksUrl, headers) => {
+  console.log('Fetching JWKS from:', jwksUrl);
+  console.log('Headers being sent:', Object.keys(headers));
   const res = await fetch(jwksUrl, { method: 'GET', headers });
+  const text = await res.text();
+  console.log('JWKS response status:', res.status, res.statusText);
+  console.log('JWKS response body:', text.slice(0, 500));
   if (!res.ok) {
-    const text = await res.text();
     throw new Error(`JWKS fetch failed (${jwksUrl}): ${res.status} ${res.statusText} ${text.slice(0, 200)}`);
   }
 };
