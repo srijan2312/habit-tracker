@@ -1,4 +1,5 @@
 import express from 'express';
+import crypto from 'crypto';
 import { supabase, supabaseAdmin } from '../config/supabase.js';
 import { verifyToken } from '../middleware/auth.js';
 
@@ -11,13 +12,18 @@ router.get('/info', verifyToken, async (req, res) => {
     const db = supabaseAdmin || supabase;
 
     // Get user's referral code and total referrals
-    let { data: user, error: userError } = await db
+    let { data: users, error: userError } = await db
       .from('users')
       .select('id, referral_code, total_referrals, email')
-      .eq('id', userId)
-      .single();
+      .eq('id', userId);
 
     if (userError) throw userError;
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    let user = users[0];
 
     // If user doesn't have a referral code, generate one
     if (!user.referral_code) {
@@ -103,17 +109,20 @@ router.post('/apply', verifyToken, async (req, res) => {
     const { data: newUser, error: newUserCheckError } = await db
       .from('users')
       .select('id, referral_code')
-      .eq('id', newUserId)
-      .single();
+      .eq('id', newUserId);
 
-    if (newUserCheckError?.code === 'PGRST116') {
-      // User doesn't exist, create one
+    if (newUserCheckError) throw newUserCheckError;
+
+    if (!newUser || newUser.length === 0) {
+      // User doesn't exist, create one with default password hash
       console.log('New user not in public.users, creating...');
+      const defaultPasswordHash = '$2a$10$' + crypto.randomBytes(53).toString('base64').substring(0, 53);
       const { error: createError } = await db
         .from('users')
         .insert({
           id: newUserId,
           email: req.user?.email || `user_${newUserId}@habitly.app`,
+          password: defaultPasswordHash,
           referral_code: generateReferralCode(newUserId),
         });
       
@@ -121,9 +130,7 @@ router.post('/apply', verifyToken, async (req, res) => {
         console.error('Error creating new user:', createError);
         throw createError;
       }
-    } else if (newUserCheckError) {
-      throw newUserCheckError;
-    } else if (!newUser.referral_code) {
+    } else if (!newUser[0].referral_code) {
       // User exists but no referral code, generate one
       console.log('New user exists but no referral code, generating...');
       const { error: updateError } = await db
@@ -235,7 +242,6 @@ router.post('/apply', verifyToken, async (req, res) => {
 
 // Helper function to generate referral code
 function generateReferralCode(userId) {
-  const crypto = require('crypto');
   return crypto
     .createHash('md5')
     .update(Math.random().toString() + userId)
