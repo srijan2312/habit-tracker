@@ -25,6 +25,7 @@ import JournalPage from "./pages/JournalPage";
 import SearchPage from "./pages/SearchPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import HelpPage from "./pages/HelpPage";
+import HistoryPage from "./pages/HistoryPage";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,7 @@ const AppRoutes = () => {
       <Route path="/journal" element={<ProtectedRoute><JournalPage /></ProtectedRoute>} />
       <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+      <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
       <Route path="/help" element={<ProtectedRoute><HelpPage /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
       <Route path="/join/:code" element={<ProtectedRoute><JoinChallenge /></ProtectedRoute>} />

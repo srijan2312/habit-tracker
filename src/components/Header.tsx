@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { LogOut, User, Leaf, Menu, X, Settings, BookOpen, Search, BarChart3, HelpCircle } from 'lucide-react';
+import { LogOut, User, Leaf, Menu, X, Settings, BookOpen, Search, BarChart3, HelpCircle, Clock } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { QuickAddHabitButton } from './QuickAddHabitButton';
 import { SearchBar } from './SearchBar';
@@ -120,6 +120,13 @@ export const Header: React.FC = () => {
               activeClassName={activeNavLinkClasses}
             >
               Help
+            </NavLink>
+            <NavLink 
+              to="/history" 
+              className={navLinkClasses}
+              activeClassName={activeNavLinkClasses}
+            >
+              History
             </NavLink>
           </nav>
         )}
@@ -244,6 +251,14 @@ export const Header: React.FC = () => {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Help
+                    </NavLink>
+                    <NavLink 
+                      to="/history" 
+                      className="text-sm font-medium px-2 py-1 rounded"
+                      activeClassName="text-foreground bg-primary/10"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      History
                     </NavLink>
                     <hr className="border-border" />
                     <button 

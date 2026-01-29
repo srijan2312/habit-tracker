@@ -9,6 +9,7 @@ import rewardsRoutes from './routes/rewards.js';
 import referralRoutes from './routes/referrals.js';
 import settingsRoutes from './routes/settings.js';
 import notesRoutes from './routes/notes.js';
+import activityRoutes from './routes/activity.js';
 
 dotenv.config();
 
@@ -47,6 +48,7 @@ app.use('/api/challenges', challengeRoutes);
 app.use('/api/referrals', referralRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/notes', notesRoutes);
+app.use('/api/activity', activityRoutes);
 
 const PORT = process.env.PORT || 5000;
 
