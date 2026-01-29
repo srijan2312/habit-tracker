@@ -16,6 +16,13 @@ CREATE TABLE IF NOT EXISTS public.habit_logs (
   UNIQUE(habit_id, user_id, completed_date)
 );
 
+-- Ensure columns exist if table already existed with older schema
+ALTER TABLE public.habit_logs
+  ADD COLUMN IF NOT EXISTS completed_date DATE,
+  ADD COLUMN IF NOT EXISTS note TEXT DEFAULT '',
+  ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT now(),
+  ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT now();
+
 -- Add indexes
 CREATE INDEX IF NOT EXISTS idx_habit_logs_habit_id ON public.habit_logs(habit_id);
 CREATE INDEX IF NOT EXISTS idx_habit_logs_user_id ON public.habit_logs(user_id);

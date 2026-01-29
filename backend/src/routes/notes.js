@@ -158,6 +158,7 @@ router.get('/recent/all', verifyToken, async (req, res) => {
     }
 
     const { limit = 10 } = req.query;
+    const safeLimit = Number.parseInt(String(limit), 10) || 10;
 
     const { data, error } = await supabase
       .from('habit_logs')
@@ -167,7 +168,7 @@ router.get('/recent/all', verifyToken, async (req, res) => {
       `)
       .eq('user_id', user.id)
       .order('completed_date', { ascending: false })
-      .limit(parseInt(limit as string));
+      .limit(safeLimit);
 
     if (error) {
       console.error('❌ Get recent notes error:', error);
