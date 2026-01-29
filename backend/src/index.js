@@ -7,6 +7,7 @@ import leaderboardRoutes from './routes/leaderboard.js';
 import challengeRoutes from './routes/challenges.js';
 import rewardsRoutes from './routes/rewards.js';
 import referralRoutes from './routes/referrals.js';
+import settingsRoutes from './routes/settings.js';
 
 dotenv.config();
 
@@ -43,6 +44,7 @@ app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/rewards', rewardsRoutes);
 app.use('/api/challenges', challengeRoutes);
 app.use('/api/referrals', referralRoutes);
+app.use('/api/settings', settingsRoutes);
 
 const PORT = process.env.PORT || 5000;
 
