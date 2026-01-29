@@ -1,5 +1,5 @@
 import express from 'express';
-import { supabase } from '../config/supabase.js';
+import { supabase, supabaseAdmin } from '../config/supabase.js';
 import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -9,13 +9,14 @@ router.post('/logs', verifyToken, async (req, res) => {
   try {
     const { habit_id, date, completed } = req.body;
     const user_id = req.userId; // Get from verified token
+    const db = supabaseAdmin || supabase;
     
     if (!habit_id || !date) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
     
     // Use upsert to avoid duplicate key errors
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('habit_logs')
       .upsert({ habit_id, user_id, date, completed: completed !== false })
       .select();
@@ -32,12 +33,13 @@ router.delete('/logs/:habitId/:date', verifyToken, async (req, res) => {
   try {
     const { habitId, date } = req.params;
     const userId = req.userId; // Get from verified token
+    const db = supabaseAdmin || supabase;
     
     if (!habitId || !date) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
     
-    const { error } = await supabase
+    const { error } = await db
       .from('habit_logs')
       .delete()
       .eq('habit_id', habitId)
@@ -55,8 +57,9 @@ router.delete('/logs/:habitId/:date', verifyToken, async (req, res) => {
 router.get('/logs/:userId', verifyToken, async (req, res) => {
   try {
     const userId = req.userId; // Get from verified token, ignore URL param
+    const db = supabaseAdmin || supabase;
     
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('habit_logs')
       .select('*')
       .eq('user_id', userId);
@@ -72,15 +75,16 @@ router.get('/logs/:userId', verifyToken, async (req, res) => {
 router.get('/:userId', verifyToken, async (req, res) => {
   try {
     const userId = req.userId; // Get from verified token, ignore URL param
+    const db = supabaseAdmin || supabase;
     
-    const { data: habits, error: habitsError } = await supabase
+    const { data: habits, error: habitsError } = await db
       .from('habits')
       .select('*')
       .eq('user_id', userId);
     
     if (habitsError) throw habitsError;
     
-    const { data: logs, error: logsError } = await supabase
+    const { data: logs, error: logsError } = await db
       .from('habit_logs')
       .select('*')
       .eq('user_id', userId)
@@ -89,7 +93,7 @@ router.get('/:userId', verifyToken, async (req, res) => {
     if (logsError) throw logsError;
 
     // Get streak freezes
-    const { data: freezes, error: freezesError } = await supabase
+    const { data: freezes, error: freezesError } = await db
       .from('streak_freezes')
       .select('*')
       .eq('user_id', userId);

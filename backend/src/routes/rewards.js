@@ -8,9 +8,10 @@ const router = express.Router();
 router.get('/daily-signin/:userId', verifyToken, async (req, res) => {
   try {
     const userId = req.userId; // Get from verified token, ignore URL param
+    const db = supabaseAdmin || supabase;
 
     // Get user's daily signin reward record
-    const { data: reward, error } = await supabase
+    const { data: reward, error } = await db
       .from('daily_signin_rewards')
       .select('*')
       .eq('user_id', userId)
@@ -71,13 +72,13 @@ router.post('/daily-signin/claim/:userId', verifyToken, async (req, res) => {
   try {
     const userId = req.userId; // Get from verified token, ignore URL param
     const today = new Date().toISOString().slice(0, 10);
+    const db = supabaseAdmin || supabase;
     
     console.log('Claiming reward for userId:', userId);
     console.log('User object:', req.user);
     
     // First, ensure the user exists in public.users table to satisfy FK constraint
-    const adminClient = supabaseAdmin || supabase;
-    const { data: existingUser, error: selectError } = await adminClient
+    const { data: existingUser, error: selectError } = await db
       .from('users')
       .select('id')
       .eq('id', userId)
@@ -86,7 +87,7 @@ router.post('/daily-signin/claim/:userId', verifyToken, async (req, res) => {
     if (!existingUser && selectError?.code === 'PGRST116') {
       // User doesn't exist, create a placeholder record
       console.log('User does not exist in users table, creating one...');
-      const { error: insertError } = await adminClient
+      const { error: insertError } = await db
         .from('users')
         .insert({ 
           id: userId,
@@ -99,7 +100,7 @@ router.post('/daily-signin/claim/:userId', verifyToken, async (req, res) => {
     }
 
     // Get current reward record
-    const { data: existingReward } = await supabase
+    const { data: existingReward } = await db
       .from('daily_signin_rewards')
       .select('*')
       .eq('user_id', userId)
@@ -142,7 +143,7 @@ router.post('/daily-signin/claim/:userId', verifyToken, async (req, res) => {
     }
 
     // Upsert reward record using admin client to bypass RLS
-    const { data: updated, error } = await adminClient
+    const { data: updated, error } = await db
       .from('daily_signin_rewards')
       .upsert(
         {
