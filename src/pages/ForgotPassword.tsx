@@ -16,14 +16,25 @@ export default function ForgotPassword({ onBack }: { onBack: () => void }) {
     e.preventDefault();
     setLoading(true);
     setError('');
+    
     try {
-      const { error: authError } = await supabase.auth.resetPasswordForEmail(email, {
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Request timed out. Please try again.')), 10000)
+      );
+
+      const resetPromise = supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
+
+      const { error: authError } = await Promise.race([resetPromise, timeoutPromise]) as any;
+      
       if (authError) throw new Error(authError.message || 'Failed to send email');
       setSent(true);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      const message = err instanceof Error ? err.message : 'An error occurred';
+      setError(message);
+      console.error('Password reset error:', err);
     } finally {
       setLoading(false);
     }
