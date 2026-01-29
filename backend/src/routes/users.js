@@ -10,6 +10,15 @@ const router = express.Router();
 router.post('/register', async (req, res) => {
   try {
     const { email, password, fullName } = req.body;
+    if (!email || !password || !fullName) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Invalid email' });
+    }
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters' });
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
     
     const { data, error } = await supabase
@@ -28,6 +37,9 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
     
     const { data, error } = await supabase
       .from('users')
@@ -52,6 +64,9 @@ router.post('/login', async (req, res) => {
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
     
     const { data, error } = await supabase
       .from('users')
@@ -59,7 +74,10 @@ router.post('/forgot-password', async (req, res) => {
       .eq('email', email)
       .single();
     
-    if (error || !data) return res.status(400).json({ error: 'No user with that email' });
+    if (error || !data) {
+      // Avoid user enumeration
+      return res.json({ message: 'Password reset email sent' });
+    }
     
     const token = jwt.sign({ userId: data.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
@@ -80,6 +98,12 @@ router.post('/forgot-password', async (req, res) => {
 router.post('/reset-password', async (req, res) => {
   try {
     const { token, password } = req.body;
+    if (!token || !password) {
+      return res.status(400).json({ error: 'Invalid or expired token' });
+    }
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters' });
+    }
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const hashedPassword = await bcrypt.hash(password, 10);
     

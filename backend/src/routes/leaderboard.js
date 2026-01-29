@@ -1,18 +1,20 @@
 import express from 'express';
 import { supabase } from '../config/supabase.js';
+import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // Get leaderboard - only shows highest streak and avg completion (no habit details)
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
   try {
-    const { metric = 'completion', limit = 50, userId } = req.query;
+    const { metric = 'completion', limit = 50 } = req.query;
+    const userId = req.userId;
     const displayLimit = Math.min(parseInt(limit) || 50, 50); // Cap at 50
     
     // Get all users
     const { data: users, error: usersError } = await supabase
-      .from('users')
-      .select('id, name, email');
+    .from('users')
+    .select('id, name');
     
     if (usersError) throw usersError;
     
@@ -115,7 +117,7 @@ router.get('/', async (req, res) => {
       
       return {
         userId: user.id,
-        name: user.name || user.email.split('@')[0],
+        name: user.name || 'User',
         highestStreak,
         avgCompletion,
         habitCount: userHabits.length,
