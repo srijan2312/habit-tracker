@@ -21,11 +21,9 @@ export const verifyToken = async (req, res, next) => {
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
     
     // Try with Supabase JWT secret first
-    let jwtSecret = process.env.SUPABASE_JWT_SECRET;
+    const jwtSecret = process.env.SUPABASE_JWT_SECRET;
     if (!jwtSecret) {
-      // Fallback for testing if env var not set
-      jwtSecret = '2Bq9rq0JiHbCwgX+FQKx0sXOl71Jca1kYVh5oBuO2BDVYGvYmSlEJv+41UH2ROH07gWKOCSRIKyROTnpXkc3Dg==';
-      console.warn('Using hardcoded JWT_SECRET - should be set via environment variable');
+      return res.status(500).json({ error: 'Missing SUPABASE_JWT_SECRET' });
     }
     
     console.log('Verifying token with SUPABASE_JWT_SECRET');
