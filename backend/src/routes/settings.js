@@ -30,7 +30,7 @@ router.get('/profile', verifyToken, async (req, res) => {
 
     const { data, error } = await supabase
       .from('users')
-      .select('id, email, name, full_name, created_at, total_referrals, freezes_available')
+      .select('id, email, name, created_at, total_referrals, freezes_available')
       .eq('id', user.id)
       .single();
 
@@ -47,7 +47,7 @@ router.get('/profile', verifyToken, async (req, res) => {
   }
 });
 
-// Update user profile (name, full_name)
+// Update user profile (name)
 router.put('/profile', verifyToken, async (req, res) => {
   try {
     const { data: { user }, error: authError } = await supabase.auth.getUser(req.token);
@@ -55,11 +55,11 @@ router.put('/profile', verifyToken, async (req, res) => {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { name, full_name } = req.body;
+    const { name } = req.body;
 
     const { data, error } = await supabase
       .from('users')
-      .update({ name, full_name })
+      .update({ name })
       .eq('id', user.id)
       .select()
       .single();
