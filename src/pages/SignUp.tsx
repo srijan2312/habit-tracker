@@ -84,8 +84,7 @@ export default function SignUp() {
               });
               
               if (response.ok) {
-                const data = await response.json();
-                toast.success(`Referral applied! Your friend earned ${data.tokensAwarded} freeze tokens! 🎉`);
+                await response.json();
               }
               sessionStorage.removeItem('pending_referral_code');
             } catch (err) {
