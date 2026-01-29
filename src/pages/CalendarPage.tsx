@@ -1,6 +1,5 @@
 import { Loader2 } from 'lucide-react';
 import { useHabits } from '@/hooks/useHabits';
-import { Header } from '@/components/Header';
 import { CalendarView } from '@/components/CalendarView';
 import { StatsOverview } from '@/components/StatsOverview';
 
@@ -10,7 +9,6 @@ export default function CalendarPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen flex-col bg-background">
-        <Header />
         <main className="flex flex-1 items-center justify-center">
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -23,8 +21,6 @@ export default function CalendarPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <Header />
-      
       <main className="flex-1 py-8">
         <div className="container space-y-8">
           {/* Page Header */}

@@ -3,7 +3,6 @@ import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { format, addMonths, subMonths } from 'date-fns';
 import { useHabits } from '@/hooks/useHabits';
 import { useAuth } from '@/contexts/useAuth';
-import { Header } from '@/components/Header';
 import { MonthlyStats } from './MonthlyStats';
 import { MonthlyProgressChart } from './MonthlyProgressChart';
 import { MonthlyProgressRing } from './MonthlyProgressRing';
@@ -83,7 +82,6 @@ export default function MonthlyTracker() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen flex-col bg-background">
-        <Header />
         <main className="flex flex-1 items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
@@ -93,7 +91,6 @@ export default function MonthlyTracker() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <Header />
       <main className="flex-1 py-6">
         <div className="container space-y-6">
           {/* Month Selector */}

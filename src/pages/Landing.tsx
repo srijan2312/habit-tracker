@@ -42,8 +42,6 @@ const MotionDiv = motion.div;
 export default function Landing() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <Header />
-      
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative overflow-hidden py-20 lg:py-32">

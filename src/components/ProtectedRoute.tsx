@@ -1,6 +1,8 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/useAuth';
 import { Loader2 } from 'lucide-react';
+import { Header } from './Header';
+import { Sidebar } from './Sidebar';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -24,5 +26,15 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <Navigate to="/signin" replace />;
   }
 
-  return <>{children}</>;
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <div className="flex flex-1">
+        <Sidebar />
+        <main className="flex-1 lg:ml-64">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
 };

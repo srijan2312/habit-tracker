@@ -4,7 +4,6 @@ import { format } from 'date-fns';
 import { useHabits, HabitWithStats, Habit } from '@/hooks/useHabits';
 import { useDailyReward } from '@/hooks/useDailyReward';
 import { useAuth } from '@/contexts/useAuth';
-import { Header } from '@/components/Header';
 import { HabitCard } from '@/components/HabitCard';
 import { HabitFormModal } from '@/components/HabitFormModal';
 import { DailyRewardModal } from '@/components/DailyRewardModal';
@@ -126,7 +125,6 @@ export default function Dashboard() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen flex-col bg-background">
-        <Header />
         <main className="flex flex-1 items-center justify-center">
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -139,8 +137,6 @@ export default function Dashboard() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <Header />
-      
       <main className="flex-1 py-8">
         <div className="container space-y-8">
           {/* Page Header */}

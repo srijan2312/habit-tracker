@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { useHabits } from '@/hooks/useHabits';
-import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -103,7 +102,6 @@ export default function AnalyticsPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen flex-col bg-background">
-        <Header />
         <main className="flex-1 py-6 sm:py-10">
           <div className="container max-w-6xl px-4 space-y-6">
             <Skeleton className="h-12 w-64" />
@@ -121,7 +119,6 @@ export default function AnalyticsPage() {
   if (!analytics) {
     return (
       <div className="flex min-h-screen flex-col bg-background">
-        <Header />
         <main className="flex-1 py-10">
           <div className="container px-4">
             <p className="text-muted-foreground text-center">Create some habits to see analytics!</p>
@@ -135,8 +132,6 @@ export default function AnalyticsPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <Header />
-
       <main className="flex-1 py-6 sm:py-10">
         <div className="container max-w-6xl px-4 sm:px-6 space-y-6 sm:space-y-8">
           <div className="space-y-2">

@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import { useHabits, HabitWithStats } from '@/hooks/useHabits';
-import { Header } from '@/components/Header';
 import { HabitCard } from '@/components/HabitCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -110,8 +109,6 @@ export default function SearchPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <Header />
-
       <main className="flex-1 py-6 sm:py-10">
         <div className="container max-w-6xl px-4 sm:px-6 space-y-6 sm:space-y-8">
           <div className="space-y-2">

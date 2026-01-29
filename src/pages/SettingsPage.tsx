@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -234,7 +233,6 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex min-h-screen flex-col bg-background">
-        <Header />
         <main className="flex-1 py-10">
           <div className="container px-4">
             <p className="text-muted-foreground">Loading settings...</p>
@@ -246,8 +244,6 @@ export default function SettingsPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <Header />
-
       <main className="flex-1 py-6 sm:py-10">
         <div className="container max-w-2xl px-4 sm:px-6">
           <div className="space-y-2 mb-8">

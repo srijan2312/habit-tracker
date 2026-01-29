@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/useAuth';
-import { Header } from '@/components/Header';
 import { API_URL } from '@/config/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -90,7 +89,6 @@ export default function InvitePage() {
   if (!user) {
     return (
       <div className="min-h-screen">
-        <Header />
         <div className="container mx-auto py-8 px-4">
           <Card>
             <CardHeader>
@@ -106,7 +104,6 @@ export default function InvitePage() {
   if (loading) {
     return (
       <div className="min-h-screen">
-        <Header />
         <div className="container mx-auto py-8 px-4 max-w-4xl">
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">Invite Friends</h1>
@@ -194,7 +191,6 @@ export default function InvitePage() {
 
   return (
     <div className="min-h-screen">
-      <Header />
       <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Invite Friends</h1>
