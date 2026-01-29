@@ -4,8 +4,8 @@ import bcrypt from 'bcryptjs';
 
 const router = express.Router();
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
-const supabaseAdminKey = process.env.SUPABASE_ADMIN_KEY;
+const supabaseKey = process.env.SUPABASE_KEY;
+const supabaseAdminKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 const supabaseAdmin = createClient(supabaseUrl, supabaseAdminKey);
