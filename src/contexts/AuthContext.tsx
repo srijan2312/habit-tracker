@@ -49,7 +49,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!isMounted) return;
-      console.log('Auth state change event:', _event, 'has session:', !!session);
       if (session?.user) {
         const nameFromMeta = session.user.user_metadata?.full_name as string | undefined;
         const displayName = nameFromMeta || session.user.email?.split('@')[0] || 'User';
@@ -58,12 +57,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           email: session.user.email || '',
           name: displayName,
         };
-        console.log('Storing token from auth state change');
         localStorage.setItem('token', session.access_token);
         localStorage.setItem('user', JSON.stringify(newUser));
         setUser(newUser);
       } else {
-        console.log('Clearing auth data from state change');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setUser(null);
@@ -103,33 +100,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log('SignIn attempt for:', email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        console.error('SignIn error:', error);
         return { error: error.message };
       }
 
       if (!data.session?.user) {
-        console.error('No session after signIn');
         return { error: 'Email not confirmed. Please check your inbox.' };
       }
 
-      console.log('SignIn successful, storing token...');
-      console.log('Access token:', data.session.access_token?.substring(0, 20) + '...');
       localStorage.setItem('token', data.session.access_token);
       const userName = (data.session.user.user_metadata?.full_name as string | undefined) || email.split('@')[0];
       localStorage.setItem('user', JSON.stringify({ _id: data.session.user.id, email, name: userName }));
       localStorage.setItem('lastActivityTime', Date.now().toString());
-      console.log('Token stored, verifying:', localStorage.getItem('token')?.substring(0, 20) + '...');
       setUser({ _id: data.session.user.id, email, name: userName });
       return { error: null };
     } catch (err: unknown) {
-      console.error('SignIn exception:', err);
       if (err instanceof Error) {
         return { error: err.message };
       }
