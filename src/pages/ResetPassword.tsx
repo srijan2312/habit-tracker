@@ -50,6 +50,7 @@ export default function ResetPassword() {
               setError(`Session error: ${sessionError.message}`);
             } else if (sessionData.session) {
               console.log('Session established successfully');
+              setError(''); // Clear any previous errors
               setHasSession(true);
             } else {
               console.error('No session in response');
@@ -62,6 +63,7 @@ export default function ResetPassword() {
           // No recovery token in URL
           const { data } = await supabase.auth.getSession();
           if (data.session) {
+            setError(''); // Clear any errors
             setHasSession(true);
           } else {
             setError('No recovery link found. Please use the link from your reset email.');
