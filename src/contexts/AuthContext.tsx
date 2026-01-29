@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { AuthContext, AuthContextType, User } from './AuthContextContext';
 import { API_URL } from '@/config/api';
-// import { useInactivityLogout } from '@/hooks/useInactivityLogout';
+import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -15,8 +15,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   }, []);
 
-  // Inactivity logout disabled - feature still has dependency issues
-  // useInactivityLogout(user ? signOut : () => {});
+  useInactivityLogout(signOut, Boolean(user));
 
   useEffect(() => {
     // Check for token and user in localStorage

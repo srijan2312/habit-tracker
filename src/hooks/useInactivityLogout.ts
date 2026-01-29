@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes in milliseconds
 const LAST_ACTIVITY_KEY = 'lastActivityTime';
 
-export const useInactivityLogout = (signOut: () => void) => {
+export const useInactivityLogout = (signOut: () => void, enabled = true) => {
   const navigate = useNavigate();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const signOutRef = useRef(signOut);
@@ -16,6 +16,9 @@ export const useInactivityLogout = (signOut: () => void) => {
   }, [signOut]);
 
   useEffect(() => {
+    if (!enabled) {
+      return;
+    }
     const updateLastActivity = () => {
       localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
     };
@@ -82,5 +85,5 @@ export const useInactivityLogout = (signOut: () => void) => {
       });
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [navigate, signOut]);
+  }, [navigate, signOut, enabled]);
 };
