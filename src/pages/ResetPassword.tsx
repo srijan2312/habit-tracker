@@ -28,14 +28,15 @@ export default function ResetPassword() {
         const hashParams = new URLSearchParams(hash.startsWith('#') ? hash.substring(1) : '');
         const queryParams = new URLSearchParams(search);
 
-        const accessToken = hashParams.get('access_token');
-        const refreshToken = hashParams.get('refresh_token');
+        const accessToken = hashParams.get('access_token') || queryParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token') || queryParams.get('refresh_token');
         const hashType = hashParams.get('type');
-
-        const token = queryParams.get('token');
         const queryType = queryParams.get('type');
 
-        if (accessToken && hashType === 'recovery') {
+        const token = queryParams.get('token');
+        const code = queryParams.get('code');
+
+        if (accessToken && (hashType === 'recovery' || queryType === 'recovery')) {
           const { error } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken || '',
@@ -51,6 +52,12 @@ export default function ResetPassword() {
             token_hash: token,
           });
 
+          if (error) {
+            setMessage(`❌ ${error.message || 'Failed to verify reset link'}`);
+            return;
+          }
+        } else if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
           if (error) {
             setMessage(`❌ ${error.message || 'Failed to verify reset link'}`);
             return;
