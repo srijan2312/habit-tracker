@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { createLocalJWKSet, jwtVerify } from 'jose';
 
 const getJwtHeader = (token) => {
   try {
@@ -19,6 +19,7 @@ const ensureJwksAccessible = async (jwksUrl) => {
   if (!res.ok) {
     throw new Error(`JWKS fetch failed (${jwksUrl}): ${res.status} ${res.statusText} ${text.slice(0, 200)}`);
   }
+  return text;
 };
 
 export const verifyToken = async (req, res, next) => {
@@ -60,12 +61,27 @@ export const verifyToken = async (req, res, next) => {
       console.log('Using JWKS URL:', jwksUrl);
       console.log('SUPABASE_URL:', supabaseUrl);
       
+      // Manually fetch JWKS with API key header (jose's createRemoteJWKSet doesn't properly pass custom headers)
+      const jwksText = await ensureJwksAccessible(jwksUrl);
       const jwksHeaders = {
         apikey: supabaseKey,
       };
       
-      await ensureJwksAccessible(jwksUrl);
-      const jwks = createRemoteJWKSet(new URL(jwksUrl), { headers: jwksHeaders });
+      // Fetch JWKS with API key
+      const jwksRes = await fetch(jwksUrl, { 
+        method: 'GET',
+        headers: jwksHeaders 
+      });
+      
+      if (!jwksRes.ok) {
+        const errText = await jwksRes.text();
+        throw new Error(`JWKS fetch with API key failed: ${jwksRes.status} ${jwksRes.statusText} ${errText.slice(0, 200)}`);
+      }
+      
+      const jwksData = await jwksRes.json();
+      console.log('JWKS data keys count:', jwksData.keys?.length || 0);
+      
+      const jwks = createLocalJWKSet(jwksData);
       const { payload } = await jwtVerify(token, jwks, { algorithms: ['ES256'] });
       decoded = payload;
     }
