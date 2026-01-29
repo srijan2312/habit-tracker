@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { LogOut, User, Leaf, Menu, X, Settings, BookOpen, Search, BarChart3, HelpCircle, Clock } from 'lucide-react';
+import { LogOut, User, Leaf, Menu, X, Settings, BookOpen, Search, BarChart3, HelpCircle, Clock, MoreHorizontal } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { QuickAddHabitButton } from './QuickAddHabitButton';
 import { SearchBar } from './SearchBar';
@@ -15,6 +15,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 
 export const Header: React.FC = () => {
@@ -50,7 +51,7 @@ export const Header: React.FC = () => {
 
         {/* Centered Menu - Desktop Only */}
         {user && (
-          <nav className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center gap-8">
+          <nav className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center gap-6">
             <NavLink 
               to="/dashboard" 
               className={navLinkClasses}
@@ -93,41 +94,52 @@ export const Header: React.FC = () => {
             >
               Settings
             </NavLink>
-            <NavLink 
-              to="/journal" 
-              className={navLinkClasses}
-              activeClassName={activeNavLinkClasses}
-            >
-              Journal
-            </NavLink>
-            <NavLink 
-              to="/search" 
-              className={navLinkClasses}
-              activeClassName={activeNavLinkClasses}
-            >
-              Search
-            </NavLink>
-            <NavLink 
-              to="/analytics" 
-              className={navLinkClasses}
-              activeClassName={activeNavLinkClasses}
-            >
-              Analytics
-            </NavLink>
-            <NavLink 
-              to="/help" 
-              className={navLinkClasses}
-              activeClassName={activeNavLinkClasses}
-            >
-              Help
-            </NavLink>
-            <NavLink 
-              to="/history" 
-              className={navLinkClasses}
-              activeClassName={activeNavLinkClasses}
-            >
-              History
-            </NavLink>
+            
+            {/* More Menu Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className={`${navLinkClasses} gap-2`}
+                >
+                  More
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link to="/journal" className="flex items-center gap-2 cursor-pointer">
+                    <BookOpen className="h-4 w-4" />
+                    Journal
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/search" className="flex items-center gap-2 cursor-pointer">
+                    <Search className="h-4 w-4" />
+                    Search
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/analytics" className="flex items-center gap-2 cursor-pointer">
+                    <BarChart3 className="h-4 w-4" />
+                    Analytics
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/help" className="flex items-center gap-2 cursor-pointer">
+                    <HelpCircle className="h-4 w-4" />
+                    Help
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/history" className="flex items-center gap-2 cursor-pointer">
+                    <Clock className="h-4 w-4" />
+                    History
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
         )}
 
@@ -171,10 +183,10 @@ export const Header: React.FC = () => {
               {/* Mobile Menu */}
               {mobileMenuOpen && (
                 <div className="absolute left-0 top-16 w-full border-b bg-card p-4 lg:hidden z-50">
-                  <nav className="flex flex-col gap-4">
+                  <nav className="flex flex-col gap-2">
                     <NavLink 
                       to="/dashboard" 
-                      className="text-sm font-medium px-2 py-1 rounded"
+                      className="text-sm font-medium px-2 py-2 rounded"
                       activeClassName="text-foreground bg-primary/10"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -182,7 +194,7 @@ export const Header: React.FC = () => {
                     </NavLink>
                     <NavLink 
                       to="/monthly-tracker" 
-                      className="text-sm font-medium px-2 py-1 rounded"
+                      className="text-sm font-medium px-2 py-2 rounded"
                       activeClassName="text-foreground bg-primary/10"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -190,7 +202,7 @@ export const Header: React.FC = () => {
                     </NavLink>
                     <NavLink 
                       to="/calendar" 
-                      className="text-sm font-medium px-2 py-1 rounded"
+                      className="text-sm font-medium px-2 py-2 rounded"
                       activeClassName="text-foreground bg-primary/10"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -198,7 +210,7 @@ export const Header: React.FC = () => {
                     </NavLink>
                     <NavLink 
                       to="/leaderboard" 
-                      className="text-sm font-medium px-2 py-1 rounded"
+                      className="text-sm font-medium px-2 py-2 rounded"
                       activeClassName="text-foreground bg-primary/10"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -206,7 +218,7 @@ export const Header: React.FC = () => {
                     </NavLink>
                     <NavLink 
                       to="/invite" 
-                      className="text-sm font-medium px-2 py-1 rounded"
+                      className="text-sm font-medium px-2 py-2 rounded"
                       activeClassName="text-foreground bg-primary/10"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -214,56 +226,67 @@ export const Header: React.FC = () => {
                     </NavLink>
                     <NavLink 
                       to="/settings" 
-                      className="text-sm font-medium px-2 py-1 rounded"
+                      className="text-sm font-medium px-2 py-2 rounded"
                       activeClassName="text-foreground bg-primary/10"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Settings
                     </NavLink>
-                    <NavLink 
-                      to="/journal" 
-                      className="text-sm font-medium px-2 py-1 rounded"
-                      activeClassName="text-foreground bg-primary/10"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Journal
-                    </NavLink>
-                    <NavLink 
-                      to="/search" 
-                      className="text-sm font-medium px-2 py-1 rounded"
-                      activeClassName="text-foreground bg-primary/10"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Search
-                    </NavLink>
-                    <NavLink 
-                      to="/analytics" 
-                      className="text-sm font-medium px-2 py-1 rounded"
-                      activeClassName="text-foreground bg-primary/10"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Analytics
-                    </NavLink>
-                    <NavLink 
-                      to="/help" 
-                      className="text-sm font-medium px-2 py-1 rounded"
-                      activeClassName="text-foreground bg-primary/10"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Help
-                    </NavLink>
-                    <NavLink 
-                      to="/history" 
-                      className="text-sm font-medium px-2 py-1 rounded"
-                      activeClassName="text-foreground bg-primary/10"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      History
-                    </NavLink>
-                    <hr className="border-border" />
+                    
+                    <div className="border-t border-border my-2" />
+                    
+                    <details className="cursor-pointer">
+                      <summary className="text-sm font-medium px-2 py-2 rounded hover:bg-primary/10">
+                        More Options
+                      </summary>
+                      <nav className="flex flex-col gap-1 mt-2 ml-2">
+                        <NavLink 
+                          to="/journal" 
+                          className="text-sm font-medium px-2 py-2 rounded"
+                          activeClassName="text-foreground bg-primary/10"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          Journal
+                        </NavLink>
+                        <NavLink 
+                          to="/search" 
+                          className="text-sm font-medium px-2 py-2 rounded"
+                          activeClassName="text-foreground bg-primary/10"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          Search
+                        </NavLink>
+                        <NavLink 
+                          to="/analytics" 
+                          className="text-sm font-medium px-2 py-2 rounded"
+                          activeClassName="text-foreground bg-primary/10"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          Analytics
+                        </NavLink>
+                        <NavLink 
+                          to="/help" 
+                          className="text-sm font-medium px-2 py-2 rounded"
+                          activeClassName="text-foreground bg-primary/10"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          Help
+                        </NavLink>
+                        <NavLink 
+                          to="/history" 
+                          className="text-sm font-medium px-2 py-2 rounded"
+                          activeClassName="text-foreground bg-primary/10"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          History
+                        </NavLink>
+                      </nav>
+                    </details>
+                    
+                    <div className="border-t border-border my-2" />
                     <button 
                       onClick={handleSignOut}
-                      className="flex items-center gap-2 text-sm font-medium text-destructive"
+                      className="flex items-center gap-2 text-sm font-medium text-destructive px-2 py-2 rounded hover:bg-destructive/10"
                     >
                       <LogOut className="h-4 w-4" />
                       Sign Out
