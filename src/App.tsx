@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import MonthlyTracker from "./pages/MonthlyTracker";
 import Leaderboard from "./pages/Leaderboard";
 import JoinChallenge from "./pages/JoinChallenge";
+import InvitePage from "./pages/InvitePage";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const AppRoutes = () => {
       <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
       <Route path="/monthly-tracker" element={<ProtectedRoute><MonthlyTracker /></ProtectedRoute>} />
       <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
+      <Route path="/invite" element={<ProtectedRoute><InvitePage /></ProtectedRoute>} />
       <Route path="/join/:code" element={<ProtectedRoute><JoinChallenge /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>

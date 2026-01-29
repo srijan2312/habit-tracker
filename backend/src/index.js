@@ -6,6 +6,7 @@ import userRoutes from './routes/users.js';
 import leaderboardRoutes from './routes/leaderboard.js';
 import challengeRoutes from './routes/challenges.js';
 import rewardsRoutes from './routes/rewards.js';
+import referralRoutes from './routes/referrals.js';
 
 dotenv.config();
 
@@ -32,7 +33,7 @@ app.get('/', (req, res) => {
     status: 'ok', 
     message: 'Habit Tracker API is running',
     timestamp: new Date().toISOString(),
-    endpoints: ['/api/habits', '/api/users', '/api/challenges', '/api/rewards']
+    endpoints: ['/api/habits', '/api/users', '/api/challenges', '/api/rewards', '/api/referrals']
   });
 });
 
@@ -41,6 +42,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/rewards', rewardsRoutes);
 app.use('/api/challenges', challengeRoutes);
+app.use('/api/referrals', referralRoutes);
 
 const PORT = process.env.PORT || 5000;
 

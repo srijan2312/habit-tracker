@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Leaf, Eye, EyeOff } from 'lucide-react';
 import { z } from 'zod';
 import { useAuth } from '@/contexts/useAuth';
@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { PasswordChecklist } from '@/components/PasswordChecklist';
+import { API_URL } from '@/config/api';
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
 
@@ -22,6 +23,9 @@ const signUpSchema = z.object({
 });
 
 export default function SignUp() {
+  const [searchParams] = useSearchParams();
+  const referralCode = searchParams.get('ref');
+  
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -58,6 +62,31 @@ export default function SignUp() {
         navigate('/signin');
       } else {
         toast.success('Account created successfully!');
+        
+        // Apply referral code if provided
+        if (referralCode) {
+          const token = localStorage.getItem('token');
+          if (token) {
+            try {
+              const response = await fetch(`${API_URL}/api/referrals/apply`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ referralCode }),
+              });
+              
+              if (response.ok) {
+                const data = await response.json();
+                toast.success(`Referral applied! Your friend earned ${data.tokensAwarded} freeze tokens! 🎉`);
+              }
+            } catch (err) {
+              console.error('Failed to apply referral:', err);
+            }
+          }
+        }
+        
         navigate('/dashboard');
       }
     } catch (error) {
@@ -86,6 +115,13 @@ export default function SignUp() {
           <p className="mt-2 text-muted-foreground">
             Start building better habits today
           </p>
+          {referralCode && (
+            <div className="mt-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-4 py-2">
+              <p className="text-sm text-green-700 dark:text-green-300">
+                🎉 Using referral code: <span className="font-bold">{referralCode}</span>
+              </p>
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">

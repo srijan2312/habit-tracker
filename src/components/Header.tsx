@@ -79,6 +79,13 @@ export const Header: React.FC = () => {
             >
               Challenges
             </NavLink>
+            <NavLink 
+              to="/invite" 
+              className={navLinkClasses}
+              activeClassName={activeNavLinkClasses}
+            >
+              Invite Friends
+            </NavLink>
           </nav>
         )}
 
@@ -154,6 +161,14 @@ export const Header: React.FC = () => {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Challenges
+                    </NavLink>
+                    <NavLink 
+                      to="/invite" 
+                      className="text-sm font-medium px-2 py-1 rounded"
+                      activeClassName="text-foreground bg-primary/10"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Invite Friends
                     </NavLink>
                     <hr className="border-border" />
                     <button 
