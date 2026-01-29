@@ -50,12 +50,13 @@ export const verifyToken = async (req, res, next) => {
     
     next();
   } catch (error) {
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ error: 'Invalid token' });
+    console.error('JWT verification failed:', error?.name || 'Error', error?.message || error);
+    if (error?.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token', details: error.message });
     }
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ error: 'Token expired' });
+    if (error?.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired', details: error.message });
     }
-    return res.status(401).json({ error: 'Authentication failed' });
+    return res.status(401).json({ error: 'Authentication failed', details: error?.message || String(error) });
   }
 };
