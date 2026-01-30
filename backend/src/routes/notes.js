@@ -164,7 +164,7 @@ router.get('/recent/all', verifyToken, async (req, res) => {
       .from('habit_logs')
       .select(`
         *,
-        habits:habit_id(title, category)
+        habits:habit_id(title)
       `)
       .eq('user_id', user.id)
       .order('completed_date', { ascending: false })
