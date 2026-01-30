@@ -22,26 +22,23 @@ const verifyToken = async (req, res, next) => {
   }
   
   try {
-    // Create a temporary Supabase client with the user's access token
-    const tempClient = createClient(supabaseUrl, supabaseKey, {
-      global: {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
+    // Create a Supabase client and set the session with the access token
+    const tempClient = createClient(supabaseUrl, supabaseKey);
+    
+    // Set the session using the access token
+    const { data: sessionData, error: sessionError } = await tempClient.auth.setSession({
+      access_token: token,
+      refresh_token: '' // Not needed for verification
     });
     
-    // Verify the token by calling getUser() which uses the token from headers
-    const { data: { user }, error } = await tempClient.auth.getUser();
-    
-    if (error || !user) {
-      console.error('❌ Token verification failed:', error?.message || 'No user found');
+    if (sessionError || !sessionData.user) {
+      console.error('❌ Token verification failed:', sessionError?.message || 'No user found');
       return res.status(401).json({ error: 'Invalid token' });
     }
     
-    console.log('✅ Token verified for user:', user.id);
-    req.userId = user.id;
-    req.userEmail = user.email;
+    console.log('✅ Token verified for user:', sessionData.user.id);
+    req.userId = sessionData.user.id;
+    req.userEmail = sessionData.user.email;
     req.token = token;
     next();
   } catch (error) {
