@@ -21,30 +21,71 @@ const isScheduledToday = (habit, dayOfWeek) => {
 const buildDailyReminderEmail = (name, pendingHabits) => {
   const list = pendingHabits.map((habit) => `<li>${habit.title}</li>`).join('');
   return `
-    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a;">
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1f2937; max-width: 600px; margin: 0 auto;">
       <h2>Daily Habit Reminder</h2>
-      <p>Hi ${name || 'there'},</p>
+      
+      <p>Hello ${name || 'there'},</p>
+      
       <p>You still have <strong>${pendingHabits.length}</strong> habit${pendingHabits.length === 1 ? '' : 's'} to complete today:</p>
-      <ul>${list}</ul>
-      <p>Stay consistent — small steps add up!</p>
-      <p>— Habitly</p>
+      
+      <ul style="color: #6b7280;">
+        ${list}
+      </ul>
+      
+      <p style="text-align: center; margin: 30px 0;">
+        <a href="${process.env.FRONTEND_URL}/dashboard" style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">View Dashboard</a>
+      </p>
+      
+      <p style="color: #6b7280;">Stay consistent — small steps add up to big results!</p>
+      
+      <p>If you have any questions or need help, feel free to reach out to our support team.</p>
+      
+      <p>Best regards,<br>
+      The Habitly Team</p>
+      
+      <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+      
+      <p style="font-size: 12px; color: #9ca3af;">This is an automated message. Please do not reply to this email. You can manage your notification preferences in <a href="${process.env.FRONTEND_URL}/settings" style="color: #10b981; text-decoration: none;">Settings</a>.</p>
     </div>
   `;
 };
 
 const buildWeeklyDigestEmail = (name, stats) => {
   return `
-    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a;">
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1f2937; max-width: 600px; margin: 0 auto;">
       <h2>Your Weekly Habit Digest</h2>
-      <p>Hi ${name || 'there'},</p>
-      <p>Here’s your progress from the last 7 days:</p>
-      <ul>
-        <li><strong>Total habits:</strong> ${stats.totalHabits}</li>
-        <li><strong>Completed habit logs:</strong> ${stats.completedLogs}</li>
-        <li><strong>Active days:</strong> ${stats.activeDays}</li>
+      
+      <p>Hello ${name || 'there'},</p>
+      
+      <p>Here's a summary of your habit tracking progress from the last 7 days:</p>
+      
+      <ul style="color: #6b7280;">
+        <li><strong style="color: #1f2937;">Total habits:</strong> ${stats.totalHabits}</li>
+        <li><strong style="color: #1f2937;">Completed habit logs:</strong> ${stats.completedLogs}</li>
+        <li><strong style="color: #1f2937;">Active days:</strong> ${stats.activeDays} out of 7</li>
       </ul>
-      <p>Keep the momentum going — you’re building great habits.</p>
-      <p>— Habitly</p>
+      
+      <p style="text-align: center; margin: 30px 0;">
+        <a href="${process.env.FRONTEND_URL}/analytics" style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">View Analytics</a>
+      </p>
+      
+      <p style="color: #6b7280;">Keep up the great work! Consistency is the key to building lasting habits.</p>
+      
+      <p>Once you continue tracking, you'll be able to:</p>
+      <ul style="color: #6b7280;">
+        <li>Build stronger daily habits</li>
+        <li>Join challenges with friends</li>
+        <li>Earn rewards and climb the leaderboard</li>
+      </ul>
+      
+      <p>If you have any questions or need help, please contact our support team.</p>
+      
+      <p>Best regards,<br>
+      The Habitly Team</p>
+      
+      <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+      
+      <p style="font-size: 12px; color: #9ca3af;">This is an automated message. Please do not reply to this email. You can manage your notification preferences in <a href="${process.env.FRONTEND_URL}/settings" style="color: #10b981; text-decoration: none;">Settings</a>.</p>
     </div>
   `;
 };
