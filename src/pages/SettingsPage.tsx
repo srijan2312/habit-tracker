@@ -30,14 +30,13 @@ const getErrorMessage = (err: unknown) => {
 };
 
 export default function SettingsPage() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, updateUser } = useAuth();
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
   // Profile state
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [name, setName] = useState('');
-  const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(true);
   const [savingProfile, setSavingProfile] = useState(false);
 
@@ -69,7 +68,6 @@ export default function SettingsPage() {
         const data = await res.json();
         setProfile(data.profile);
         setName(data.profile.name || '');
-        setFullName(data.profile.full_name || '');
       } catch (err) {
         toast.error(getErrorMessage(err) || 'Failed to load profile');
       }
@@ -118,6 +116,12 @@ export default function SettingsPage() {
       if (!res.ok) throw new Error('Failed to update profile');
       const data = await res.json();
       setProfile(data.profile);
+      // Update the user in auth context so it reflects everywhere
+      updateUser({
+        _id: data.profile.id,
+        email: data.profile.email,
+        name: data.profile.name,
+      });
       toast.success('Profile updated successfully');
     } catch (err) {
       toast.error(getErrorMessage(err) || 'Failed to update profile');
@@ -294,16 +298,6 @@ export default function SettingsPage() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Your display name"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
-                    <Input
-                      id="fullName"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      placeholder="Your full name"
                     />
                   </div>
 
