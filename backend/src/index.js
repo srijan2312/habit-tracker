@@ -32,6 +32,24 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Debug: Log CORS requests and add catch-all OPTIONS handler
+app.use((req, res, next) => {
+  console.log('CORS Debug:', {
+    origin: req.headers.origin,
+    method: req.method,
+    path: req.path,
+    headers: req.headers
+  });
+  next();
+});
+
+app.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.sendStatus(200);
+});
+
 // Health check endpoint
 app.get('/', (req, res) => {
   res.json({ 
