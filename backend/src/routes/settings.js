@@ -4,46 +4,79 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 const router = express.Router();
+
+console.log('⚙️ === SETTINGS ROUTE INITIALIZATION ===');
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabaseAdminKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+console.log('Environment variables check:');
+console.log('  SUPABASE_URL:', supabaseUrl ? `✅ ${supabaseUrl}` : '❌ MISSING');
+console.log('  SUPABASE_KEY:', supabaseKey ? `✅ Set (${supabaseKey.substring(0, 20)}...)` : '❌ MISSING');
+console.log('  SUPABASE_SERVICE_ROLE_KEY:', supabaseAdminKey ? `✅ Set (${supabaseAdminKey.substring(0, 20)}...)` : '❌ MISSING');
+console.log('⚙️ === END INITIALIZATION ===\n');
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 const supabaseAdmin = createClient(supabaseUrl, supabaseAdminKey);
 
 // Middleware to verify token and extract user ID
 const verifyToken = async (req, res, next) => {
+  console.log('\n🔍 === TOKEN VERIFICATION START ===');
+  
   const authHeader = req.headers.authorization;
+  console.log('1️⃣ Auth header:', authHeader ? `Present (${authHeader.substring(0, 20)}...)` : '❌ MISSING');
   
   const token = authHeader?.split(' ')[1];
   if (!token) {
-    console.error('❌ No token provided');
+    console.error('❌ No token extracted from header');
     return res.status(401).json({ error: 'No token' });
   }
   
+  console.log('2️⃣ Token extracted, length:', token.length);
+  console.log('3️⃣ Token preview:', token.substring(0, 50) + '...');
+  
+  // Check environment variables
+  console.log('4️⃣ SUPABASE_URL:', supabaseUrl ? '✅ Set' : '❌ MISSING');
+  console.log('5️⃣ SUPABASE_KEY:', supabaseKey ? '✅ Set' : '❌ MISSING');
+  
   try {
-    // Create a Supabase client and set the session with the access token
+    console.log('6️⃣ Creating Supabase client...');
     const tempClient = createClient(supabaseUrl, supabaseKey);
     
-    // Set the session using the access token
+    console.log('7️⃣ Calling setSession with access_token...');
     const { data: sessionData, error: sessionError } = await tempClient.auth.setSession({
       access_token: token,
       refresh_token: '' // Not needed for verification
     });
     
-    if (sessionError || !sessionData.user) {
-      console.error('❌ Token verification failed:', sessionError?.message || 'No user found');
-      return res.status(401).json({ error: 'Invalid token' });
+    console.log('8️⃣ setSession response:');
+    console.log('   - Error:', sessionError ? sessionError.message : 'None');
+    console.log('   - User:', sessionData?.user ? `Found (ID: ${sessionData.user.id})` : '❌ MISSING');
+    console.log('   - Session:', sessionData?.session ? 'Present' : '❌ MISSING');
+    
+    if (sessionError) {
+      console.error('❌ Session error details:', JSON.stringify(sessionError, null, 2));
+      return res.status(401).json({ error: 'Invalid token', details: sessionError.message });
     }
     
-    console.log('✅ Token verified for user:', sessionData.user.id);
+    if (!sessionData?.user) {
+      console.error('❌ No user in session data');
+      return res.status(401).json({ error: 'Invalid token - no user found' });
+    }
+    
+    console.log('✅ Token verified successfully for user:', sessionData.user.id);
+    console.log('   - Email:', sessionData.user.email);
+    console.log('🔍 === TOKEN VERIFICATION END ===\n');
+    
     req.userId = sessionData.user.id;
     req.userEmail = sessionData.user.email;
     req.token = token;
     next();
   } catch (error) {
-    console.error('❌ Token verification exception:', error.message);
-    return res.status(401).json({ error: 'Invalid token' });
+    console.error('❌ Token verification exception:', error);
+    console.error('   Stack:', error.stack);
+    console.log('🔍 === TOKEN VERIFICATION END (ERROR) ===\n');
+    return res.status(401).json({ error: 'Invalid token', exception: error.message });
   }
 };
 
