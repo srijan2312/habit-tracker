@@ -22,6 +22,7 @@ ORDER BY au.created_at DESC;
 INSERT INTO public.users (
     id,
     email,
+    password,
     name,
     created_at,
     email_reminders,
@@ -33,6 +34,7 @@ INSERT INTO public.users (
 SELECT 
     au.id,
     au.email,
+    'supabase_auth', -- Placeholder - actual auth is in auth.users
     COALESCE(au.raw_user_meta_data->>'name', SPLIT_PART(au.email, '@', 1)) as name,
     au.created_at,
     true,  -- email_reminders default
@@ -86,6 +88,7 @@ BEGIN
     INSERT INTO public.users (
         id,
         email,
+        password,
         name,
         created_at,
         email_reminders,
@@ -97,6 +100,7 @@ BEGIN
     VALUES (
         NEW.id,
         NEW.email,
+        'supabase_auth', -- Placeholder - actual auth is in auth.users
         COALESCE(NEW.raw_user_meta_data->>'name', SPLIT_PART(NEW.email, '@', 1)),
         NEW.created_at,
         true,
