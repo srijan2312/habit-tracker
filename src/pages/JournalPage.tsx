@@ -113,7 +113,7 @@ export default function JournalPage() {
       });
       if (!res.ok) throw new Error('Failed to load habits');
       const data = await res.json();
-      return data.habits || [];
+      return Array.isArray(data) ? data : [];
     },
   });
 
@@ -199,11 +199,17 @@ export default function JournalPage() {
                         <SelectValue placeholder="Select a habit" />
                       </SelectTrigger>
                       <SelectContent>
-                        {habitsQuery.data?.map((habit: any) => (
-                          <SelectItem key={habit._id} value={habit._id}>
-                            {habit.title}
-                          </SelectItem>
-                        ))}
+                        {habitsQuery.isLoading ? (
+                          <div className="p-2 text-sm text-muted-foreground">Loading habits...</div>
+                        ) : habitsQuery.data?.length === 0 ? (
+                          <div className="p-2 text-sm text-muted-foreground">No habits found</div>
+                        ) : (
+                          habitsQuery.data?.map((habit: any) => (
+                            <SelectItem key={habit.id} value={habit.id}>
+                              {habit.title}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
