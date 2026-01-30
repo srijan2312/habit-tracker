@@ -1,11 +1,7 @@
 import express from 'express';
-import { createClient } from '@supabase/supabase-js';
+import { supabase, supabaseAdmin } from '../config/supabase.js';
 
 const router = express.Router();
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
-
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Middleware to verify token
 const verifyToken = (req, res, next) => {
@@ -26,7 +22,8 @@ router.get('/habit/:habitId', verifyToken, async (req, res) => {
 
     const { habitId } = req.params;
 
-    const { data, error } = await supabase
+    const db = supabaseAdmin || supabase;
+    const { data, error } = await db
       .from('habit_logs')
       .select('*')
       .eq('habit_id', habitId)
@@ -62,7 +59,8 @@ router.post('/habit/:habitId/add', verifyToken, async (req, res) => {
     }
 
     // First, check if a log exists for this date
-    const { data: existingLog } = await supabase
+    const db = supabaseAdmin || supabase;
+    const { data: existingLog } = await db
       .from('habit_logs')
       .select('*')
       .eq('habit_id', habitId)
@@ -73,7 +71,7 @@ router.post('/habit/:habitId/add', verifyToken, async (req, res) => {
     let result;
     if (existingLog) {
       // Update existing log with note
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('habit_logs')
         .update({ note: note || '', updated_at: new Date().toISOString() })
         .eq('id', existingLog.id)
@@ -84,7 +82,7 @@ router.post('/habit/:habitId/add', verifyToken, async (req, res) => {
       result = data;
     } else {
       // Insert new log
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('habit_logs')
         .insert({
           habit_id: habitId,
@@ -119,7 +117,8 @@ router.put('/:logId', verifyToken, async (req, res) => {
     const { logId } = req.params;
     const { note } = req.body;
 
-    const { data, error } = await supabase
+    const db = supabaseAdmin || supabase;
+    const { data, error } = await db
       .from('habit_logs')
       .update({ note, updated_at: new Date().toISOString() })
       .eq('id', logId)
@@ -150,7 +149,8 @@ router.delete('/:logId', verifyToken, async (req, res) => {
 
     const { logId } = req.params;
 
-    const { error } = await supabase
+    const db = supabaseAdmin || supabase;
+    const { error } = await db
       .from('habit_logs')
       .delete()
       .eq('id', logId)
@@ -180,7 +180,8 @@ router.get('/recent/all', verifyToken, async (req, res) => {
     const { limit = 10 } = req.query;
     const safeLimit = Number.parseInt(String(limit), 10) || 10;
 
-    const { data, error } = await supabase
+    const db = supabaseAdmin || supabase;
+    const { data, error } = await db
       .from('habit_logs')
       .select(`
         *,

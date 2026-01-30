@@ -211,7 +211,7 @@ export default function JournalPage() {
                       <SelectTrigger id="habit">
                         <SelectValue placeholder="Select a habit" />
                       </SelectTrigger>
-                      <SelectContent>Habit
+                      <SelectContent>
                         {habitsQuery.isLoading ? (
                           <div className="p-2 text-sm text-muted-foreground">Loading habits...</div>
                         ) : habitsQuery.data?.length === 0 ? (
