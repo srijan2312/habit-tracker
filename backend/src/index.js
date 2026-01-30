@@ -45,6 +45,7 @@ app.use((req, res, next) => {
 
 // Catch-all OPTIONS handler for CORS preflight
 app.options('*', cors(corsOptions), (req, res) => {
+  console.log('OPTIONS preflight hit for:', req.path, 'from origin:', req.headers.origin);
   res.sendStatus(200);
 });
 
