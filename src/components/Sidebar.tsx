@@ -42,11 +42,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => 
         )}
       >
         {/* Header Section */}
-        <div className="p-6 border-b border-border overflow-hidden">
-          <h1 className="text-2xl font-bold text-foreground truncate">Habitly</h1>
-          <p className="text-xs text-muted-foreground mt-1 truncate overflow-ellipsis">
-            {user.email?.split('@')[0]}
-          </p>
+        <div className="p-6 border-b border-border">
+          <h1 className="text-2xl font-bold text-foreground">Habitly</h1>
         </div>
 
         {/* Navigation Items */}
