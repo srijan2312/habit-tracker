@@ -10,6 +10,7 @@ import referralRoutes from './routes/referrals.js';
 import settingsRoutes from './routes/settings.js';
 import notesRoutes from './routes/notes.js';
 import activityRoutes from './routes/activity.js';
+import { scheduleNotificationJobs } from './jobs/notifications.js';
 
 dotenv.config();
 
@@ -55,4 +56,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log('Connected to Supabase');
+  scheduleNotificationJobs();
 });
