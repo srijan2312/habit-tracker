@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 
+const getApiUrl = () => {
+  // Use your actual Render backend URL below
+  const prodUrl = 'https://habitly-backend.onrender.com/api/feedback'; // <-- CHANGE to your real backend URL
+  return import.meta.env.PROD ? prodUrl : '/api/feedback';
+};
+
 const Feedback: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -11,7 +17,7 @@ const Feedback: React.FC = () => {
     e.preventDefault();
     setStatus('sending');
     try {
-      const res = await fetch('/api/feedback', {
+      const res = await fetch(getApiUrl(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, message }),
