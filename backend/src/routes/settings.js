@@ -1,6 +1,7 @@
 import express from 'express';
 import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const router = express.Router();
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -10,28 +11,37 @@ const supabaseAdminKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 const supabaseAdmin = createClient(supabaseUrl, supabaseAdminKey);
 
-// Middleware to verify token
+// Middleware to verify token and extract user ID
 const verifyToken = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ error: 'No token' });
   
-  req.token = token;
-  next();
+  try {
+    // Decode the JWT to get user ID
+    const jwtSecret = process.env.SUPABASE_JWT_SECRET;
+    if (!jwtSecret) {
+      return res.status(500).json({ error: 'Server configuration error' });
+    }
+    
+    const secretBinary = Buffer.from(jwtSecret, 'base64');
+    const decoded = jwt.verify(token, secretBinary, { algorithms: ['HS256'] });
+    
+    req.userId = decoded.sub || decoded.userId;
+    req.token = token;
+    next();
+  } catch (error) {
+    console.error('Token verification error:', error.message);
+    return res.status(401).json({ error: 'Invalid token' });
+  }
 };
 
 // Get user settings
 router.get('/profile', verifyToken, async (req, res) => {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser(req.token);
-    if (authError || !user) {
-      console.error('❌ Auth error:', authError);
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
     const { data, error } = await supabase
       .from('users')
       .select('id, email, name, created_at, total_referrals, freezes_available')
-      .eq('id', user.id)
+      .eq('id', req.userId)
       .single();
 
     if (error) {
@@ -50,17 +60,12 @@ router.get('/profile', verifyToken, async (req, res) => {
 // Update user profile (name)
 router.put('/profile', verifyToken, async (req, res) => {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser(req.token);
-    if (authError || !user) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
     const { name } = req.body;
 
     const { data, error } = await supabase
       .from('users')
       .update({ name })
-      .eq('id', user.id)
+      .eq('id', req.userId)
       .select()
       .single();
 
@@ -69,7 +74,7 @@ router.put('/profile', verifyToken, async (req, res) => {
       return res.status(400).json({ error: error.message });
     }
 
-    console.log('✅ Profile updated for:', user.email);
+    console.log('✅ Profile updated for user:', req.userId);
     res.json({ profile: data });
   } catch (err) {
     console.error('❌ Server error:', err);
@@ -80,11 +85,6 @@ router.put('/profile', verifyToken, async (req, res) => {
 // Change password
 router.post('/change-password', verifyToken, async (req, res) => {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser(req.token);
-    if (authError || !user) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
     const { oldPassword, newPassword } = req.body;
 
     if (!oldPassword || !newPassword) {
@@ -95,9 +95,20 @@ router.post('/change-password', verifyToken, async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
+    // Get user email from database
+    const { data: userData } = await supabase
+      .from('users')
+      .select('email')
+      .eq('id', req.userId)
+      .single();
+
+    if (!userData) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
     // Verify old password using auth
     const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: user.email,
+      email: userData.email,
       password: oldPassword,
     });
 
@@ -107,7 +118,7 @@ router.post('/change-password', verifyToken, async (req, res) => {
     }
 
     // Update password
-    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(req.userId, {
       password: newPassword,
     });
 
@@ -116,7 +127,7 @@ router.post('/change-password', verifyToken, async (req, res) => {
       return res.status(400).json({ error: updateError.message });
     }
 
-    console.log('✅ Password changed for:', user.email);
+    console.log('✅ Password changed for user:', req.userId);
     res.json({ message: 'Password updated successfully' });
   } catch (err) {
     console.error('❌ Server error:', err);
@@ -127,11 +138,6 @@ router.post('/change-password', verifyToken, async (req, res) => {
 // Update email preferences
 router.put('/preferences', verifyToken, async (req, res) => {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser(req.token);
-    if (authError || !user) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
     const { 
       email_reminders = false,
       email_digest = false,
@@ -145,7 +151,7 @@ router.put('/preferences', verifyToken, async (req, res) => {
         email_digest,
         push_notifications,
       })
-      .eq('id', user.id)
+      .eq('id', req.userId)
       .select()
       .single();
 
@@ -154,7 +160,7 @@ router.put('/preferences', verifyToken, async (req, res) => {
       return res.status(400).json({ error: error.message });
     }
 
-    console.log('✅ Preferences updated for:', user.email);
+    console.log('✅ Preferences updated for user:', req.userId);
     res.json({ preferences: data });
   } catch (err) {
     console.error('❌ Server error:', err);
@@ -165,15 +171,10 @@ router.put('/preferences', verifyToken, async (req, res) => {
 // Get email preferences
 router.get('/preferences', verifyToken, async (req, res) => {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser(req.token);
-    if (authError || !user) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
     const { data, error } = await supabase
       .from('users')
       .select('email_reminders, email_digest, push_notifications')
-      .eq('id', user.id)
+      .eq('id', req.userId)
       .single();
 
     if (error) {
@@ -181,7 +182,7 @@ router.get('/preferences', verifyToken, async (req, res) => {
       return res.status(400).json({ error: error.message });
     }
 
-    console.log('✅ Preferences retrieved for:', user.email);
+    console.log('✅ Preferences retrieved for user:', req.userId);
     res.json({ preferences: data || {} });
   } catch (err) {
     console.error('❌ Server error:', err);
@@ -192,20 +193,26 @@ router.get('/preferences', verifyToken, async (req, res) => {
 // Delete account
 router.delete('/account', verifyToken, async (req, res) => {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser(req.token);
-    if (authError || !user) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
     const { password } = req.body;
 
     if (!password) {
       return res.status(400).json({ error: 'Password required to delete account' });
     }
 
+    // Get user email from database
+    const { data: userData } = await supabase
+      .from('users')
+      .select('email')
+      .eq('id', req.userId)
+      .single();
+
+    if (!userData) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
     // Verify password
     const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: user.email,
+      email: userData.email,
       password,
     });
 
@@ -218,7 +225,7 @@ router.delete('/account', verifyToken, async (req, res) => {
     const { error: deleteUserError } = await supabase
       .from('users')
       .delete()
-      .eq('id', user.id);
+      .eq('id', req.userId);
 
     if (deleteUserError) {
       console.error('❌ Delete user error:', deleteUserError);
@@ -226,14 +233,14 @@ router.delete('/account', verifyToken, async (req, res) => {
     }
 
     // Delete auth user
-    const { error: deleteAuthError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
+    const { error: deleteAuthError } = await supabaseAdmin.auth.admin.deleteUser(req.userId);
 
     if (deleteAuthError) {
       console.error('❌ Delete auth error:', deleteAuthError);
       return res.status(400).json({ error: deleteAuthError.message });
     }
 
-    console.log('✅ Account deleted for:', user.email);
+    console.log('✅ Account deleted for user:', req.userId);
     res.json({ message: 'Account deleted successfully' });
   } catch (err) {
     console.error('❌ Server error:', err);
