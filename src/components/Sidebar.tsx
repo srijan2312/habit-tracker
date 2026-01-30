@@ -17,17 +17,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => 
   if (!user) return null;
 
   const menuItems = [
+    // Core Tracking
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-    { icon: Activity, label: 'Monthly Tracker', href: '/monthly-tracker' },
     { icon: Calendar, label: 'Calendar', href: '/calendar' },
-    { icon: Trophy, label: 'Challenges', href: '/leaderboard' },
-    { icon: Users, label: 'Invite Friends', href: '/invite' },
-    { icon: Settings, label: 'Settings', href: '/settings' },
-    { icon: BookOpen, label: 'Journal', href: '/journal' },
-    { icon: Search, label: 'Search', href: '/search' },
+    { icon: Activity, label: 'Monthly Tracker', href: '/monthly-tracker' },
+    
+    // Insights & Progress
     { icon: BarChart3, label: 'Analytics', href: '/analytics' },
-    { icon: HelpCircle, label: 'Help', href: '/help' },
+    { icon: Trophy, label: 'Challenges', href: '/leaderboard' },
+    
+    // Personal Records
+    { icon: BookOpen, label: 'Journal', href: '/journal' },
     { icon: Clock, label: 'History', href: '/history' },
+    
+    // Utilities & Settings
+    { icon: Search, label: 'Search', href: '/search' },
+    { icon: Users, label: 'Invite Friends', href: '/invite' },
+    { icon: HelpCircle, label: 'Help', href: '/help' },
+    { icon: Settings, label: 'Settings', href: '/settings' },
   ];
 
   const isActive = (href: string) => location.pathname === href;
