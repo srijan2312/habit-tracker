@@ -167,6 +167,9 @@ router.get('/recent/all', verifyToken, async (req, res) => {
         habits:habit_id(title)
       `)
       .eq('user_id', user.id)
+      .not('note', 'is', null)
+      .neq('note', '')
+      .gte('completed_date', '2020-01-01') // Filter out invalid dates
       .order('completed_date', { ascending: false })
       .limit(safeLimit);
 
