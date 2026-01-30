@@ -31,7 +31,7 @@ export const Sidebar: React.FC = () => {
   return (
     <>
       {/* Mobile Menu Button */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
+      <div className="fixed top-4 left-4 z-50">
         <Button
           variant="ghost"
           size="icon"
@@ -46,7 +46,7 @@ export const Sidebar: React.FC = () => {
       <aside
         className={cn(
           'fixed left-0 top-0 h-screen w-64 bg-card border-r border-border shadow-lg transition-transform duration-300 z-40',
-          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         {/* Header Section */}
@@ -101,7 +101,7 @@ export const Sidebar: React.FC = () => {
       {/* Overlay for mobile */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-30"
           onClick={() => setIsOpen(false)}
         />
       )}
