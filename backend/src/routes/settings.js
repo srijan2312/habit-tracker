@@ -12,21 +12,26 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 const supabaseAdmin = createClient(supabaseUrl, supabaseAdminKey);
 
 // Middleware to verify token and extract user ID
-const verifyToken = (req, res, next) => {
+const verifyToken = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ error: 'No token' });
   
   try {
-    // Decode the JWT to get user ID
-    const jwtSecret = process.env.SUPABASE_JWT_SECRET;
-    if (!jwtSecret) {
-      return res.status(500).json({ error: 'Server configuration error' });
+    // Create a Supabase client with the user's token for verification
+    const userSupabase = createClient(supabaseUrl, supabaseKey, {
+      global: { headers: { Authorization: `Bearer ${token}` } }
+    });
+    
+    // Verify the token by getting the user
+    const { data: { user }, error } = await userSupabase.auth.getUser();
+    
+    if (error || !user) {
+      console.error('Token verification failed:', error?.message);
+      return res.status(401).json({ error: 'Invalid token' });
     }
     
-    const secretBinary = Buffer.from(jwtSecret, 'base64');
-    const decoded = jwt.verify(token, secretBinary, { algorithms: ['HS256'] });
-    
-    req.userId = decoded.sub || decoded.userId;
+    req.userId = user.id;
+    req.userEmail = user.email;
     req.token = token;
     next();
   } catch (error) {
