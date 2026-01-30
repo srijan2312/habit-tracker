@@ -10,7 +10,6 @@ import referralRoutes from './routes/referrals.js';
 import settingsRoutes from './routes/settings.js';
 import notesRoutes from './routes/notes.js';
 import activityRoutes from './routes/activity.js';
-import notificationRoutes from './routes/notifications.js';
 import { scheduleNotificationJobs } from './jobs/notifications.js';
 
 dotenv.config();
@@ -51,7 +50,6 @@ app.use('/api/referrals', referralRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/notes', notesRoutes);
 app.use('/api/activity', activityRoutes);
-app.use('/api/notifications', notificationRoutes);
 
 const PORT = process.env.PORT || 5000;
 

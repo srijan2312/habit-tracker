@@ -3,7 +3,7 @@ import { supabase, supabaseAdmin } from '../config/supabase.js';
 import { sendEmail } from '../utils/email.js';
 
 const db = supabaseAdmin || supabase;
-const NOTIFICATIONS_TIMEZONE = process.env.NOTIFICATIONS_TIMEZONE || 'UTC';
+const NOTIFICATIONS_TIMEZONE = process.env.NOTIFICATIONS_TIMEZONE || 'Asia/Kolkata';
 
 const formatDate = (date) => date.toISOString().slice(0, 10);
 
@@ -224,21 +224,24 @@ export const sendWeeklyDigest = async () => {
 };
 
 export const scheduleNotificationJobs = () => {
+  // Daily reminders at 9:30 PM IST
   cron.schedule(
-    '0 8 * * *',
+    '30 21 * * *',
     () => {
       sendDailyReminders().catch((err) => console.error('❌ Daily reminder job failed:', err));
     },
     { timezone: NOTIFICATIONS_TIMEZONE }
   );
 
+  // Weekly digest every Monday at 9:30 PM IST
   cron.schedule(
-    '0 8 * * 1',
+    '30 21 * * 1',
     () => {
       sendWeeklyDigest().catch((err) => console.error('❌ Weekly digest job failed:', err));
     },
     { timezone: NOTIFICATIONS_TIMEZONE }
   );
 
-  console.log(`✅ Notification jobs scheduled (timezone: ${NOTIFICATIONS_TIMEZONE})`);
+  console.log(`✅ Notification jobs scheduled:`);  console.log(`   - Daily reminders: 9:30 PM ${NOTIFICATIONS_TIMEZONE}`);
+  console.log(`   - Weekly digest: Monday 9:30 PM ${NOTIFICATIONS_TIMEZONE}`);
 };
