@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import { sendFeedbackEmail } from '../utils/mailer.js';
+
 const router = express.Router();
-const { sendFeedbackEmail } = require('../utils/mailer');
 
 // POST /api/feedback
 router.post('/', async (req, res) => {
@@ -16,4 +17,4 @@ router.post('/', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
