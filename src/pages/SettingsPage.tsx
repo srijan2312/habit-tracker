@@ -112,7 +112,7 @@ export default function SettingsPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name, full_name: fullName }),
+        body: JSON.stringify({ name }),
       });
 
       if (!res.ok) throw new Error('Failed to update profile');
