@@ -114,18 +114,13 @@ export default function JournalPage() {
     queryKey: ['habits', user?._id],
     enabled: Boolean(token && user?._id),
     queryFn: async () => {
-      console.log('Fetching habits for user:', user?._id);
       const res = await fetch(`${API_URL}/api/habits/${user?._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log('Habits response status:', res.status);
       if (!res.ok) {
-        const errorText = await res.text();
-        console.error('Failed to load habits:', errorText);
         throw new Error('Failed to load habits');
       }
       const data = await res.json();
-      console.log('Habits data:', data);
       return Array.isArray(data) ? data : [];
     },
   });
