@@ -14,7 +14,6 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseAdminKey);
 // Middleware to verify token and extract user ID
 const verifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
-  console.log('Auth header:', authHeader ? 'Present' : 'Missing');
   
   const token = authHeader?.split(' ')[1];
   if (!token) {
@@ -22,11 +21,18 @@ const verifyToken = async (req, res, next) => {
     return res.status(401).json({ error: 'No token' });
   }
   
-  console.log('Token length:', token.length);
-  
   try {
-    // Use service role key to verify the user token
-    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+    // Create a temporary Supabase client with the user's access token
+    const tempClient = createClient(supabaseUrl, supabaseKey, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    });
+    
+    // Verify the token by calling getUser() which uses the token from headers
+    const { data: { user }, error } = await tempClient.auth.getUser();
     
     if (error || !user) {
       console.error('❌ Token verification failed:', error?.message || 'No user found');
