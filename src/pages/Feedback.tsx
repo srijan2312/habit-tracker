@@ -32,11 +32,11 @@ const Feedback: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="w-full max-w-lg p-8 rounded-xl shadow-lg bg-zinc-900 border border-zinc-800">
-        <h2 className="text-3xl font-bold mb-6 text-primary-foreground text-center">Feedback</h2>
+      <div className="w-full max-w-lg p-8 rounded-xl shadow-lg border border-border bg-card">
+        <h2 className="text-3xl font-bold mb-6 text-center text-foreground">Feedback</h2>
         <form onSubmit={handleSubmit} className="space-y-5">
           <input
-            className="w-full p-3 rounded-lg bg-zinc-800 text-zinc-100 placeholder-zinc-400 border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full p-3 rounded-lg bg-input text-foreground placeholder-muted-foreground border border-border focus:outline-none focus:ring-2 focus:ring-primary transition"
             type="text"
             placeholder="Your Name"
             value={name}
@@ -45,7 +45,7 @@ const Feedback: React.FC = () => {
             autoComplete="off"
           />
           <input
-            className="w-full p-3 rounded-lg bg-zinc-800 text-zinc-100 placeholder-zinc-400 border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full p-3 rounded-lg bg-input text-foreground placeholder-muted-foreground border border-border focus:outline-none focus:ring-2 focus:ring-primary transition"
             type="email"
             placeholder="Your Email"
             value={email}
@@ -54,7 +54,7 @@ const Feedback: React.FC = () => {
             autoComplete="off"
           />
           <textarea
-            className="w-full p-3 rounded-lg bg-zinc-800 text-zinc-100 placeholder-zinc-400 border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-green-500 min-h-[120px] resize-y"
+            className="w-full p-3 rounded-lg bg-input text-foreground placeholder-muted-foreground border border-border focus:outline-none focus:ring-2 focus:ring-primary min-h-[120px] resize-y transition"
             placeholder="Your Feedback"
             value={message}
             onChange={e => setMessage(e.target.value)}
@@ -62,7 +62,7 @@ const Feedback: React.FC = () => {
           />
           <button
             type="submit"
-            className="w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition disabled:opacity-60"
+            className="w-full bg-primary text-primary-foreground font-semibold py-3 rounded-lg hover:bg-primary/90 transition disabled:opacity-60"
             disabled={status === 'sending'}
           >
             {status === 'sending' ? 'Sending...' : 'Submit'}
@@ -73,12 +73,12 @@ const Feedback: React.FC = () => {
       {/* Modal Popup */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
-          <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-8 shadow-xl flex flex-col items-center">
+          <div className="bg-card border border-border rounded-xl p-8 shadow-xl flex flex-col items-center">
             <span className="text-4xl mb-2">🎉</span>
-            <h3 className="text-2xl font-bold text-green-400 mb-2">Thank you for your feedback!</h3>
-            <p className="text-zinc-300 mb-4 text-center">We appreciate your input and will use it to improve Habitly.</p>
+            <h3 className="text-2xl font-bold text-green-500 mb-2">Thank you for your feedback!</h3>
+            <p className="text-muted-foreground mb-4 text-center">We appreciate your input and will use it to improve Habitly.</p>
             <button
-              className="mt-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+              className="mt-2 px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition"
               onClick={() => setShowModal(false)}
             >
               Close
