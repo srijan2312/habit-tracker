@@ -4,6 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import { useState } from 'react';
+import { cn } from '@/lib/utils';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -33,7 +34,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       <Header sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
       <div className="flex flex-1">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <main className="flex-1 lg:ml-64 px-4 lg:px-0">
+        <main className={cn('flex-1 px-4 lg:px-0', sidebarOpen && 'lg:ml-64')}>
           {children}
         </main>
       </div>
