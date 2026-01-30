@@ -44,7 +44,12 @@ SELECT
     10     -- freezes_available default
 FROM auth.users au
 LEFT JOIN public.users u ON au.id = u.id
-WHERE u.id IS NULL;
+WHERE u.id IS NULL
+ON CONFLICT (email) DO UPDATE SET
+    id = EXCLUDED.id,
+    name = COALESCE(public.users.name, EXCLUDED.name),
+    email_reminders = COALESCE(public.users.email_reminders, EXCLUDED.email_reminders),
+    email_digest = COALESCE(public.users.email_digest, EXCLUDED.email_digest);
 
 -- Step 3: Verify the migration
 SELECT 
@@ -108,7 +113,10 @@ BEGIN
         false,
         0,
         10
-    );
+    )
+    ON CONFLICT (email) DO UPDATE SET
+        id = EXCLUDED.id,
+        name = COALESCE(public.users.name, EXCLUDED.name);
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
