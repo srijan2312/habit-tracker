@@ -13,29 +13,33 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseAdminKey);
 
 // Middleware to verify token and extract user ID
 const verifyToken = async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No token' });
+  const authHeader = req.headers.authorization;
+  console.log('Auth header:', authHeader ? 'Present' : 'Missing');
+  
+  const token = authHeader?.split(' ')[1];
+  if (!token) {
+    console.error('❌ No token provided');
+    return res.status(401).json({ error: 'No token' });
+  }
+  
+  console.log('Token length:', token.length);
   
   try {
-    // Create a Supabase client with the user's token for verification
-    const userSupabase = createClient(supabaseUrl, supabaseKey, {
-      global: { headers: { Authorization: `Bearer ${token}` } }
-    });
-    
-    // Verify the token by getting the user
-    const { data: { user }, error } = await userSupabase.auth.getUser();
+    // Use service role key to verify the user token
+    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
     
     if (error || !user) {
-      console.error('Token verification failed:', error?.message);
+      console.error('❌ Token verification failed:', error?.message || 'No user found');
       return res.status(401).json({ error: 'Invalid token' });
     }
     
+    console.log('✅ Token verified for user:', user.id);
     req.userId = user.id;
     req.userEmail = user.email;
     req.token = token;
     next();
   } catch (error) {
-    console.error('Token verification error:', error.message);
+    console.error('❌ Token verification exception:', error.message);
     return res.status(401).json({ error: 'Invalid token' });
   }
 };
