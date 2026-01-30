@@ -35,6 +35,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => 
     { icon: Users, label: 'Invite Friends', href: '/invite' },
     { icon: HelpCircle, label: 'Help', href: '/help' },
     { icon: Settings, label: 'Settings', href: '/settings' },
+    // Feedback
+    { icon: HelpCircle, label: 'Feedback', href: '/feedback' },
   ];
 
   const isActive = (href: string) => location.pathname === href;

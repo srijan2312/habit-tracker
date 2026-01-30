@@ -9,15 +9,11 @@
 
 ---
 
-
 ## ✨ Demo
-
 
 ![Habitly Dashboard Screenshot](./docs/habitly-dashboard.png)
 
-
 ---
-
 
 ## 🚀 Project Overview
 
@@ -42,7 +38,6 @@ Frontend: React + Vite + TypeScript + Tailwind CSS + shadcn/ui
 | React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui | Node.js, Express, Supabase (Postgres) | Supabase Auth (JWT) | SendGrid/Resend | node-cron | Netlify (frontend), Render (backend) |
 
 ---
-
 
 ## 🧑‍💻 Local Development
 
@@ -85,7 +80,6 @@ npm run dev
 
 ---
 
-
 ## 📝 Customization & Deployment
 
 - **Frontend:**
@@ -107,7 +101,6 @@ npm run dev
 - See `backend/supabase-user-migration.sql` and `SUPABASE_MIGRATION_GUIDE.md` for syncing Supabase auth users with your app DB.
 
 ---
-
 
 ## 🤝 Contributing
 

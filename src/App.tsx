@@ -26,6 +26,7 @@ import SearchPage from "./pages/SearchPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import HelpPage from "./pages/HelpPage";
 import HistoryPage from "./pages/HistoryPage";
+import Feedback from "./pages/Feedback";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +66,7 @@ const AppRoutes = () => {
       <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
       <Route path="/help" element={<ProtectedRoute><HelpPage /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+      <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
       <Route path="/join/:code" element={<ProtectedRoute><JoinChallenge /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
