@@ -10,6 +10,7 @@ import referralRoutes from './routes/referrals.js';
 import settingsRoutes from './routes/settings.js';
 import notesRoutes from './routes/notes.js';
 import activityRoutes from './routes/activity.js';
+import feedbackRoutes from './routes/feedback.js';
 import { scheduleNotificationJobs } from './jobs/notifications.js';
 
 dotenv.config();
@@ -41,6 +42,7 @@ app.get('/', (req, res) => {
   });
 });
 
+
 app.use('/api/habits', habitRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
@@ -50,6 +52,7 @@ app.use('/api/referrals', referralRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/notes', notesRoutes);
 app.use('/api/activity', activityRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 const PORT = process.env.PORT || 5000;
 
