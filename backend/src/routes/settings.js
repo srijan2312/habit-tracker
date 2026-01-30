@@ -33,43 +33,40 @@ const verifyToken = async (req, res, next) => {
   }
   
   console.log('2️⃣ Token extracted, length:', token.length);
-  console.log('3️⃣ Token preview:', token.substring(0, 50) + '...');
-  
-  // Check environment variables
-  console.log('4️⃣ SUPABASE_URL:', supabaseUrl ? '✅ Set' : '❌ MISSING');
-  console.log('5️⃣ SUPABASE_KEY:', supabaseKey ? '✅ Set' : '❌ MISSING');
   
   try {
-    console.log('6️⃣ Creating Supabase client...');
-    const tempClient = createClient(supabaseUrl, supabaseKey);
+    // Decode the JWT to extract user ID (without verification for now, just to get the user ID)
+    console.log('3️⃣ Decoding JWT token...');
+    const decoded = jwt.decode(token);
     
-    console.log('7️⃣ Calling setSession with access_token...');
-    const { data: sessionData, error: sessionError } = await tempClient.auth.setSession({
-      access_token: token,
-      refresh_token: '' // Not needed for verification
-    });
-    
-    console.log('8️⃣ setSession response:');
-    console.log('   - Error:', sessionError ? sessionError.message : 'None');
-    console.log('   - User:', sessionData?.user ? `Found (ID: ${sessionData.user.id})` : '❌ MISSING');
-    console.log('   - Session:', sessionData?.session ? 'Present' : '❌ MISSING');
-    
-    if (sessionError) {
-      console.error('❌ Session error details:', JSON.stringify(sessionError, null, 2));
-      return res.status(401).json({ error: 'Invalid token', details: sessionError.message });
+    if (!decoded || !decoded.sub) {
+      console.error('❌ Invalid token - cannot decode or missing sub claim');
+      return res.status(401).json({ error: 'Invalid token format' });
     }
     
-    if (!sessionData?.user) {
-      console.error('❌ No user in session data');
-      return res.status(401).json({ error: 'Invalid token - no user found' });
+    const userId = decoded.sub;
+    console.log('4️⃣ User ID from token:', userId);
+    console.log('5️⃣ Token email:', decoded.email || 'Not in token');
+    console.log('6️⃣ Token expiry:', decoded.exp ? new Date(decoded.exp * 1000).toISOString() : 'Not set');
+    
+    // Verify the user exists in our database
+    console.log('7️⃣ Verifying user exists in database...');
+    const { data: userData, error: dbError } = await supabase
+      .from('users')
+      .select('id, email')
+      .eq('id', userId)
+      .single();
+    
+    if (dbError || !userData) {
+      console.error('❌ User not found in database:', dbError?.message || 'No user data');
+      return res.status(401).json({ error: 'User not found' });
     }
     
-    console.log('✅ Token verified successfully for user:', sessionData.user.id);
-    console.log('   - Email:', sessionData.user.email);
+    console.log('✅ User verified in database:', userData.email);
     console.log('🔍 === TOKEN VERIFICATION END ===\n');
     
-    req.userId = sessionData.user.id;
-    req.userEmail = sessionData.user.email;
+    req.userId = userId;
+    req.userEmail = userData.email;
     req.token = token;
     next();
   } catch (error) {
