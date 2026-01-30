@@ -6,9 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { BookOpen, Edit2, Save, X, Trash2 } from 'lucide-react';
+import { BookOpen, Edit2, Save, X, Trash2, Plus } from 'lucide-react';
 import { API_URL } from '@/config/api';
+import { format } from 'date-fns';
 
 const getErrorMessage = (err: unknown) => {
   if (err instanceof Error) return err.message;
@@ -34,6 +38,8 @@ export default function JournalPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [newNote, setNewNote] = useState({ habitId: '', date: format(new Date(), 'yyyy-MM-dd'), note: '' });
 
   const notesQuery = useQuery({
     queryKey: ['habit-journal'],
@@ -97,6 +103,50 @@ export default function JournalPage() {
     }
   };
 
+  // Fetch user's habits for the dropdown
+  const habitsQuery = useQuery({
+    queryKey: ['habits', user?.id],
+    enabled: Boolean(token && user?.id),
+    queryFn: async () => {
+      const res = await fetch(`${API_URL}/api/habits/${user?.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed to load habits');
+      const data = await res.json();
+      return data.habits || [];
+    },
+  });
+
+  const handleAddNote = async () => {
+    if (!newNote.habitId || !newNote.date || !newNote.note.trim()) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/api/notes/habit/${newNote.habitId}/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          completedDate: newNote.date,
+          note: newNote.note.trim(),
+        }),
+      });
+
+      if (!res.ok) throw new Error('Failed to add note');
+      
+      toast.success('Note added!');
+      setIsAddDialogOpen(false);
+      setNewNote({ habitId: '', date: format(new Date(), 'yyyy-MM-dd'), note: '' });
+      notesQuery.refetch();
+    } catch (err) {
+      toast.error(getErrorMessage(err) || 'Failed to add note');
+    }
+  };
+
   const filteredNotes = notesQuery.data?.filter((note: Note) =>
     note.note.toLowerCase().includes(searchQuery.toLowerCase()) ||
     note.habits?.name?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -124,6 +174,71 @@ export default function JournalPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1"
             />
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Note
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Journal Entry</DialogTitle>
+                  <DialogDescription>
+                    Add a note for any habit on any date.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="habit">Habit</Label>
+                    <Select
+                      value={newNote.habitId}
+                      onValueChange={(value) => setNewNote({ ...newNote, habitId: value })}
+                    >
+                      <SelectTrigger id="habit">
+                        <SelectValue placeholder="Select a habit" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {habitsQuery.data?.map((habit: any) => (
+                          <SelectItem key={habit._id} value={habit._id}>
+                            {habit.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="date">Date</Label>
+                    <Input
+                      id="date"
+                      type="date"
+                      value={newNote.date}
+                      onChange={(e) => setNewNote({ ...newNote, date: e.target.value })}
+                      max={format(new Date(), 'yyyy-MM-dd')}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="note">Note</Label>
+                    <Textarea
+                      id="note"
+                      placeholder="Write your thoughts..."
+                      value={newNote.note}
+                      onChange={(e) => setNewNote({ ...newNote, note: e.target.value })}
+                      rows={4}
+                    />
+                  </div>
+                  <div className="flex gap-2 justify-end">
+                    <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleAddNote}>
+                      <Save className="h-4 w-4 mr-2" />
+                      Save Note
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
 
           {notesQuery.isLoading ? (
