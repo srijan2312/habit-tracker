@@ -1,13 +1,17 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, LogOut, LayoutDashboard, BookOpen, Search, BarChart3, HelpCircle, Clock, Settings, Trophy, Users, Calendar, Activity } from 'lucide-react';
+import { LogOut, LayoutDashboard, BookOpen, Search, BarChart3, HelpCircle, Clock, Settings, Trophy, Users, Calendar, Activity } from 'lucide-react';
 import { useAuth } from '@/contexts/useAuth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => {
   const { user, signOut } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
   if (!user) return null;
@@ -30,18 +34,6 @@ export const Sidebar: React.FC = () => {
 
   return (
     <>
-      {/* Mobile Menu Button */}
-      <div className="fixed top-4 left-4 z-50">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setIsOpen(!isOpen)}
-          className="h-10 w-10 bg-primary text-primary-foreground hover:bg-primary/90"
-        >
-          {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </Button>
-      </div>
-
       {/* Sidebar */}
       <aside
         className={cn(
@@ -67,7 +59,7 @@ export const Sidebar: React.FC = () => {
                 <Link
                   key={item.href}
                   to={item.href}
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => onClose?.()}
                   className={cn(
                     'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm font-medium',
                     active
@@ -88,7 +80,7 @@ export const Sidebar: React.FC = () => {
           <button
             onClick={async () => {
               await signOut();
-              setIsOpen(false);
+              onClose?.();
             }}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
           >
@@ -101,8 +93,8 @@ export const Sidebar: React.FC = () => {
       {/* Overlay for mobile */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-30"
-          onClick={() => setIsOpen(false)}
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => onClose?.()}
         />
       )}
     </>

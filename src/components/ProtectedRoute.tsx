@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/useAuth';
 import { Loader2 } from 'lucide-react';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
+import { useState } from 'react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -10,6 +11,7 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (loading) {
     return (
@@ -28,10 +30,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
+      <Header sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
       <div className="flex flex-1">
-        <Sidebar />
-        <main className="flex-1 lg:ml-64 pt-16 lg:pt-0 px-4 lg:px-0">
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <main className="flex-1 lg:ml-64 px-4 lg:px-0">
           {children}
         </main>
       </div>

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { LogOut, User, Leaf } from 'lucide-react';
+import { LogOut, User, Leaf, Menu, X } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { StreakFreezeCounter } from './StreakFreeze';
 import HabitFormModal from './HabitFormModal';
@@ -13,7 +13,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  sidebarOpen?: boolean;
+  onToggleSidebar?: () => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({ sidebarOpen = false, onToggleSidebar }) => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [showHabitModal, setShowHabitModal] = useState(false);
@@ -26,15 +31,27 @@ export const Header: React.FC = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card/80 backdrop-blur-md">
       <div className="flex h-16 items-center justify-between px-4 lg:px-6">
-        {/* Logo - Left */}
-        <Link to={user ? '/dashboard' : '/'} className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-            <Leaf className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="font-display text-xl font-bold text-foreground hidden sm:inline">
-            Habitly
-          </span>
-        </Link>
+        {/* Sidebar Toggle + Logo - Left */}
+        <div className="flex items-center gap-3">
+          {onToggleSidebar && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onToggleSidebar}
+              className="h-9 w-9"
+            >
+              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          )}
+          <Link to={user ? '/dashboard' : '/'} className="flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
+              <Leaf className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <span className="font-display text-xl font-bold text-foreground hidden sm:inline">
+              Habitly
+            </span>
+          </Link>
+        </div>
 
         {/* Right side: StreakCounter, Theme, Profile */}
         <div className="flex items-center gap-4">
