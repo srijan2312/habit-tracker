@@ -19,6 +19,7 @@ LEFT JOIN public.users u ON au.id = u.id
 ORDER BY au.created_at DESC;
 
 -- Step 2: Insert missing users into public.users table
+-- Only inserts users that don't exist by email (avoids ID conflicts)
 INSERT INTO public.users (
     id,
     email,
@@ -43,13 +44,10 @@ SELECT
     0,     -- total_referrals default
     10     -- freezes_available default
 FROM auth.users au
-LEFT JOIN public.users u ON au.id = u.id
-WHERE u.id IS NULL
-ON CONFLICT (email) DO UPDATE SET
-    id = EXCLUDED.id,
-    name = COALESCE(public.users.name, EXCLUDED.name),
-    email_reminders = COALESCE(public.users.email_reminders, EXCLUDED.email_reminders),
-    email_digest = COALESCE(public.users.email_digest, EXCLUDED.email_digest);
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.users u 
+    WHERE u.email = au.email OR u.id = au.id
+);
 
 -- Step 3: Verify the migration
 SELECT 
@@ -90,33 +88,33 @@ LIMIT 10;
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO public.users (
-        id,
-        email,
-        password,
-        name,
-        created_at,
-        email_reminders,
-        email_digest,
-        push_notifications,
-        total_referrals,
-        freezes_available
-    )
-    VALUES (
-        NEW.id,
-        NEW.email,
-        'supabase_auth', -- Placeholder - actual auth is in auth.users
-        COALESCE(NEW.raw_user_meta_data->>'name', SPLIT_PART(NEW.email, '@', 1)),
-        NEW.created_at,
-        true,
-        true,
-        false,
-        0,
-        10
-    )
-    ON CONFLICT (email) DO UPDATE SET
-        id = EXCLUDED.id,
-        name = COALESCE(public.users.name, EXCLUDED.name);
+    -- Only insert if user doesn't already exist by email or id
+    IF NOT EXISTS (SELECT 1 FROM public.users WHERE email = NEW.email OR id = NEW.id) THEN
+        INSERT INTO public.users (
+            id,
+            email,
+            password,
+            name,
+            created_at,
+            email_reminders,
+            email_digest,
+            push_notifications,
+            total_referrals,
+            freezes_available
+        )
+        VALUES (
+            NEW.id,
+            NEW.email,
+            'supabase_auth', -- Placeholder - actual auth is in auth.users
+            COALESCE(NEW.raw_user_meta_data->>'name', SPLIT_PART(NEW.email, '@', 1)),
+            NEW.created_at,
+            true,
+            true,
+            false,
+            0,
+            10
+        );
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
