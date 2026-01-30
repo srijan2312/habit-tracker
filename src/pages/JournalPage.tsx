@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { BookOpen, Edit2, Save, X, Trash2, Plus } from 'lucide-react';
+import { BookOpen, Edit2, Save, X, Trash2, Plus, Calendar } from 'lucide-react';
 import { API_URL } from '@/config/api';
 import { format } from 'date-fns';
 
@@ -30,6 +30,12 @@ interface Note {
     name: string;
     category?: string;
   };
+}
+
+interface Habit {
+  id: string;
+  title: string;
+  description?: string;
 }
 
 export default function JournalPage() {
@@ -105,14 +111,21 @@ export default function JournalPage() {
 
   // Fetch user's habits for the dropdown
   const habitsQuery = useQuery({
-    queryKey: ['habits', user?.id],
-    enabled: Boolean(token && user?.id),
+    queryKey: ['habits', user?._id],
+    enabled: Boolean(token && user?._id),
     queryFn: async () => {
-      const res = await fetch(`${API_URL}/api/habits/${user?.id}`, {
+      console.log('Fetching habits for user:', user?._id);
+      const res = await fetch(`${API_URL}/api/habits/${user?._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error('Failed to load habits');
+      console.log('Habits response status:', res.status);
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Failed to load habits:', errorText);
+        throw new Error('Failed to load habits');
+      }
       const data = await res.json();
+      console.log('Habits data:', data);
       return Array.isArray(data) ? data : [];
     },
   });
@@ -198,7 +211,7 @@ export default function JournalPage() {
                       <SelectTrigger id="habit">
                         <SelectValue placeholder="Select a habit" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent>Habit
                         {habitsQuery.isLoading ? (
                           <div className="p-2 text-sm text-muted-foreground">Loading habits...</div>
                         ) : habitsQuery.data?.length === 0 ? (
@@ -215,13 +228,16 @@ export default function JournalPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="date">Date</Label>
-                    <Input
-                      id="date"
-                      type="date"
-                      value={newNote.date}
-                      onChange={(e) => setNewNote({ ...newNote, date: e.target.value })}
-                      max={format(new Date(), 'yyyy-MM-dd')}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="date"
+                        type="date"
+                        value={newNote.date}
+                        onChange={(e) => setNewNote({ ...newNote, date: e.target.value })}
+                        max={format(new Date(), 'yyyy-MM-dd')}
+                        className="pr-10 [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:dark:invert"
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="note">Note</Label>
