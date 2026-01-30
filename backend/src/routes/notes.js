@@ -31,7 +31,7 @@ router.get('/habit/:habitId', verifyToken, async (req, res) => {
       .select('*')
       .eq('habit_id', habitId)
       .eq('user_id', user.id)
-      .order('completed_date', { ascending: false });
+      .order('date', { ascending: false });
 
     if (error) {
       console.error('❌ Get notes error:', error);
@@ -61,30 +61,50 @@ router.post('/habit/:habitId/add', verifyToken, async (req, res) => {
       return res.status(400).json({ error: 'Completed date is required' });
     }
 
-    // Upsert the habit log
-    const { data, error } = await supabase
+    // First, check if a log exists for this date
+    const { data: existingLog } = await supabase
       .from('habit_logs')
-      .upsert({
-        habit_id: habitId,
-        user_id: user.id,
-        completed_date: completedDate,
-        note: note || '',
-      }, {
-        onConflict: 'habit_id,user_id,completed_date'
-      })
-      .select()
+      .select('*')
+      .eq('habit_id', habitId)
+      .eq('user_id', user.id)
+      .eq('date', completedDate)
       .single();
 
-    if (error) {
-      console.error('❌ Add note error:', error);
-      return res.status(400).json({ error: error.message });
+    let result;
+    if (existingLog) {
+      // Update existing log with note
+      const { data, error } = await supabase
+        .from('habit_logs')
+        .update({ note: note || '', updated_at: new Date().toISOString() })
+        .eq('id', existingLog.id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      result = data;
+    } else {
+      // Insert new log
+      const { data, error } = await supabase
+        .from('habit_logs')
+        .insert({
+          habit_id: habitId,
+          user_id: user.id,
+          date: completedDate,
+          completed: true,
+          note: note || '',
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      result = data;
     }
 
     console.log(`✅ Note added for habit ${habitId} on ${completedDate}`);
-    res.json({ log: data });
+    res.json({ log: result });
   } catch (err) {
-    console.error('❌ Server error:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('❌ Add note error:', err);
+    res.status(500).json({ error: err.message || 'Server error' });
   }
 });
 
@@ -169,8 +189,8 @@ router.get('/recent/all', verifyToken, async (req, res) => {
       .eq('user_id', user.id)
       .not('note', 'is', null)
       .neq('note', '')
-      .gte('completed_date', '2020-01-01') // Filter out invalid dates
-      .order('completed_date', { ascending: false })
+      .gte('date', '2020-01-01') // Filter out invalid dates
+      .order('date', { ascending: false })
       .limit(safeLimit);
 
     if (error) {
