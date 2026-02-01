@@ -42,7 +42,7 @@ SELECT
     true,  -- email_digest default
     false, -- push_notifications default
     0,     -- total_referrals default
-    10     -- freezes_available default
+    3      -- freezes_available default
 FROM auth.users au
 WHERE NOT EXISTS (
     SELECT 1 FROM public.users u 
@@ -112,7 +112,7 @@ BEGIN
             true,
             false,
             0,
-            10
+            3
         );
     END IF;
     RETURN NEW;
