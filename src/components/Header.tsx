@@ -43,8 +43,8 @@ export const Header: React.FC<HeaderProps> = ({ sidebarOpen = false, onToggleSid
               {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           )}
-          <Link to={user ? '/dashboard' : '/'} className="flex items-center gap-2">
-            <img src="/habitlyLogo.png" alt="Habitly Logo" className="h-9 w-9 object-contain" />
+          <Link to={user ? '/dashboard' : '/'} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <img src="/habitlyLogo.png" alt="Habitly Logo" className="h-8 w-8 object-contain" />
             <span className="font-display text-xl font-bold text-foreground hidden sm:inline">
               Habitly
             </span>

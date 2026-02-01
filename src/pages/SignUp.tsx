@@ -107,10 +107,8 @@ export default function SignUp() {
       <div className="w-full max-w-md">
         <div className="rounded-2xl border bg-card/90 p-6 shadow-xl backdrop-blur sm:p-8">
           <div className="flex items-center justify-between">
-            <Link to="/" className="inline-flex items-center gap-2">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary">
-                <Leaf className="h-5 w-5 text-primary-foreground" />
-              </div>
+            <Link to="/" className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <img src="/habitlyLogo.png" alt="Habitly" className="h-8 w-8 object-contain" />
             </Link>
             <ThemeToggle />
           </div>
