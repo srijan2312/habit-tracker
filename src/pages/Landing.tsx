@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  Leaf, 
   Check, 
   Flame, 
   Calendar, 
@@ -228,7 +227,7 @@ export default function Landing() {
           <div className="container">
             <div className="mx-auto max-w-3xl rounded-2xl bg-gradient-to-br from-primary to-primary-glow p-8 text-center sm:p-12">
               <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary-foreground/20">
-                <Leaf className="h-8 w-8 text-primary-foreground" />
+                <img src="/habitlyLogo.png" alt="Habitly" className="h-10 w-10 object-contain" />
               </div>
               <h2 className="mb-4 font-display text-3xl font-bold text-primary-foreground sm:text-4xl">
                 Ready to build better habits?
@@ -251,7 +250,7 @@ export default function Landing() {
       <footer className="border-t py-8">
         <div className="container flex flex-col items-center justify-between gap-4 sm:flex-row">
           <div className="flex items-center gap-2">
-            <Leaf className="h-5 w-5 text-primary" />
+            <img src="/habitlyLogo.png" alt="Habitly" className="h-6 w-6 object-contain" />
             <span className="font-display font-semibold">Habitly</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">

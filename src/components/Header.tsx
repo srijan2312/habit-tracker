@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { LogOut, User, Leaf, Menu, X } from 'lucide-react';
+import { LogOut, User, Menu, X } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { StreakFreezeCounter } from './StreakFreeze';
 import HabitFormModal from './HabitFormModal';
@@ -44,9 +44,7 @@ export const Header: React.FC<HeaderProps> = ({ sidebarOpen = false, onToggleSid
             </Button>
           )}
           <Link to={user ? '/dashboard' : '/'} className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-              <Leaf className="h-5 w-5 text-primary-foreground" />
-            </div>
+            <img src="/habitlyLogo.png" alt="Habitly Logo" className="h-9 w-9 object-contain" />
             <span className="font-display text-xl font-bold text-foreground hidden sm:inline">
               Habitly
             </span>
