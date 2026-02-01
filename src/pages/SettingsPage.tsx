@@ -236,7 +236,7 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen flex-col bg-background">
+      <div className="dashboard-bg flex min-h-screen flex-col">
         <main className="flex-1 py-10">
           <div className="container px-4">
             <p className="text-muted-foreground">Loading settings...</p>

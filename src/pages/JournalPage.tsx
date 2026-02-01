@@ -161,7 +161,7 @@ export default function JournalPage() {
   ) || [];
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="dashboard-bg flex min-h-screen flex-col">
       <main className="flex-1 py-6 sm:py-10">
         <div className="container max-w-4xl px-4 sm:px-6 space-y-6 sm:space-y-8">
           <div className="space-y-2">

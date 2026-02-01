@@ -190,7 +190,7 @@ export default function InvitePage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="dashboard-bg min-h-screen">
       <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Invite Friends</h1>

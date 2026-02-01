@@ -62,7 +62,7 @@ export default function JoinChallenge() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="dashboard-bg flex min-h-screen flex-col">
       <main className="flex-1 flex items-center justify-center py-6 sm:py-10">
         <div className="container px-4 sm:px-6 max-w-md">
           <Card>

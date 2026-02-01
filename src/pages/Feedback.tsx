@@ -37,7 +37,7 @@ const Feedback: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="dashboard-bg min-h-screen flex items-center justify-center">
       <div className="w-full max-w-lg p-8 rounded-xl shadow-lg border border-border bg-card">
         <h2 className="text-3xl font-bold mb-6 text-center text-foreground">Feedback</h2>
         <form onSubmit={handleSubmit} className="space-y-5">

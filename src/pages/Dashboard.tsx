@@ -136,7 +136,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="dashboard-bg flex min-h-screen flex-col">
       <main className="flex-1 py-8">
         <div className="container space-y-8">
           {/* Page Header */}

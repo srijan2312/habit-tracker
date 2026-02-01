@@ -131,7 +131,7 @@ export default function AnalyticsPage() {
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="dashboard-bg flex min-h-screen flex-col">
       <main className="flex-1 py-6 sm:py-10">
         <div className="container max-w-6xl px-4 sm:px-6 space-y-6 sm:space-y-8">
           <div className="space-y-2">

@@ -210,6 +210,11 @@
   .border-subtle {
     border-color: hsl(var(--border-subtle));
   }
+
+  /* Dashboard Background - applied to all pages except landing/auth */
+  .dashboard-bg {
+    @apply min-h-screen bg-background;
+  }
 }
 
   .auth-bg {
