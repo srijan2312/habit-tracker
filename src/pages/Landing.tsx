@@ -65,9 +65,9 @@ export default function Landing() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
               >
-                <h1 className="mb-6 font-display text-4xl font-bold leading-[1.15] tracking-tight text-slate-900 dark:text-slate-50 sm:text-5xl lg:text-6xl">
+                <h1 className="mb-6 font-display text-4xl font-bold leading-[1.15] tracking-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl">
                   Transform your daily routine
-                  <span className="mt-2 block text-slate-700 dark:text-slate-100">
+                  <span className="mt-2 block text-slate-700 dark:text-slate-50">
                     with{' '}
                     <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
                       Habitly
@@ -81,7 +81,7 @@ export default function Landing() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
-                <p className="mb-10 text-lg text-slate-600 dark:text-slate-300 sm:text-xl">
+                <p className="mb-10 text-lg text-slate-600 dark:text-slate-200 sm:text-xl">
                   The simple, beautiful habit tracker that helps you stay consistent, 
                   build streaks, and achieve your goals. Start your journey today.
                 </p>
@@ -115,7 +115,7 @@ export default function Landing() {
                   </Link>
                 </Button>
               </MotionDiv>
-              <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">
+              <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">
                 No credit card required · Free forever for basic use
               </p>
               <a href="#next-section" className="scroll-btn scroll-btn--inline">
