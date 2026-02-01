@@ -8,18 +8,18 @@ export const ThemeToggle: React.FC = () => {
     <button
       aria-label="Toggle dark mode"
       onClick={toggleTheme}
-      className="relative inline-flex h-8 w-16 items-center rounded-full border border-border bg-muted/60 px-1 shadow-sm transition-colors hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary"
+      className="relative inline-flex h-7 w-14 items-center rounded-full border border-border/50 bg-muted/40 px-1 shadow-sm transition-colors hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/50"
       title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
     >
-      <span className="absolute left-1 flex h-6 w-6 items-center justify-center">
-        <Moon className={`h-4 w-4 ${theme === "dark" ? "text-muted-foreground" : "text-primary"}`} />
+      <span className="absolute left-0.5 flex h-5 w-5 items-center justify-center">
+        <Moon className={`h-3.5 w-3.5 ${theme === "dark" ? "text-muted-foreground" : "text-primary/50"}`} />
       </span>
-      <span className="absolute right-1 flex h-6 w-6 items-center justify-center">
-        <Sun className={`h-4 w-4 ${theme === "dark" ? "text-yellow-400" : "text-muted-foreground"}`} />
+      <span className="absolute right-0.5 flex h-5 w-5 items-center justify-center">
+        <Sun className={`h-3.5 w-3.5 ${theme === "dark" ? "text-yellow-400/60" : "text-muted-foreground/50"}`} />
       </span>
       <span
-        className={`absolute h-6 w-6 rounded-full bg-background shadow transition-transform ${
-          theme === "dark" ? "translate-x-8" : "translate-x-1"
+        className={`absolute h-5 w-5 rounded-full bg-background shadow-sm transition-transform ${
+          theme === "dark" ? "translate-x-7" : "translate-x-0.5"
         }`}
       />
     </button>

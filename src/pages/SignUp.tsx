@@ -114,11 +114,11 @@ export default function SignUp() {
             </Link>
             <ThemeToggle />
           </div>
-          <div className="mb-6 mt-6 text-center">
+          <div className="mb-4 mt-6 text-center">
             <h1 className="font-display text-4xl font-bold tracking-tight text-foreground">
               Create your account
             </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-1.5 text-sm text-muted-foreground">
               Start your journey — small steps add up.
             </p>
             {referralCode && (
@@ -130,7 +130,7 @@ export default function SignUp() {
             )}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
           <div className="space-y-2">
             <Label htmlFor="fullName">Full Name</Label>
             <Input
@@ -197,9 +197,9 @@ export default function SignUp() {
           </Button>
         </form>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
+          <p className="mt-5 text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <Link to="/signin" className="font-medium text-primary/80 hover:text-primary">
+            <Link to="/signin" className="text-muted-foreground/60 font-medium transition-colors hover:text-primary">
               Sign in
             </Link>
           </p>

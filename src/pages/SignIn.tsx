@@ -72,16 +72,16 @@ export default function SignIn() {
             </Link>
             <ThemeToggle />
           </div>
-          <div className="mb-6 mt-6 text-center">
+          <div className="mb-4 mt-6 text-center">
             <h1 className="font-display text-4xl font-bold tracking-tight text-foreground">
               Welcome back
             </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-1.5 text-sm text-muted-foreground">
               Welcome back — consistency starts here.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
+          <form onSubmit={handleSubmit} className="space-y-3.5" autoComplete="off">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -135,15 +135,15 @@ export default function SignIn() {
           </Button>
         </form>
 
-          <div className="mt-4 text-center">
-            <Link to="/forgot-password" className="text-sm text-muted-foreground/70 hover:text-foreground">
-            Forgot your password?
-          </Link>
-        </div>
+          <div className="mt-3 text-center">
+            <Link to="/forgot-password" className="text-sm text-muted-foreground/50 transition-colors hover:text-foreground hover:font-medium">
+              Forgot your password?
+            </Link>
+          </div>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
+          <p className="mt-5 text-center text-sm text-muted-foreground">
             Don't have an account?{' '}
-            <Link to="/signup" className="font-medium text-primary/80 hover:text-primary">
+            <Link to="/signup" className="text-muted-foreground/60 font-medium transition-colors hover:text-primary">
               Create one
             </Link>
           </p>
