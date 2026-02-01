@@ -10,6 +10,7 @@ import {
   Sparkles,
   Target,
   Shield,
+  ChevronDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/Header';
@@ -45,12 +46,7 @@ export default function Landing() {
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
-        <section
-          className="relative overflow-hidden bg-cover bg-center py-20 lg:py-32"
-          style={{ backgroundImage: "url('/LandingPageBg.png')" }}
-        >
-          {/* Overlay for readability */}
-          <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background/40 via-background/60 to-background/80" />
+        <section className="landing-hero-bg relative overflow-hidden py-20 lg:py-32">
           
           <div className="container">
             <div className="mx-auto max-w-3xl text-center">
@@ -70,10 +66,13 @@ export default function Landing() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
               >
-                <h1 className="mb-6 font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                  Transform your daily routine with{' '}
-                  <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-                    Habitly
+                <h1 className="mb-6 font-display text-4xl font-bold leading-[1.15] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+                  Transform your daily routine
+                  <span className="mt-2 block text-foreground/90">
+                    with{' '}
+                    <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+                      Habitly
+                    </span>
                   </span>
                 </h1>
               </MotionDiv>
@@ -95,18 +94,38 @@ export default function Landing() {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 className="flex flex-col items-center justify-center gap-4 sm:flex-row"
               >
-                <Button size="xl" variant="hero" asChild>
+                <Button
+                  size="xl"
+                  variant="hero"
+                  className="h-12 px-8 shadow-md shadow-primary/25"
+                  asChild
+                >
                   <Link to="/signup">
                     Start for Free
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
-                <Button size="xl" variant="outline" asChild>
+                <Button
+                  size="xl"
+                  variant="outline"
+                  className="h-11 border-primary/40 text-foreground/80 hover:bg-primary/5"
+                  asChild
+                >
                   <Link to="/signin">
                     I already have an account
                   </Link>
                 </Button>
               </MotionDiv>
+              <p className="mt-4 text-sm text-muted-foreground">
+                No credit card required · Free forever for basic use
+              </p>
+              <Link
+                to="#features"
+                className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
+              >
+                Explore features
+                <ChevronDown className="h-4 w-4" />
+              </Link>
             </div>
 
             {/* Hero Image/Preview */}
@@ -170,7 +189,7 @@ export default function Landing() {
         </section>
 
         {/* Features Section */}
-        <section className="border-t bg-muted/30 py-20 lg:py-28">
+        <section id="features" className="border-t bg-muted/30 py-20 lg:py-28">
           <div className="container">
             <div className="mx-auto mb-16 max-w-2xl text-center">
               <h2 className="mb-4 font-display text-3xl font-bold text-foreground sm:text-4xl">

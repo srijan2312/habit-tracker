@@ -81,9 +81,6 @@ export const Header: React.FC<HeaderProps> = ({ sidebarOpen = false, onToggleSid
               <Button variant="ghost" asChild>
                 <Link to="/signin">Sign In</Link>
               </Button>
-              <Button asChild>
-                <Link to="/signup">Get Started</Link>
-              </Button>
             </>
           )}
         </div>
