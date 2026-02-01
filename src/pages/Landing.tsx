@@ -121,19 +121,13 @@ export default function Landing() {
             </div>
 
             {/* Hero Image/Preview */}
-            <a href="#next-section" className="scroll-btn">
-              <span></span>
-              <span></span>
-              <span></span>
-              Scroll
-            </a>
             <MotionDiv
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
               className="mt-16 lg:mt-24"
             >
-              <div className="mx-auto max-w-4xl overflow-hidden rounded-2xl border bg-card shadow-xl">
+              <div className="relative mx-auto max-w-4xl overflow-hidden rounded-2xl border bg-card shadow-xl">
                 <div className="border-b bg-muted/30 px-4 py-3">
                   <div className="flex gap-2">
                     <div className="h-3 w-3 rounded-full bg-missed/50" />
@@ -181,6 +175,12 @@ export default function Landing() {
                     ))}
                   </div>
                 </div>
+                <a href="#next-section" className="scroll-btn scroll-btn--preview">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  Scroll
+                </a>
               </div>
             </MotionDiv>
           </div>
