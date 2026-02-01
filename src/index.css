@@ -6,118 +6,151 @@
 
 @layer base {
   :root {
-    --background: 195 40% 86%;
-    --foreground: 192 100% 12%;
+    /* Background & Surface Layers */
+    --background: 195 40% 88%;
+    --surface: 195 30% 92%;
+    --surface-elevated: 0 0% 99%;
+    --foreground: 192 85% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 192 100% 12%;
+    /* Cards & Popovers */
+    --card: 0 0% 99%;
+    --card-foreground: 192 85% 15%;
+    --popover: 0 0% 99%;
+    --popover-foreground: 192 85% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 192 100% 12%;
+    /* Primary - Deep Teal (Signature Color) */
+    --primary: 192 85% 18%;
+    --primary-foreground: 195 40% 98%;
+    --primary-hover: 192 90% 15%;
+    --primary-glow: 192 65% 35%;
 
-    --primary: 192 100% 12%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 192 100% 10%;
-    --primary-glow: 192 70% 28%;
-
-    --secondary: 171 17% 78%;
+    /* Secondary - Cool Aqua Neutral */
+    --secondary: 180 18% 82%;
     --secondary-foreground: 192 60% 18%;
 
-    --muted: 171 17% 82%;
-    --muted-foreground: 192 20% 38%;
+    /* Text Hierarchy */
+    --muted: 180 18% 90%;
+    --muted-foreground: 192 25% 42%;
+    --subtle: 192 15% 58%;
 
-    --accent: 45 78% 47%;
-    --accent-foreground: 45 90% 15%;
+    /* Accent - Warm Gold */
+    --accent: 45 78% 48%;
+    --accent-foreground: 45 90% 12%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    /* Destructive */
+    --destructive: 358 70% 55%;
+    --destructive-foreground: 0 0% 99%;
 
-    --border: 180 18% 78%;
-    --input: 180 18% 78%;
-    --ring: 192 100% 12%;
+    /* Borders & Inputs */
+    --border: 180 20% 82%;
+    --border-subtle: 180 15% 88%;
+    --input: 180 20% 82%;
+    --ring: 192 85% 18%;
 
     --radius: 0.75rem;
 
-    --success: 192 100% 12%;
-    --success-light: 195 40% 92%;
-    --warning: 45 78% 47%;
-    --warning-light: 45 70% 92%;
-    --streak: 45 78% 47%;
-    --streak-light: 45 70% 92%;
-    --missed: 0 70% 58%;
-    --missed-light: 0 60% 94%;
+    /* Semantic Colors */
+    --success: 168 65% 38%;
+    --success-light: 168 45% 92%;
+    --warning: 45 78% 48%;
+    --warning-light: 45 60% 90%;
+    --streak: 25 90% 52%;
+    --streak-light: 25 75% 92%;
+    --missed: 358 70% 55%;
+    --missed-light: 358 50% 92%;
+    --info: 192 75% 45%;
+    --info-light: 192 55% 92%;
 
-    --gradient-hero: linear-gradient(135deg, hsl(195, 40%, 86%) 0%, hsl(171, 17%, 78%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0, 0%, 100%) 0%, hsl(195, 40%, 94%) 100%);
-    --gradient-success: linear-gradient(135deg, hsl(192, 100%, 12%) 0%, hsl(192, 70%, 28%) 100%);
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(195, 40%, 88%) 0%, hsl(180, 25%, 82%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0, 0%, 99%) 0%, hsl(195, 30%, 95%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(192, 85%, 18%) 0%, hsl(168, 65%, 38%) 100%);
 
-    --shadow-sm: 0 1px 2px 0 hsl(220, 32%, 14%, 0.04);
-    --shadow-md: 0 4px 6px -1px hsl(220, 32%, 14%, 0.06), 0 2px 4px -2px hsl(220, 32%, 14%, 0.04);
-    --shadow-lg: 0 10px 15px -3px hsl(220, 32%, 14%, 0.08), 0 4px 6px -4px hsl(220, 32%, 14%, 0.05);
-    --shadow-xl: 0 20px 25px -5px hsl(220, 32%, 14%, 0.1), 0 8px 10px -6px hsl(220, 32%, 14%, 0.06);
-    --shadow-glow: 0 0 20px hsl(192, 70%, 28%, 0.18);
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(192, 30%, 20%, 0.04);
+    --shadow-md: 0 4px 6px -1px hsl(192, 30%, 20%, 0.07), 0 2px 4px -2px hsl(192, 30%, 20%, 0.04);
+    --shadow-lg: 0 10px 15px -3px hsl(192, 30%, 20%, 0.09), 0 4px 6px -4px hsl(192, 30%, 20%, 0.05);
+    --shadow-xl: 0 20px 25px -5px hsl(192, 30%, 20%, 0.11), 0 8px 10px -6px hsl(192, 30%, 20%, 0.06);
+    --shadow-glow: 0 0 24px hsl(192, 65%, 35%, 0.22);
 
-    --sidebar-background: 195 40% 90%;
-    --sidebar-foreground: 192 60% 18%;
-    --sidebar-primary: 192 100% 12%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 171 17% 82%;
+    /* Sidebar */
+    --sidebar-background: 195 35% 90%;
+    --sidebar-foreground: 192 70% 18%;
+    --sidebar-primary: 192 85% 18%;
+    --sidebar-primary-foreground: 195 40% 98%;
+    --sidebar-accent: 180 18% 85%;
     --sidebar-accent-foreground: 192 60% 18%;
-    --sidebar-border: 180 18% 78%;
-    --sidebar-ring: 192 100% 12%;
+    --sidebar-border: 180 20% 82%;
+    --sidebar-ring: 192 85% 18%;
   }
 
   .dark {
-    --background: 215 28% 10%;
-    --foreground: 210 20% 94%;
+    /* Background & Surface Layers */
+    --background: 215 30% 11%;
+    --surface: 215 25% 14%;
+    --surface-elevated: 215 22% 17%;
+    --foreground: 195 25% 92%;
 
-    --card: 215 24% 14%;
-    --card-foreground: 210 20% 94%;
+    /* Cards & Popovers */
+    --card: 215 25% 14%;
+    --card-foreground: 195 25% 92%;
+    --popover: 215 22% 17%;
+    --popover-foreground: 195 25% 92%;
 
-    --popover: 215 24% 14%;
-    --popover-foreground: 210 20% 94%;
+    /* Primary - Muted Teal (Dark Mode) */
+    --primary: 168 50% 48%;
+    --primary-foreground: 215 30% 11%;
+    --primary-hover: 168 55% 52%;
+    --primary-glow: 168 60% 58%;
 
-    --primary: 168 55% 42%;
-    --primary-foreground: 215 28% 10%;
-    --primary-hover: 168 55% 48%;
-    --primary-glow: 168 55% 55%;
+    /* Secondary - Cool Neutral */
+    --secondary: 215 18% 22%;
+    --secondary-foreground: 195 20% 88%;
 
-    --secondary: 215 20% 18%;
-    --secondary-foreground: 210 20% 92%;
+    /* Text Hierarchy */
+    --muted: 215 18% 20%;
+    --muted-foreground: 195 15% 62%;
+    --subtle: 195 12% 48%;
 
-    --muted: 215 20% 18%;
-    --muted-foreground: 210 12% 62%;
+    /* Accent - Warm Gold */
+    --accent: 45 75% 54%;
+    --accent-foreground: 215 30% 11%;
 
-    --accent: 45 78% 52%;
-    --accent-foreground: 45 90% 12%;
+    /* Destructive */
+    --destructive: 358 65% 58%;
+    --destructive-foreground: 195 25% 92%;
 
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 100%;
+    /* Borders & Inputs */
+    --border: 215 18% 23%;
+    --border-subtle: 215 15% 18%;
+    --input: 215 18% 23%;
+    --ring: 168 50% 48%;
 
-    --border: 215 20% 22%;
-    --input: 215 20% 22%;
-    --ring: 168 55% 42%;
+    /* Semantic Colors */
+    --success: 168 50% 48%;
+    --success-light: 168 35% 20%;
+    --warning: 45 75% 54%;
+    --warning-light: 45 40% 22%;
+    --streak: 25 85% 55%;
+    --streak-light: 25 55% 22%;
+    --missed: 358 65% 58%;
+    --missed-light: 358 40% 20%;
+    --info: 192 70% 52%;
+    --info-light: 192 45% 22%;
 
-    --success: 168 55% 42%;
-    --success-light: 168 30% 18%;
-    --warning: 45 78% 52%;
-    --warning-light: 45 45% 18%;
-    --streak: 45 78% 52%;
-    --streak-light: 45 45% 18%;
-    --missed: 0 70% 55%;
-    --missed-light: 0 50% 15%;
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(215, 30%, 11%) 0%, hsl(215, 25%, 16%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(215, 25%, 14%) 0%, hsl(215, 25%, 12%) 100%);
 
-    --gradient-hero: linear-gradient(135deg, hsl(215, 28%, 10%) 0%, hsl(215, 24%, 16%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(215, 24%, 14%) 0%, hsl(215, 24%, 12%) 100%);
-
-    --sidebar-background: 215 24% 12%;
-    --sidebar-foreground: 210 20% 92%;
-    --sidebar-primary: 168 55% 42%;
-    --sidebar-primary-foreground: 215 28% 10%;
-    --sidebar-accent: 215 20% 18%;
-    --sidebar-accent-foreground: 210 20% 92%;
-    --sidebar-border: 215 20% 22%;
-    --sidebar-ring: 168 55% 42%;
+    /* Sidebar */
+    --sidebar-background: 215 28% 13%;
+    --sidebar-foreground: 195 20% 88%;
+    --sidebar-primary: 168 50% 48%;
+    --sidebar-primary-foreground: 215 30% 11%;
+    --sidebar-accent: 215 18% 20%;
+    --sidebar-accent-foreground: 195 20% 88%;
+    --sidebar-border: 215 18% 23%;
+    --sidebar-ring: 168 50% 48%;
   }
 
   * {
@@ -158,6 +191,26 @@
   .shadow-glow {
     box-shadow: var(--shadow-glow);
   }
+
+  /* Surface Utilities */
+  .bg-surface {
+    background-color: hsl(var(--surface));
+  }
+  
+  .bg-surface-elevated {
+    background-color: hsl(var(--surface-elevated));
+  }
+  
+  /* Text Utilities */
+  .text-subtle {
+    color: hsl(var(--subtle));
+  }
+  
+  /* Border Utilities */
+  .border-subtle {
+    border-color: hsl(var(--border-subtle));
+  }
+}
 
   .auth-bg {
     background-image:
