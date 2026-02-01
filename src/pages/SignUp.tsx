@@ -103,34 +103,34 @@ export default function SignUp() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      {/* Always show dark mode button in top-right */}
-      <div className="fixed right-4 top-4 z-50">
-        <ThemeToggle />
-      </div>
+    <div className="auth-bg flex min-h-screen items-center justify-center px-4 py-10 sm:py-12">
       <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
-              <Leaf className="h-6 w-6 text-primary-foreground" />
-            </div>
-          </Link>
-          <h1 className="mt-6 font-display text-3xl font-bold text-foreground">
-            Create your account
-          </h1>
-          <p className="mt-2 text-muted-foreground">
-            Start building better habits today
-          </p>
-          {referralCode && (
-            <div className="mt-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-4 py-2">
-              <p className="text-sm text-green-700 dark:text-green-300">
-                🎉 Using referral code: <span className="font-bold">{referralCode}</span>
-              </p>
-            </div>
-          )}
-        </div>
+        <div className="rounded-2xl border bg-card/90 p-6 shadow-xl backdrop-blur sm:p-8">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="inline-flex items-center gap-2">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary">
+                <Leaf className="h-5 w-5 text-primary-foreground" />
+              </div>
+            </Link>
+            <ThemeToggle />
+          </div>
+          <div className="mb-6 mt-6 text-center">
+            <h1 className="font-display text-4xl font-bold tracking-tight text-foreground">
+              Create your account
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Start your journey — small steps add up.
+            </p>
+            {referralCode && (
+              <div className="mt-3 rounded-lg border border-green-200 bg-green-50 px-4 py-2 dark:border-green-800 dark:bg-green-900/20">
+                <p className="text-sm text-green-700 dark:text-green-300">
+                  🎉 Using referral code: <span className="font-bold">{referralCode}</span>
+                </p>
+              </div>
+            )}
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="fullName">Full Name</Label>
             <Input
@@ -186,17 +186,24 @@ export default function SignUp() {
             {password && <PasswordChecklist password={password} />}
           </div>
 
-          <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+          <Button
+            type="submit"
+            className="h-12 w-full shadow-md shadow-primary/25"
+            size="xl"
+            variant="hero"
+            disabled={isLoading}
+          >
             {isLoading ? 'Creating account...' : 'Create Account'}
           </Button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          Already have an account?{' '}
-          <Link to="/signin" className="font-medium text-primary hover:underline">
-            Sign in
-          </Link>
-        </p>
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            Already have an account?{' '}
+            <Link to="/signin" className="font-medium text-primary/80 hover:text-primary">
+              Sign in
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -61,27 +61,27 @@ export default function SignIn() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      {/* Always show dark mode button in top-right */}
-      <div className="fixed right-4 top-4 z-50">
-        <ThemeToggle />
-      </div>
+    <div className="auth-bg flex min-h-screen items-center justify-center px-4 py-10 sm:py-12">
       <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
-              <Leaf className="h-6 w-6 text-primary-foreground" />
-            </div>
-          </Link>
-          <h1 className="mt-6 font-display text-3xl font-bold text-foreground">
-            Welcome back
-          </h1>
-          <p className="mt-2 text-muted-foreground">
-            Sign in to continue your habit journey
-          </p>
-        </div>
+        <div className="rounded-2xl border bg-card/90 p-6 shadow-xl backdrop-blur sm:p-8">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="inline-flex items-center gap-2">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary">
+                <Leaf className="h-5 w-5 text-primary-foreground" />
+              </div>
+            </Link>
+            <ThemeToggle />
+          </div>
+          <div className="mb-6 mt-6 text-center">
+            <h1 className="font-display text-4xl font-bold tracking-tight text-foreground">
+              Welcome back
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Welcome back — consistency starts here.
+            </p>
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
+          <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -124,23 +124,30 @@ export default function SignIn() {
             )}
           </div>
 
-          <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+          <Button
+            type="submit"
+            className="h-12 w-full shadow-md shadow-primary/25"
+            size="xl"
+            variant="hero"
+            disabled={isLoading}
+          >
             {isLoading ? 'Signing in...' : 'Sign In'}
           </Button>
         </form>
 
-        <div className="mt-4 text-center">
-          <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+          <div className="mt-4 text-center">
+            <Link to="/forgot-password" className="text-sm text-muted-foreground/70 hover:text-foreground">
             Forgot your password?
           </Link>
         </div>
 
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          Don't have an account?{' '}
-          <Link to="/signup" className="font-medium text-primary hover:underline">
-            Create one
-          </Link>
-        </p>
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            Don't have an account?{' '}
+            <Link to="/signup" className="font-medium text-primary/80 hover:text-primary">
+              Create one
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

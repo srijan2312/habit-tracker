@@ -118,6 +118,12 @@ export default function Landing() {
               <p className="mt-4 text-sm text-muted-foreground">
                 No credit card required · Free forever for basic use
               </p>
+              <a href="#next-section" className="scroll-btn scroll-btn--inline">
+                <span></span>
+                <span></span>
+                <span></span>
+                Scroll
+              </a>
             </div>
 
             {/* Hero Image/Preview */}
@@ -127,7 +133,7 @@ export default function Landing() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="mt-16 lg:mt-24"
             >
-              <div className="relative mx-auto max-w-4xl overflow-hidden rounded-2xl border bg-card shadow-xl">
+              <div className="mx-auto max-w-4xl overflow-hidden rounded-2xl border bg-card shadow-xl">
                 <div className="border-b bg-muted/30 px-4 py-3">
                   <div className="flex gap-2">
                     <div className="h-3 w-3 rounded-full bg-missed/50" />
@@ -175,12 +181,6 @@ export default function Landing() {
                     ))}
                   </div>
                 </div>
-                <a href="#next-section" className="scroll-btn scroll-btn--preview">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                  Scroll
-                </a>
               </div>
             </MotionDiv>
           </div>
