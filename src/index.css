@@ -8,6 +8,7 @@
   :root {
     /* Background & Surface Layers */
     --background: 195 40% 88%;
+    --dashboard-bg: 215 30% 96%;
     --surface: 195 30% 92%;
     --surface-elevated: 0 0% 99%;
     --foreground: 192 85% 15%;
@@ -87,6 +88,7 @@
   .dark {
     /* Background & Surface Layers */
     --background: 215 30% 11%;
+    --dashboard-bg: 215 25% 14%;
     --surface: 215 25% 14%;
     --surface-elevated: 215 22% 17%;
     --foreground: 195 25% 92%;
@@ -213,7 +215,8 @@
 
   /* Dashboard Background - applied to all pages except landing/auth */
   .dashboard-bg {
-    @apply min-h-screen bg-background;
+    @apply min-h-screen;
+    background-color: hsl(var(--dashboard-bg));
   }
 }
 
