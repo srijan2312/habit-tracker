@@ -46,8 +46,13 @@ export default function Landing() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative overflow-hidden py-20 lg:py-32">
-          {/* Background gradient */}
-          <div className="absolute inset-0 -z-10 bg-gradient-to-b from-success-light/50 via-background to-background" />
+          {/* Background image */}
+          <div
+            className="absolute inset-0 -z-20 bg-cover bg-center"
+            style={{ backgroundImage: "url('/LandingPageBg.png')" }}
+          />
+          {/* Overlay for readability */}
+          <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background/80 via-background/90 to-background" />
           
           <div className="container">
             <div className="mx-auto max-w-3xl text-center">
