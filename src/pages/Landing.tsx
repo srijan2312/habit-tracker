@@ -10,7 +10,6 @@ import {
   Sparkles,
   Target,
   Shield,
-  ChevronDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/Header';
@@ -119,13 +118,12 @@ export default function Landing() {
               <p className="mt-4 text-sm text-muted-foreground">
                 No credit card required · Free forever for basic use
               </p>
-              <Link
-                to="#features"
-                className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
-              >
-                Explore features
-                <ChevronDown className="h-4 w-4" />
-              </Link>
+              <a href="#next-section" className="scroll-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+                Scroll
+              </a>
             </div>
 
             {/* Hero Image/Preview */}
@@ -189,7 +187,7 @@ export default function Landing() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="border-t bg-muted/30 py-20 lg:py-28">
+        <section id="next-section" className="border-t bg-muted/30 py-20 lg:py-28">
           <div className="container">
             <div className="mx-auto mb-16 max-w-2xl text-center">
               <h2 className="mb-4 font-display text-3xl font-bold text-foreground sm:text-4xl">
