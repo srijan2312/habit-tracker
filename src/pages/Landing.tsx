@@ -118,15 +118,15 @@ export default function Landing() {
               <p className="mt-4 text-sm text-muted-foreground">
                 No credit card required · Free forever for basic use
               </p>
-              <a href="#next-section" className="scroll-btn">
-                <span></span>
-                <span></span>
-                <span></span>
-                Scroll
-              </a>
             </div>
 
             {/* Hero Image/Preview */}
+            <a href="#next-section" className="scroll-btn">
+              <span></span>
+              <span></span>
+              <span></span>
+              Scroll
+            </a>
             <MotionDiv
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}

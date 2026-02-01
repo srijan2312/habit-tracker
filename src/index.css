@@ -205,6 +205,23 @@
   }
 
   .landing-hero-bg {
+      .scroll-btn {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        padding-top: 80px;
+        color: #0f172a;
+        font-family: system-ui, sans-serif;
+        font-size: 14px;
+        letter-spacing: 0.15em;
+        text-decoration: none;
+      }
+
+      .dark .scroll-btn {
+        color: #e2e8f0;
+      }
     background-image:
       linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.75)),
       url('/LandingPageBg.png');
