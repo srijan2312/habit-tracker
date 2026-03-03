@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import Snowfall from 'react-snowfall';
+
 import { 
   Check, 
   Flame, 
@@ -45,6 +47,7 @@ export default function Landing() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="landing-hero-bg relative overflow-hidden py-20 lg:py-32">
+          <Snowfall color="#82C3D9" />
           
           <div className="container">
             <div className="mx-auto max-w-3xl text-center">

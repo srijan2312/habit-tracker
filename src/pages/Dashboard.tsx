@@ -122,19 +122,6 @@ export default function Dashboard() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen flex-col bg-background">
-        <main className="flex flex-1 items-center justify-center">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Loading your habits...</p>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="dashboard-bg flex min-h-screen flex-col">
       <main className="flex-1 py-8">
