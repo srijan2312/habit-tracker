@@ -18,6 +18,7 @@ import { Header } from '@/components/Header';
 const features = [
   {
     icon: Target,
+    
     title: 'Track Daily Habits',
     description: 'Create and monitor your habits with a beautiful, intuitive interface.',
   },

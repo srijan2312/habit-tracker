@@ -38,11 +38,19 @@ export default function Dashboard() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingHabit, setEditingHabit] = useState<HabitWithStats | null>(null);
   const [deletingHabitId, setDeletingHabitId] = useState<string | null>(null);
-  const [filter, setFilter] = useState<FilterType>('all');
+  const [filter, setFilter] = useState<FilterType>('pending');
   const [showDailyReward, setShowDailyReward] = useState(false);
 
   const today = format(new Date(), 'EEEE, MMMM d');
   const youId = (user as any)?._id || (user as any)?.id;
+  const todayDay = new Date().getDay();
+
+  const isScheduledToday = (habit: HabitWithStats) => {
+    if ((habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.custom_days && habit.custom_days.length > 0) {
+      return habit.custom_days.includes(todayDay);
+    }
+    return true;
+  };
 
   // Show daily reward modal on first load if user can claim today
   useEffect(() => {
@@ -56,15 +64,21 @@ export default function Dashboard() {
   }, [reward]);
 
   const filteredHabits = useMemo(() => {
+    const todayScheduledHabits = habits.filter((habit) => isScheduledToday(habit));
+
     switch (filter) {
       case 'completed':
-        return habits.filter(h => h.isCompletedToday);
+        return todayScheduledHabits.filter(h => h.isCompletedToday);
       case 'pending':
-        return habits.filter(h => !h.isCompletedToday);
+        return todayScheduledHabits.filter(h => !h.isCompletedToday);
       default:
-        return habits;
+        return todayScheduledHabits;
     }
-  }, [habits, filter]);
+  }, [habits, filter, todayDay]);
+
+  const pendingTodayHabits = useMemo(() => {
+    return habits.filter((habit) => isScheduledToday(habit) && !habit.isCompletedToday);
+  }, [habits, todayDay]);
 
   const handleCreateHabit = async (habitData: Omit<Habit, '_id' | 'userId' | 'created_at' | 'updated_at'>) => {
     await createHabit.mutateAsync(habitData as Habit);
@@ -180,6 +194,35 @@ export default function Dashboard() {
               }))}
             />
           )}
+
+          {/* Today's Pending Tasks */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-display text-xl font-semibold text-foreground">
+                Today's Pending Tasks
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {pendingTodayHabits.length} pending
+              </p>
+            </div>
+
+            {pendingTodayHabits.length === 0 ? (
+              <div className="rounded-xl border bg-card p-6 text-center text-muted-foreground">
+                You are all caught up for today.
+              </div>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {pendingTodayHabits.map((habit) => (
+                  <HabitCard
+                    key={`pending-${habit._id}`}
+                    habit={habit}
+                    onEdit={setEditingHabit}
+                    onDelete={setDeletingHabitId}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Habits Section */}
           <div className="space-y-4">
