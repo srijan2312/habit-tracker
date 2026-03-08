@@ -136,6 +136,11 @@ export default function Dashboard() {
     }
   };
 
+  const handlePendingTaskCheckbox = (habitId: string, checked: boolean) => {
+    const todayDate = format(new Date(), 'yyyy-MM-dd');
+    handleToggle(habitId, todayDate, checked);
+  };
+
   return (
     <div className="dashboard-bg flex min-h-screen flex-col">
       <main className="flex-1 py-8">
@@ -218,6 +223,8 @@ export default function Dashboard() {
                     habit={habit}
                     onEdit={setEditingHabit}
                     onDelete={setDeletingHabitId}
+                    showTodayCheckbox
+                    onTodayCheckboxChange={handlePendingTaskCheckbox}
                   />
                 ))}
               </div>

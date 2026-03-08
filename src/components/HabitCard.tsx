@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Progress } from '@/components/ui/progress';
+import { Checkbox } from '@/components/ui/checkbox';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -17,12 +18,16 @@ interface HabitCardProps {
   habit: HabitWithStats;
   onEdit: (habit: HabitWithStats) => void;
   onDelete: (habitId: string) => void;
+  showTodayCheckbox?: boolean;
+  onTodayCheckboxChange?: (habitId: string, checked: boolean) => void;
 }
 
 export const HabitCard: React.FC<HabitCardProps> = ({
   habit,
   onEdit,
   onDelete,
+  showTodayCheckbox = false,
+  onTodayCheckboxChange,
 }) => {
   const navigate = useNavigate();
   // Calculate scheduled days for the full current month (matches monthly tracker)
@@ -66,7 +71,17 @@ export const HabitCard: React.FC<HabitCardProps> = ({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4">
-          {/* Removed tick/untick button. Card is now clickable. */}
+          {showTodayCheckbox && (
+            <Checkbox
+              checked={habit.isCompletedToday}
+              onClick={(e) => e.stopPropagation()}
+              onCheckedChange={(checked) => {
+                onTodayCheckboxChange?.(habit._id, Boolean(checked));
+              }}
+              aria-label={`Mark ${habit.title} as completed`}
+              className="mt-1"
+            />
+          )}
 
           {/* Habit Info */}
           <div className="flex flex-col gap-1">
