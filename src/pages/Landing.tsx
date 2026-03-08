@@ -1,6 +1,6 @@
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Snowfall from 'react-snowfall';
 
 import { 
   Check, 
@@ -40,15 +40,26 @@ const features = [
 ];
 
 const MotionDiv = motion.div;
+const Snowfall = lazy(() => import('react-snowfall'));
 
 export default function Landing() {
+  const [showSnowfall, setShowSnowfall] = useState(false);
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const desktopViewport = window.innerWidth >= 768;
+    setShowSnowfall(!reducedMotion && desktopViewport);
+  }, []);
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
         <section className="landing-hero-bg relative overflow-hidden py-20 lg:py-32">
-          <Snowfall color="#82C3D9" />
+          <Suspense fallback={null}>
+            {showSnowfall && <Snowfall color="#82C3D9" />}
+          </Suspense>
           
           <div className="container">
             <div className="mx-auto max-w-3xl text-center">
@@ -231,7 +242,7 @@ export default function Landing() {
           <div className="container">
             <div className="mx-auto max-w-3xl rounded-2xl bg-gradient-to-br from-primary to-primary-glow p-8 text-center sm:p-12">
               <div className="mb-6 inline-flex items-center justify-center">
-                <img src="/Logo.png" alt="Habitly" className="h-14 w-14 object-contain rounded-full" />
+                <img src="/habitlyLogo.png" alt="Habitly" className="h-14 w-14 object-contain rounded-full" loading="lazy" decoding="async" width="56" height="56" />
               </div>
               <h2 className="mb-4 font-display text-3xl font-bold text-primary-foreground sm:text-4xl">
                 Ready to build better habits?
@@ -254,7 +265,7 @@ export default function Landing() {
       <footer className="border-t py-8">
         <div className="container flex flex-col items-center justify-between gap-4 sm:flex-row">
           <div className="flex items-center gap-2">
-            <img src="/Logo.png" alt="Habitly" className="h-6 w-6 object-contain rounded-full" />
+            <img src="/habitlyLogo.png" alt="Habitly" className="h-6 w-6 object-contain rounded-full" loading="lazy" decoding="async" width="24" height="24" />
             <span className="font-display font-semibold">Habitly</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
