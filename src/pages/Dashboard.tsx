@@ -72,7 +72,7 @@ export default function Dashboard() {
       case 'pending':
         return todayScheduledHabits.filter(h => !h.isCompletedToday);
       default:
-        return todayScheduledHabits;
+        return habits;
     }
   }, [habits, filter, todayDay]);
 
@@ -264,7 +264,7 @@ export default function Dashboard() {
             ) : filteredHabits.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-xl border bg-card py-12">
                 <p className="text-muted-foreground">
-                  No {filter === 'completed' ? 'completed' : 'pending'} habits
+                  {filter === 'all' ? 'No habits found' : `No ${filter} habits`}
                 </p>
               </div>
             ) : (
