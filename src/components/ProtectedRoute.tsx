@@ -30,7 +30,16 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         <main className={cn('flex-1 px-4 lg:px-0', sidebarOpen && 'lg:ml-64')}>
           <Suspense
             fallback={
-              <div className="dashboard-bg min-h-[60vh]" aria-live="polite" aria-busy="true" />
+              <div className="dashboard-bg min-h-[60vh] p-6" aria-live="polite" aria-busy="true">
+                <div className="mx-auto w-full max-w-5xl space-y-4">
+                  <div className="h-9 w-40 animate-pulse rounded-md bg-muted/60" />
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="h-28 animate-pulse rounded-xl bg-card/70" />
+                    <div className="h-28 animate-pulse rounded-xl bg-card/70" />
+                    <div className="h-28 animate-pulse rounded-xl bg-card/70" />
+                  </div>
+                </div>
+              </div>
             }
           >
             {children}
