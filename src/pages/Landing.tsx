@@ -15,7 +15,6 @@ import {
   GitBranch,
   Users,
   Award,
-  Star,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/Header';
@@ -74,27 +73,6 @@ const stats = [
   { value: '150K+', label: 'Tasks Completed' },
 ];
 
-const testimonials = [
-  {
-    name: 'Sarah Chen',
-    title: 'Product Manager',
-    quote: 'Habitly transformed my morning routine. The streak feature keeps me motivated every single day.',
-    avatar: '👩‍💼',
-  },
-  {
-    name: 'Marcus Johnson',
-    title: 'Fitness Coach',
-    quote: 'My clients love the visual progress tracking. It makes habit building feel achievable and rewarding.',
-    avatar: '👨‍🏫',
-  },
-  {
-    name: 'Elena Rodriguez',
-    title: 'Student',
-    quote: 'Finally, an app that understands habits. The analytics help me understand what actually works for me.',
-    avatar: '👩‍🎓',
-  },
-];
-
 export default function Landing() {
   const [showSnowfall, setShowSnowfall] = useState(false);
   const [SnowfallComponent, setSnowfallComponent] = useState<ComponentType<{ color?: string }> | null>(null);
@@ -119,35 +97,37 @@ export default function Landing() {
     };
   }, []);
 
-  // Scroll reveal for sections with staggered children
+  // Scroll reveal for elements with stagger inside each section
   useEffect(() => {
-    const sections = document.querySelectorAll('main section');
-    if (!sections.length) return;
+    const revealItems = Array.from(document.querySelectorAll<HTMLElement>('.reveal-scroll'));
+    if (!revealItems.length) return;
+
+    // Precompute stagger delay by sibling order in each section.
+    revealItems.forEach((el) => {
+      const section = el.closest('section');
+      if (!section) return;
+
+      const siblings = Array.from(section.querySelectorAll<HTMLElement>('.reveal-scroll'));
+      const index = siblings.indexOf(el);
+      const staggerRaw = getComputedStyle(el).getPropertyValue('--stagger').trim();
+      const parsedStagger = Number(staggerRaw);
+      const staggerIndex = Number.isFinite(parsedStagger) ? parsedStagger : Math.max(index, 0);
+      el.style.setProperty('--reveal-delay', `${staggerIndex * 90}ms`);
+    });
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
-
-          const section = entry.target as HTMLElement;
-          const revealItems = section.querySelectorAll<HTMLElement>('.reveal-scroll');
-
-          revealItems.forEach((el, index) => {
-            const staggerRaw = getComputedStyle(el).getPropertyValue('--stagger').trim();
-            const parsedStagger = Number(staggerRaw);
-            const staggerIndex = Number.isFinite(parsedStagger) ? parsedStagger : index;
-
-            el.style.setProperty('--reveal-delay', `${staggerIndex * 90}ms`);
-            requestAnimationFrame(() => el.classList.add('visible'));
-          });
-
-          observer.unobserve(section);
+          const el = entry.target as HTMLElement;
+          requestAnimationFrame(() => el.classList.add('visible'));
+          observer.unobserve(el);
         });
       },
-      { threshold: 0.18, rootMargin: '0px 0px -10% 0px' }
+      { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }
     );
 
-    sections.forEach((section) => observer.observe(section));
+    revealItems.forEach((item) => observer.observe(item));
     return () => observer.disconnect();
   }, []);
 
@@ -353,14 +333,33 @@ export default function Landing() {
         </section>
 
         {/* Wave divider */}
-        <div className="wave-divider" aria-hidden="true">
-          <svg viewBox="0 0 1440 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,50 Q360,0 720,50 T1440,50 L1440,100 L0,100 Z" className="wave-path" />
+        <div className="wave-divider wave-divider--soft" aria-hidden="true">
+          <svg viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="wave-gradient-back" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="hsl(192 70% 60% / 0.08)" />
+                <stop offset="50%" stopColor="hsl(192 70% 60% / 0.16)" />
+                <stop offset="100%" stopColor="hsl(192 70% 60% / 0.08)" />
+              </linearGradient>
+              <linearGradient id="wave-gradient-front" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="hsl(192 70% 60% / 0.14)" />
+                <stop offset="50%" stopColor="hsl(192 70% 60% / 0.22)" />
+                <stop offset="100%" stopColor="hsl(192 70% 60% / 0.14)" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M0,62 C240,38 420,94 640,72 C850,52 1060,18 1440,62 L1440,120 L0,120 Z"
+              className="wave-path wave-path--back"
+            />
+            <path
+              d="M0,72 C260,46 470,104 700,82 C940,58 1110,28 1440,72 L1440,120 L0,120 Z"
+              className="wave-path wave-path--front"
+            />
           </svg>
         </div>
 
         {/* Premium Feature Highlights */}
-        <section className="saas-section section-light py-30 lg:py-40">
+        <section className="saas-section section-tone-1 section-separator py-20">
           <div className="bg-gradient-saas pointer-events-none absolute inset-0" aria-hidden="true" />
           <div className="section-blob section-blob--light--1" aria-hidden="true" />
           <div className="section-blob section-blob--light--2" aria-hidden="true" />
@@ -378,16 +377,16 @@ export default function Landing() {
               </p>
             </div>
 
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-10 md:grid-cols-2 lg:gap-12 lg:grid-cols-4">
               {mainFeatures.map((feature, idx) => (
                 <div key={feature.title} className="feature-card reveal-scroll group" style={{ '--stagger': idx } as React.CSSProperties}>
                   <div className="feature-icon-wrapper">
                     <div className="feature-icon">
-                      <feature.icon className="h-8 w-8" />
+                      <feature.icon className="h-10 w-10" />
                     </div>
                   </div>
-                  <h3 className="mt-6 font-display text-xl font-semibold text-foreground">{feature.title}</h3>
-                  <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+                  <h3 className="mt-8 font-display text-2xl font-semibold text-foreground">{feature.title}</h3>
+                  <p className="mt-4 text-base text-muted-foreground leading-relaxed">{feature.description}</p>
                 </div>
               ))}
             </div>
@@ -395,11 +394,11 @@ export default function Landing() {
         </section>
 
         {/* Product Showcase with Mockup */}
-        <section className="section-dark py-30 lg:py-40">
+        <section className="section-tone-2 section-separator py-20">
           <div className="section-blob section-blob--1" aria-hidden="true" />
           <div className="container relative">
-            <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-              <div className="reveal-scroll space-y-6">
+            <div className="grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-14">
+              <div className="reveal-scroll space-y-6 lg:col-span-5">
                 <h2 className="font-display text-4xl font-bold text-foreground sm:text-5xl">
                   See your progress unfold
                 </h2>
@@ -420,7 +419,7 @@ export default function Landing() {
                 </ul>
               </div>
 
-              <div className="reveal-scroll showcase-mockup">
+              <div className="reveal-scroll showcase-mockup lg:col-span-7">
                 <div className="dashboard-mockup">
                   {/* Dashboard Header */}
                   <div className="dashboard-header">
@@ -517,7 +516,7 @@ export default function Landing() {
         </section>
 
         {/* Why Habits Matter - Visual Highlights */}
-        <section className="section-light py-30 lg:py-40">
+        <section className="section-tone-3 section-separator py-20">
           <div className="section-blob section-blob--2" aria-hidden="true" />
           <div className="container relative">
             <div className="mb-20 text-center">
@@ -540,9 +539,9 @@ export default function Landing() {
         </section>
 
         {/* Stats Section */}
-        <section className="section-dark py-30 lg:py-40">
+        <section className="section-tone-4 section-separator py-20">
           <div className="container">
-            <div className="grid gap-0 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="stats-group grid gap-0 sm:grid-cols-2 lg:grid-cols-4">
               {stats.map((stat, idx) => (
                 <div key={stat.label} className="stat-card reveal-scroll text-center" style={{ '--stagger': idx } as React.CSSProperties}>
                   <div className="space-y-2">
@@ -550,7 +549,7 @@ export default function Landing() {
                       <span className="stat-counter" data-value={stat.value.replace(/[^\d]/g, '')}>
                         0
                       </span>
-                      <span className="text-2xl sm:text-3xl font-semibold text-primary">
+                      <span className="stat-suffix text-3xl sm:text-4xl font-semibold text-primary">
                         {stat.value.replace(/\d+/g, '')}
                       </span>
                     </div>
@@ -563,7 +562,7 @@ export default function Landing() {
         </section>
 
         {/* Streak Grid Visualization */}
-        <section className="section-light py-30 lg:py-40">
+        <section className="section-tone-5 section-separator py-20">
           <div className="container">
             <div className="reveal-scroll mb-12 text-center">
               <h2 className="font-display text-4xl font-bold text-foreground sm:text-5xl">
@@ -573,7 +572,7 @@ export default function Landing() {
                 Consistency builds momentum. Watch your streak grow every day.
               </p>
             </div>
-            <div className="mx-auto max-w-4xl">
+            <div className="mx-auto max-w-5xl">
               {/* Heatmap Legend */}
               <div className="mb-8 flex items-center justify-center gap-6 text-sm">
                 <div className="flex items-center gap-2">
@@ -615,6 +614,7 @@ export default function Landing() {
                           '--activity': activityLevel,
                         } as React.CSSProperties}
                         title={dateStr}
+                        tabIndex={0}
                       >
                         {/* Tooltip */}
                         <div className="streak-tooltip">
@@ -643,41 +643,13 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Testimonials */}
-        <section className="section-dark py-30 lg:py-40">
-          <div className="container">
-            <div className="reveal-scroll mb-16 text-center">
-              <h2 className="font-display text-4xl font-bold text-foreground sm:text-5xl">
-                Loved by our users
-              </h2>
-            </div>
-            <div className="grid gap-8 md:grid-cols-3">
-              {testimonials.map((testimonial, idx) => (
-                <div key={testimonial.name} className="testimonial-card reveal-scroll" style={{ '--stagger': idx } as React.CSSProperties}>
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="text-3xl">{testimonial.avatar}</div>
-                    <div>
-                      <h4 className="font-semibold text-foreground">{testimonial.name}</h4>
-                      <p className="text-sm text-muted-foreground">{testimonial.title}</p>
-                    </div>
-                  </div>
-                  <p className="text-foreground italic">"{testimonial.quote}"</p>
-                  <div className="mt-4 flex gap-1">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* Enhanced CTA */}
-        <section className="section-light relative overflow-hidden py-30 lg:py-40">
+        <section className="section-light relative overflow-hidden py-20">
           <div className="cta-parallax-blob cta-parallax-blob--1" data-speed="0.06" aria-hidden="true" />
           <div className="cta-parallax-blob cta-parallax-blob--2" data-speed="0.1" aria-hidden="true" />
           <div className="cta-parallax-blob cta-parallax-blob--3" data-speed="0.14" aria-hidden="true" />
+          <div className="cta-blur-shape cta-blur-shape--1" aria-hidden="true" />
+          <div className="cta-blur-shape cta-blur-shape--2" aria-hidden="true" />
           <div className="cta-float-shape cta-float-shape--1" aria-hidden="true" />
           <div className="cta-float-shape cta-float-shape--2" aria-hidden="true" />
           <div className="container relative">
@@ -724,3 +696,4 @@ export default function Landing() {
     </div>
   );
 }
+
