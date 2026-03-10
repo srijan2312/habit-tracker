@@ -40,7 +40,7 @@ const AuthRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return <>{children}</>;
   }
   
-  if (loading) return null;
+  if (loading) return <>{children}</>;
   if (user) return <Navigate to="/dashboard" replace />;
   
   return <>{children}</>;

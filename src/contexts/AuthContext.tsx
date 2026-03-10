@@ -2,16 +2,34 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { AuthContext, AuthContextType, User } from './AuthContextContext';
 import { supabase } from '@/lib/supabaseClient';
 
+const getStoredUser = (): User | null => {
+  try {
+    const raw = localStorage.getItem('user');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as User;
+    if (!parsed?._id || !parsed?.email) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+};
+
+const hasStoredAuth = (): boolean => {
+  const token = localStorage.getItem('token');
+  const user = localStorage.getItem('user');
+  return Boolean(token && user);
+};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(() => getStoredUser());
+  const [loading, setLoading] = useState(() => !hasStoredAuth());
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
+    setLoading(false);
   }, []);
 
   const updateUser = useCallback((updatedUser: User) => {
@@ -66,6 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('user');
         setUser(null);
       }
+      setLoading(false);
     });
 
     return () => {
@@ -118,6 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const userName = (data.session.user.user_metadata?.full_name as string | undefined) || email.split('@')[0];
       localStorage.setItem('user', JSON.stringify({ _id: data.session.user.id, email, name: userName }));
       setUser({ _id: data.session.user.id, email, name: userName });
+      setLoading(false);
       
       // Apply pending referral code after successful signin
       const pendingReferralCode = sessionStorage.getItem('pending_referral_code');
