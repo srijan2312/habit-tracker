@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { AuthContext, AuthContextType, User } from './AuthContextContext';
-import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 import { supabase } from '@/lib/supabaseClient';
 
 
@@ -12,7 +11,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await supabase.auth.signOut();
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    localStorage.removeItem('lastActivityTime');
     setUser(null);
   }, []);
 
@@ -20,8 +18,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(updatedUser);
     localStorage.setItem('user', JSON.stringify(updatedUser));
   }, []);
-
-  useInactivityLogout(signOut, Boolean(user));
 
   useEffect(() => {
     let isMounted = true;
@@ -121,7 +117,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('token', data.session.access_token);
       const userName = (data.session.user.user_metadata?.full_name as string | undefined) || email.split('@')[0];
       localStorage.setItem('user', JSON.stringify({ _id: data.session.user.id, email, name: userName }));
-      localStorage.setItem('lastActivityTime', Date.now().toString());
       setUser({ _id: data.session.user.id, email, name: userName });
       
       // Apply pending referral code after successful signin
