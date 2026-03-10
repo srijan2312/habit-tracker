@@ -119,20 +119,35 @@ export default function Landing() {
     };
   }, []);
 
-  // Scroll-based reveal via IntersectionObserver
+  // Scroll reveal for sections with staggered children
   useEffect(() => {
+    const sections = document.querySelectorAll('main section');
+    if (!sections.length) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
-          }
+          if (!entry.isIntersecting) return;
+
+          const section = entry.target as HTMLElement;
+          const revealItems = section.querySelectorAll<HTMLElement>('.reveal-scroll');
+
+          revealItems.forEach((el, index) => {
+            const staggerRaw = getComputedStyle(el).getPropertyValue('--stagger').trim();
+            const parsedStagger = Number(staggerRaw);
+            const staggerIndex = Number.isFinite(parsedStagger) ? parsedStagger : index;
+
+            el.style.setProperty('--reveal-delay', `${staggerIndex * 90}ms`);
+            requestAnimationFrame(() => el.classList.add('visible'));
+          });
+
+          observer.unobserve(section);
         });
       },
-      { threshold: 0.06 }
+      { threshold: 0.18, rootMargin: '0px 0px -10% 0px' }
     );
-    document.querySelectorAll('.reveal-scroll').forEach((el) => observer.observe(el));
+
+    sections.forEach((section) => observer.observe(section));
     return () => observer.disconnect();
   }, []);
 
@@ -165,8 +180,56 @@ export default function Landing() {
     return () => observerCounter.disconnect();
   }, []);
 
+  // Dashboard animations trigger on visibility
+  useEffect(() => {
+    const dashboardMockup = document.querySelector('.dashboard-mockup');
+    if (!dashboardMockup) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+    observer.observe(dashboardMockup);
+    return () => observer.disconnect();
+  }, []);
+
+  // Parallax movement for CTA background blobs
+  useEffect(() => {
+    const shouldReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (shouldReduceMotion) return;
+
+    const blobs = document.querySelectorAll<HTMLElement>('.cta-parallax-blob');
+    if (!blobs.length) return;
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+
+      window.requestAnimationFrame(() => {
+        const scrollY = window.scrollY;
+        blobs.forEach((blob) => {
+          const speed = Number(blob.dataset.speed || '0.08');
+          blob.style.setProperty('--parallax-y', `${Math.round(scrollY * speed)}px`);
+        });
+        ticking = false;
+      });
+    };
+
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="landing-page flex min-h-screen flex-col bg-background">
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
@@ -226,7 +289,7 @@ export default function Landing() {
               <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">
                 No credit card required · Free forever for basic use
               </p>
-              <a href="#next-section" className="scroll-btn scroll-btn--inline">
+              <a href="#next-section" className="scroll-btn scroll-btn--inline micro-link">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -297,8 +360,10 @@ export default function Landing() {
         </div>
 
         {/* Premium Feature Highlights */}
-        <section className="saas-section py-24 lg:py-32">
+        <section className="saas-section section-light py-30 lg:py-40">
           <div className="bg-gradient-saas pointer-events-none absolute inset-0" aria-hidden="true" />
+          <div className="section-blob section-blob--light--1" aria-hidden="true" />
+          <div className="section-blob section-blob--light--2" aria-hidden="true" />
           <div className="container relative">
             <div className="reveal-scroll mx-auto mb-20 max-w-2xl text-center">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
@@ -313,14 +378,16 @@ export default function Landing() {
               </p>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
               {mainFeatures.map((feature, idx) => (
                 <div key={feature.title} className="feature-card reveal-scroll group" style={{ '--stagger': idx } as React.CSSProperties}>
-                  <div className="feature-icon">
-                    <feature.icon className="h-6 w-6" />
+                  <div className="feature-icon-wrapper">
+                    <div className="feature-icon">
+                      <feature.icon className="h-8 w-8" />
+                    </div>
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
+                  <h3 className="mt-6 font-display text-xl font-semibold text-foreground">{feature.title}</h3>
+                  <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
                 </div>
               ))}
             </div>
@@ -328,8 +395,9 @@ export default function Landing() {
         </section>
 
         {/* Product Showcase with Mockup */}
-        <section className="py-24 lg:py-32">
-          <div className="container">
+        <section className="section-dark py-30 lg:py-40">
+          <div className="section-blob section-blob--1" aria-hidden="true" />
+          <div className="container relative">
             <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
               <div className="reveal-scroll space-y-6">
                 <h2 className="font-display text-4xl font-bold text-foreground sm:text-5xl">
@@ -353,12 +421,94 @@ export default function Landing() {
               </div>
 
               <div className="reveal-scroll showcase-mockup">
-                <div className="mockup-card">
-                  <div className="mockup-header" />
-                  <div className="mockup-content space-y-4">
-                    <div className="mockup-bar" style={{ '--width': '75%' } as React.CSSProperties} />
-                    <div className="mockup-bar" style={{ '--width': '60%' } as React.CSSProperties} />
-                    <div className="mockup-bar" style={{ '--width': '90%' } as React.CSSProperties} />
+                <div className="dashboard-mockup">
+                  {/* Dashboard Header */}
+                  <div className="dashboard-header">
+                    <div className="header-dots">
+                      <div className="dot dot-1" />
+                      <div className="dot dot-2" />
+                      <div className="dot dot-3" />
+                    </div>
+                  </div>
+
+                  {/* Dashboard Content */}
+                  <div className="dashboard-content">
+                    {/* Today's Habits Card */}
+                    <div className="dashboard-card card-1">
+                      <h3 className="card-title">Today's Habits</h3>
+                      <p className="card-subtitle">3 of 5 completed</p>
+                      
+                      <div className="space-y-3 mt-4">
+                        {[
+                          { title: 'Morning meditation', completed: true },
+                          { title: 'Read for 30 minutes', completed: true },
+                          { title: 'Exercise', completed: true },
+                          { title: 'Learn new language', completed: false },
+                          { title: 'Journal', completed: false },
+                        ].map((habit, i) => (
+                          <div key={i} className="habit-item">
+                            <div className={`habit-checkbox ${habit.completed ? 'checked' : ''}`}>
+                              {habit.completed && <Check className="h-3 w-3" />}
+                            </div>
+                            <span className={habit.completed ? 'line-through opacity-60' : ''}>
+                              {habit.title}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Progress Stats Card */}
+                    <div className="dashboard-card card-2">
+                      <h3 className="card-title">Weekly Progress</h3>
+                      
+                      <div className="space-y-4 mt-4">
+                        {[
+                          { label: 'Meditation', value: 75 },
+                          { label: 'Reading', value: 60 },
+                          { label: 'Exercise', value: 90 },
+                        ].map((item, i) => (
+                          <div key={item.label} className="progress-item" style={{ '--item-index': i } as React.CSSProperties}>
+                            <div className="progress-label">
+                              <span className="text-xs font-medium">{item.label}</span>
+                              <span className="progress-value">{item.value}%</span>
+                            </div>
+                            <div className="progress-bar-wrapper">
+                              <div className="progress-bar" style={{ '--progress-value': `${item.value}%` } as React.CSSProperties} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Streak Card */}
+                    <div className="dashboard-card card-3">
+                      <div className="flex items-center gap-3">
+                        <Flame className="h-6 w-6 text-streak" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Current Streak</p>
+                          <p className="text-3xl font-bold text-streak">12</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-3">days in a row</p>
+                    </div>
+
+                    {/* Mini Calendar Streaks */}
+                    <div className="dashboard-card card-4">
+                      <h3 className="card-title text-sm">This Month</h3>
+                      <div className="mini-calendar mt-3">
+                        {Array.from({ length: 28 }).map((_, i) => {
+                          const isActive = Math.random() > 0.3;
+                          return (
+                            <div
+                              key={i}
+                              className={`cal-day ${isActive ? 'active' : 'inactive'}`}
+                              style={{ '--cal-index': i } as React.CSSProperties}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -366,45 +516,46 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Benefit Slider */}
-        <section className="py-24 lg:py-32">
-          <div className="container">
-            <div className="mb-16 text-center">
+        {/* Why Habits Matter - Visual Highlights */}
+        <section className="section-light py-30 lg:py-40">
+          <div className="section-blob section-blob--2" aria-hidden="true" />
+          <div className="container relative">
+            <div className="mb-20 text-center">
               <h2 className="font-display text-4xl font-bold text-foreground sm:text-5xl">
                 Why habits matter
               </h2>
             </div>
-            <div className="benefit-slider">
-              <div className="slider-track">
-                {benefitSlides.map((slide, idx) => (
-                  <div key={slide.title} className="benefit-slide reveal-scroll" style={{ '--stagger': idx } as React.CSSProperties}>
-                    <div className="slide-icon">
-                      <slide.icon className="h-8 w-8" />
-                    </div>
-                    <h3 className="text-xl font-semibold">{slide.title}</h3>
-                    <p className="text-muted-foreground">{slide.description}</p>
+            <div className="grid gap-8 md:grid-cols-3">
+              {benefitSlides.slice(0, 3).map((slide, idx) => (
+                <div key={slide.title} className="highlight-block reveal-scroll" style={{ '--stagger': idx } as React.CSSProperties}>
+                  <div className="highlight-icon">
+                    <slide.icon className="h-12 w-12" />
                   </div>
-                ))}
-              </div>
+                  <h3 className="highlight-title">{slide.title}</h3>
+                  <p className="highlight-description">{slide.description}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
         {/* Stats Section */}
-        <section className="py-24 lg:py-32">
+        <section className="section-dark py-30 lg:py-40">
           <div className="container">
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-              {stats.map((stat) => (
-                <div key={stat.label} className="stat-card reveal-scroll text-center">
-                  <div>
-                    <span className="stat-counter text-4xl font-bold text-primary sm:text-5xl" data-value={stat.value.replace(/[^\d]/g, '')}>
-                      0
-                    </span>
-                    <span className="ml-1 text-4xl font-bold text-primary sm:text-5xl">
-                      {stat.value.replace(/\d+/g, '')}
-                    </span>
+            <div className="grid gap-0 sm:grid-cols-2 lg:grid-cols-4">
+              {stats.map((stat, idx) => (
+                <div key={stat.label} className="stat-card reveal-scroll text-center" style={{ '--stagger': idx } as React.CSSProperties}>
+                  <div className="space-y-2">
+                    <div className="flex items-baseline justify-center gap-1">
+                      <span className="stat-counter" data-value={stat.value.replace(/[^\d]/g, '')}>
+                        0
+                      </span>
+                      <span className="text-2xl sm:text-3xl font-semibold text-primary">
+                        {stat.value.replace(/\d+/g, '')}
+                      </span>
+                    </div>
                   </div>
-                  <p className="mt-2 text-muted-foreground">{stat.label}</p>
+                  <p className="mt-4 text-sm text-muted-foreground font-medium uppercase tracking-wide">{stat.label}</p>
                 </div>
               ))}
             </div>
@@ -412,28 +563,88 @@ export default function Landing() {
         </section>
 
         {/* Streak Grid Visualization */}
-        <section className="py-24 lg:py-32">
+        <section className="section-light py-30 lg:py-40">
           <div className="container">
             <div className="reveal-scroll mb-12 text-center">
               <h2 className="font-display text-4xl font-bold text-foreground sm:text-5xl">
                 Build your streak
               </h2>
               <p className="mt-4 text-lg text-muted-foreground">
-                Every day counts. Watch your consistency grow.
+                Consistency builds momentum. Watch your streak grow every day.
               </p>
             </div>
             <div className="mx-auto max-w-4xl">
-              <div className="streak-grid">
-                {Array.from({ length: 35 }).map((_, i) => (
-                  <div key={i} className="streak-cell" style={{ '--delay': `${i * 30}ms` } as React.CSSProperties} />
-                ))}
+              {/* Heatmap Legend */}
+              <div className="mb-8 flex items-center justify-center gap-6 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Less</span>
+                  <div className="flex gap-1">
+                    {[0, 1, 2, 3, 4].map((level) => (
+                      <div
+                        key={level}
+                        className={`h-3 w-3 rounded-sm heatmap-intensity-${level}`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-muted-foreground">More</span>
+                </div>
+              </div>
+
+              <div className="streak-grid-wrapper">
+                <div className="streak-grid">
+                  {Array.from({ length: 35 }).map((_, i) => {
+                    // Generate activity levels (0-4) for variety
+                    const activityLevel = Math.floor(Math.random() * 5);
+                    // Calculate date (35 days ago to today)
+                    const date = new Date();
+                    date.setDate(date.getDate() - (34 - i));
+                    const dateStr = date.toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    });
+                    // Determine if we show flame (arbitrary: last 3 days have high activity)
+                    const hasFlame = i >= 32 && activityLevel >= 2;
+
+                    return (
+                      <div
+                        key={i}
+                        className={`streak-cell heatmap-intensity-${activityLevel} relative group`}
+                        style={{
+                          '--delay': `${i * 30}ms`,
+                          '--activity': activityLevel,
+                        } as React.CSSProperties}
+                        title={dateStr}
+                      >
+                        {/* Tooltip */}
+                        <div className="streak-tooltip">
+                          <div className="tooltip-date">{dateStr}</div>
+                          <div className="tooltip-activity">
+                            {activityLevel === 0 && 'No activity'}
+                            {activityLevel === 1 && '1 completion'}
+                            {activityLevel === 2 && '2 completions'}
+                            {activityLevel === 3 && '3 completions'}
+                            {activityLevel === 4 && '4 completions'}
+                          </div>
+                        </div>
+
+                        {/* Flame Icon for High Streaks */}
+                        {hasFlame && (
+                          <div className="streak-flame">
+                            <Flame className="h-2 w-2" />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
         </section>
 
         {/* Testimonials */}
-        <section className="py-24 lg:py-32">
+        <section className="section-dark py-30 lg:py-40">
           <div className="container">
             <div className="reveal-scroll mb-16 text-center">
               <h2 className="font-display text-4xl font-bold text-foreground sm:text-5xl">
@@ -463,8 +674,13 @@ export default function Landing() {
         </section>
 
         {/* Enhanced CTA */}
-        <section className="py-24 lg:py-32">
-          <div className="container">
+        <section className="section-light relative overflow-hidden py-30 lg:py-40">
+          <div className="cta-parallax-blob cta-parallax-blob--1" data-speed="0.06" aria-hidden="true" />
+          <div className="cta-parallax-blob cta-parallax-blob--2" data-speed="0.1" aria-hidden="true" />
+          <div className="cta-parallax-blob cta-parallax-blob--3" data-speed="0.14" aria-hidden="true" />
+          <div className="cta-float-shape cta-float-shape--1" aria-hidden="true" />
+          <div className="cta-float-shape cta-float-shape--2" aria-hidden="true" />
+          <div className="container relative">
             <div className="reveal-scroll cta-card-premium">
               <div className="cta-content">
                 <h2 className="font-display text-4xl font-bold text-primary-foreground sm:text-5xl">
@@ -474,7 +690,7 @@ export default function Landing() {
                   Join thousands building better lives. Start tracking your habits today.
                 </p>
                 <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-                  <Button size="xl" variant="landing" asChild>
+                  <Button size="xl" variant="landing" className="cta-primary-btn" asChild>
                     <Link to="/signup">
                       Get Started Free
                       <ArrowRight className="ml-2 h-5 w-5" />
