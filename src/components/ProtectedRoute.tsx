@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/useAuth';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import { useState } from 'react';
+import { Suspense } from 'react';
 import { cn } from '@/lib/utils';
 
 interface ProtectedRouteProps {
@@ -27,7 +28,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       <div className="flex flex-1">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <main className={cn('flex-1 px-4 lg:px-0', sidebarOpen && 'lg:ml-64')}>
-          {children}
+          <Suspense
+            fallback={
+              <div className="dashboard-bg min-h-[60vh]" aria-live="polite" aria-busy="true" />
+            }
+          >
+            {children}
+          </Suspense>
         </main>
       </div>
     </div>

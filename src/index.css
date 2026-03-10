@@ -2077,3 +2077,30 @@
     transition: none;
   }
 }
+
+@media (max-width: 768px) {
+  .hero-gradient-text,
+  .cta-card-premium,
+  .cta-card-premium::before,
+  .cta-primary-btn,
+  .deco-blob,
+  .dashboard-mockup {
+    animation: none !important;
+  }
+
+  .feature-card,
+  .highlight-block,
+  .stat-card,
+  .streak-cell,
+  .landing-page :is(button, a.inline-flex) {
+    transition: none !important;
+  }
+
+  .feature-card:hover,
+  .highlight-block:hover,
+  .landing-page :is(button, a.inline-flex):hover,
+  .landing-page :is(.feature-card, .dashboard-card, .highlight-block, .stat-card):hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+}
