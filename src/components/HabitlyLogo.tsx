@@ -14,12 +14,6 @@ const shellSizes = {
   lg: 'h-14 w-14',
 };
 
-const imageSizes = {
-  sm: 'h-5 w-5',
-  md: 'h-8 w-8',
-  lg: 'h-11 w-11',
-};
-
 export function HabitlyLogo({
   size = 'md',
   alt = 'Habitly',
@@ -41,7 +35,7 @@ export function HabitlyLogo({
       <img
         src="/habitlyLogo.png"
         alt={alt}
-        className={cn('object-contain', imageSizes[size])}
+        className="h-full w-full object-cover"
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
       />
