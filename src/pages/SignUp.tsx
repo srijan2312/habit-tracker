@@ -108,7 +108,9 @@ export default function SignUp() {
         <div className="rounded-2xl border bg-card/90 p-6 shadow-xl backdrop-blur sm:p-8">
           <div className="flex items-center justify-between">
             <Link to="/" className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <img src="/habitlyLogo.png" alt="Habitly" className="h-10 w-10 object-contain rounded-full" loading="lazy" decoding="async" />
+              <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-primary/10 ring-1 ring-border/70">
+                <img src="/habitlyLogo.png" alt="Habitly" className="h-7 w-7 object-contain" loading="lazy" decoding="async" />
+              </span>
             </Link>
             <ThemeToggle />
           </div>

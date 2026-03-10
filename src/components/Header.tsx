@@ -41,7 +41,9 @@ export const Header: React.FC<HeaderProps> = ({ sidebarOpen = false, onToggleSid
             </Button>
           )}
           <Link to={user ? '/dashboard' : '/'} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <img src="/habitlyLogo.png" alt="Habitly Logo" className="h-10 w-10 object-contain rounded-full" />
+            <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-primary/10 ring-1 ring-border/70">
+              <img src="/habitlyLogo.png" alt="Habitly Logo" className="h-7 w-7 object-contain" />
+            </span>
             <span className="font-display text-xl font-bold text-foreground hidden sm:inline">
               Habitly
             </span>
