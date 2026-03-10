@@ -406,6 +406,36 @@
     transition-delay: 0.4s;
   }
 
+  .hero-gradient-text {
+    background-image: linear-gradient(
+      100deg,
+      hsl(192 75% 45%),
+      hsl(168 70% 40%),
+      hsl(25 90% 52%),
+      hsl(192 75% 45%)
+    );
+    background-size: 220% 100%;
+    background-position: 0% 50%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: hero-gradient-shift 9s ease infinite;
+    will-change: background-position;
+  }
+
+  @keyframes hero-gradient-shift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
   .animate-pulse-soft {
     animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
@@ -1882,6 +1912,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hero-gradient-text {
+    animation: none;
+    background-position: 50% 50%;
+  }
+
   .hero-reveal {
     opacity: 1;
     transform: none;

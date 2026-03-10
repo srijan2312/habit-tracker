@@ -248,7 +248,7 @@ export default function Landing() {
                 Transform your daily routine
                 <span className="mt-2 block text-slate-700 dark:text-slate-50">
                   with{' '}
-                  <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+                  <span className="hero-gradient-text">
                     Habitly
                   </span>
                 </span>
