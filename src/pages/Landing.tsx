@@ -1,6 +1,4 @@
-import { Suspense, lazy, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 
 import { 
   Check, 
@@ -39,46 +37,23 @@ const features = [
   },
 ];
 
-const MotionDiv = motion.div;
-const Snowfall = lazy(() => import('react-snowfall'));
-
 export default function Landing() {
-  const [showSnowfall, setShowSnowfall] = useState(false);
-
-  useEffect(() => {
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const desktopViewport = window.innerWidth >= 768;
-    setShowSnowfall(!reducedMotion && desktopViewport);
-  }, []);
-
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
         <section className="landing-hero-bg relative overflow-hidden py-20 lg:py-32">
-          <Suspense fallback={null}>
-            {showSnowfall && <Snowfall color="#82C3D9" />}
-          </Suspense>
-          
           <div className="container">
             <div className="mx-auto max-w-3xl text-center">
-              <MotionDiv
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-              >
+              <div className="animate-fade-up">
                 <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
                   <Sparkles className="h-4 w-4" />
                   Build better habits, one day at a time
                 </div>
-              </MotionDiv>
+              </div>
               
-              <MotionDiv
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-              >
+              <div className="animate-fade-up">
                 <h1 className="mb-6 font-display text-4xl font-bold leading-[1.15] tracking-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl">
                   Transform your daily routine
                   <span className="mt-2 block text-slate-700 dark:text-slate-50">
@@ -88,25 +63,16 @@ export default function Landing() {
                     </span>
                   </span>
                 </h1>
-              </MotionDiv>
+              </div>
               
-              <MotionDiv
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
+              <div className="animate-fade-up">
                 <p className="mb-10 text-lg text-slate-600 dark:text-slate-200 sm:text-xl">
                   The simple, beautiful habit tracker that helps you stay consistent, 
                   build streaks, and achieve your goals. Start your journey today.
                 </p>
-              </MotionDiv>
+              </div>
               
-              <MotionDiv
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="flex flex-col items-center justify-center gap-4 sm:flex-row"
-              >
+              <div className="animate-fade-up flex flex-col items-center justify-center gap-4 sm:flex-row">
                 <Button
                   size="xl"
                   variant="hero"
@@ -128,7 +94,7 @@ export default function Landing() {
                     I already have an account
                   </Link>
                 </Button>
-              </MotionDiv>
+              </div>
               <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">
                 No credit card required · Free forever for basic use
               </p>
@@ -141,12 +107,7 @@ export default function Landing() {
             </div>
 
             {/* Hero Image/Preview */}
-            <MotionDiv
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="mt-16 lg:mt-24"
-            >
+            <div className="mt-16 animate-fade-up lg:mt-24">
               <div className="mx-auto max-w-4xl overflow-hidden rounded-2xl border bg-card shadow-xl">
                 <div className="border-b bg-muted/30 px-4 py-3">
                   <div className="flex gap-2">
@@ -196,7 +157,7 @@ export default function Landing() {
                   </div>
                 </div>
               </div>
-            </MotionDiv>
+            </div>
           </div>
         </section>
 
@@ -214,13 +175,10 @@ export default function Landing() {
 
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
               {features.map((feature, index) => (
-                <MotionDiv
+                <div
                   key={feature.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="group rounded-xl border bg-card p-6 transition-all duration-300 hover:shadow-lg"
+                  className="group animate-fade-up rounded-xl border bg-card p-6 transition-all duration-300 hover:shadow-lg"
+                  style={{ animationDelay: `${index * 0.08}s` }}
                 >
                   <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 transition-colors group-hover:bg-primary/20">
                     <feature.icon className="h-6 w-6 text-primary" />
@@ -231,7 +189,7 @@ export default function Landing() {
                   <p className="text-sm text-muted-foreground">
                     {feature.description}
                   </p>
-                </MotionDiv>
+                </div>
               ))}
             </div>
           </div>
@@ -242,7 +200,7 @@ export default function Landing() {
           <div className="container">
             <div className="mx-auto max-w-3xl rounded-2xl bg-gradient-to-br from-primary to-primary-glow p-8 text-center sm:p-12">
               <div className="mb-6 inline-flex items-center justify-center">
-                <img src="/habitlyLogo.png" alt="Habitly" className="h-14 w-14 object-contain rounded-full" loading="lazy" decoding="async" width="56" height="56" />
+                <img src="/habitlyLogo.png" alt="Habitly" className="h-14 w-14 object-contain rounded-full" loading="lazy" decoding="async" />
               </div>
               <h2 className="mb-4 font-display text-3xl font-bold text-primary-foreground sm:text-4xl">
                 Ready to build better habits?
@@ -265,7 +223,7 @@ export default function Landing() {
       <footer className="border-t py-8">
         <div className="container flex flex-col items-center justify-between gap-4 sm:flex-row">
           <div className="flex items-center gap-2">
-            <img src="/habitlyLogo.png" alt="Habitly" className="h-6 w-6 object-contain rounded-full" loading="lazy" decoding="async" width="24" height="24" />
+            <img src="/habitlyLogo.png" alt="Habitly" className="h-6 w-6 object-contain rounded-full" loading="lazy" decoding="async" />
             <span className="font-display font-semibold">Habitly</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">

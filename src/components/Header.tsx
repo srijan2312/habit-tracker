@@ -2,8 +2,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { LogOut, User, Menu, X } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { StreakFreezeCounter } from './StreakFreeze';
-import HabitFormModal from './HabitFormModal';
-import { useState } from 'react';
 import { useAuth } from '@/contexts/useAuth';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,7 +19,6 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ sidebarOpen = false, onToggleSidebar }) => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const [showHabitModal, setShowHabitModal] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -44,7 +41,7 @@ export const Header: React.FC<HeaderProps> = ({ sidebarOpen = false, onToggleSid
             </Button>
           )}
           <Link to={user ? '/dashboard' : '/'} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <img src="/habitlyLogo.png" alt="Habitly Logo" className="h-10 w-10 object-contain rounded-full" width="40" height="40" />
+            <img src="/habitlyLogo.png" alt="Habitly Logo" className="h-10 w-10 object-contain rounded-full" />
             <span className="font-display text-xl font-bold text-foreground hidden sm:inline">
               Habitly
             </span>
@@ -83,8 +80,6 @@ export const Header: React.FC<HeaderProps> = ({ sidebarOpen = false, onToggleSid
           )}
         </div>
       </div>
-      {/* Quick Add Habit Modal */}
-      <HabitFormModal open={showHabitModal} onClose={() => setShowHabitModal(false)} onSubmit={() => setShowHabitModal(false)} />
     </header>
   );
 };

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Leaf, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { z } from 'zod';
 import { useAuth } from '@/contexts/useAuth';
 import { Button } from '@/components/ui/button';
@@ -108,7 +108,7 @@ export default function SignUp() {
         <div className="rounded-2xl border bg-card/90 p-6 shadow-xl backdrop-blur sm:p-8">
           <div className="flex items-center justify-between">
             <Link to="/" className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <img src="/habitlyLogo.png" alt="Habitly" className="h-10 w-10 object-contain rounded-full" width="40" height="40" />
+              <img src="/habitlyLogo.png" alt="Habitly" className="h-10 w-10 object-contain rounded-full" loading="lazy" decoding="async" />
             </Link>
             <ThemeToggle />
           </div>

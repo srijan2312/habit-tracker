@@ -7,16 +7,13 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { useAuth } from "@/contexts/useAuth";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { API_URL } from "@/config/api";
-import { Suspense, lazy, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Suspense, lazy } from "react";
 
-import Landing from "./pages/Landing";
-import SignUp from "./pages/SignUp";
-import SignIn from "./pages/SignIn";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-
+const Landing = lazy(() => import("./pages/Landing"));
+const SignUp = lazy(() => import("./pages/SignUp"));
+const SignIn = lazy(() => import("./pages/SignIn"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const CalendarPage = lazy(() => import("./pages/CalendarPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -50,14 +47,14 @@ const AuthRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const AppRoutes = () => {
-  const pageLoader = (
-    <div className="flex min-h-[60vh] items-center justify-center">
-      <Loader2 className="h-6 w-6 animate-spin text-primary" />
-    </div>
-  );
-
   return (
-    <Suspense fallback={pageLoader}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
+          Loading...
+        </div>
+      }
+    >
       <Routes>
         <Route path="/" element={<AuthRoute><Landing /></AuthRoute>} />
         <Route path="/signup" element={<AuthRoute><SignUp /></AuthRoute>} />
@@ -86,21 +83,6 @@ const AppRoutes = () => {
 };
 
 const App = () => {
-  useEffect(() => {
-    const controller = new AbortController();
-
-    const warmUp = async () => {
-      try {
-        await fetch(`${API_URL}/`, { signal: controller.signal });
-      } catch {
-        // Ignore warm-up errors
-      }
-    };
-
-    warmUp();
-    return () => controller.abort();
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
