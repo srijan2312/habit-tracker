@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { z } from 'zod';
@@ -19,6 +19,7 @@ const signInSchema = z.object({
 });
 
 export default function SignIn() {
+  const [showBgImage, setShowBgImage] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -27,6 +28,11 @@ export default function SignIn() {
 
   const { signIn } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const id = window.setTimeout(() => setShowBgImage(true), 500);
+    return () => window.clearTimeout(id);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +67,7 @@ export default function SignIn() {
   };
 
   return (
-    <div className="auth-bg flex min-h-screen items-center justify-center px-4 py-10 sm:py-12">
+    <div className={`auth-bg flex min-h-screen items-center justify-center px-4 py-10 sm:py-12 ${showBgImage ? 'with-photo' : ''}`}>
       <div className="w-full max-w-md">
         <div className="rounded-2xl border bg-card/90 p-6 shadow-xl backdrop-blur sm:p-8">
           <div className="flex items-center justify-between">

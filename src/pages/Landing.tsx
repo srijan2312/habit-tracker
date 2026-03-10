@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useState, type ComponentType } from 'react';
 
 import { 
   Check, 
@@ -38,12 +39,41 @@ const features = [
 ];
 
 export default function Landing() {
+  const [showBgImage, setShowBgImage] = useState(false);
+  const [showSnowfall, setShowSnowfall] = useState(false);
+  const [SnowfallComponent, setSnowfallComponent] = useState<ComponentType<{ color?: string }> | null>(null);
+
+  useEffect(() => {
+    const shouldReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isDesktop = window.innerWidth >= 1024;
+
+    const loadBackground = () => setShowBgImage(true);
+    const loadSnowfall = async () => {
+      if (shouldReduceMotion || !isDesktop) return;
+      const mod = await import('react-snowfall');
+      setSnowfallComponent(() => mod.default);
+      setShowSnowfall(true);
+    };
+
+    // Keep LCP fast by painting gradients first, then enrich visuals after first render.
+    const bgTimer = window.setTimeout(loadBackground, 600);
+    const snowTimer = window.setTimeout(() => {
+      void loadSnowfall();
+    }, 1400);
+
+    return () => {
+      window.clearTimeout(bgTimer);
+      window.clearTimeout(snowTimer);
+    };
+  }, []);
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="landing-hero-bg relative overflow-hidden py-20 lg:py-32">
+        <section className={`landing-hero-bg relative overflow-hidden py-20 lg:py-32 ${showBgImage ? 'with-photo' : ''}`}>
+          {showSnowfall && SnowfallComponent ? <SnowfallComponent color="#82C3D9" /> : null}
           <div className="container">
             <div className="mx-auto max-w-3xl text-center">
               <div className="animate-fade-up">
