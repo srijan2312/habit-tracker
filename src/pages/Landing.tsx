@@ -39,20 +39,13 @@ const features = [
 ];
 
 export default function Landing() {
-  const [showBgImage, setShowBgImage] = useState(false);
   const [showSnowfall, setShowSnowfall] = useState(false);
   const [SnowfallComponent, setSnowfallComponent] = useState<ComponentType<{ color?: string }> | null>(null);
 
   useEffect(() => {
     const shouldReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const isDesktop = window.innerWidth >= 1024;
-    const shouldShowPhotoBackground = window.innerWidth >= 768;
 
-    const loadBackground = () => {
-      if (shouldShowPhotoBackground) {
-        setShowBgImage(true);
-      }
-    };
     const loadSnowfall = async () => {
       if (shouldReduceMotion || !isDesktop) return;
       const mod = await import('react-snowfall');
@@ -60,7 +53,6 @@ export default function Landing() {
       setShowSnowfall(true);
     };
 
-    loadBackground();
     const snowTimer = window.setTimeout(() => {
       void loadSnowfall();
     }, 1400);
@@ -75,7 +67,7 @@ export default function Landing() {
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className={`landing-hero-bg relative overflow-hidden py-20 lg:py-32 ${showBgImage ? 'with-photo' : ''}`}>
+        <section className="landing-hero-bg with-photo relative overflow-hidden py-20 lg:py-32">
           {showSnowfall && SnowfallComponent ? <SnowfallComponent color="#82C3D9" /> : null}
           <div className="container">
             <div className="mx-auto max-w-3xl text-center">

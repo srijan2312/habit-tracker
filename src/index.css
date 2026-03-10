@@ -328,6 +328,34 @@
       url('/LandingPageBg.png');
   }
 
+  @media (max-width: 767px) {
+    .auth-bg.with-photo {
+      background-image:
+        radial-gradient(circle at top left, hsl(192 80% 95% / 0.95), transparent 45%),
+        linear-gradient(160deg, hsl(195 40% 90%) 0%, hsl(180 25% 84%) 48%, hsl(198 22% 88%) 100%);
+    }
+
+    .dark .auth-bg.with-photo {
+      background-image:
+        radial-gradient(circle at top left, hsl(168 60% 35% / 0.25), transparent 40%),
+        linear-gradient(160deg, hsl(215 30% 11%) 0%, hsl(215 26% 15%) 48%, hsl(215 24% 18%) 100%);
+    }
+
+    .landing-hero-bg.with-photo {
+      background-image:
+        radial-gradient(circle at 12% 0%, hsl(192 85% 90% / 0.75), transparent 40%),
+        radial-gradient(circle at 88% 0%, hsl(180 45% 86% / 0.65), transparent 42%),
+        linear-gradient(180deg, hsl(195 42% 89%) 0%, hsl(186 27% 85%) 100%);
+    }
+
+    .dark .landing-hero-bg.with-photo {
+      background-image:
+        radial-gradient(circle at 12% 0%, hsl(168 60% 40% / 0.2), transparent 40%),
+        radial-gradient(circle at 88% 0%, hsl(192 70% 42% / 0.18), transparent 42%),
+        linear-gradient(180deg, hsl(215 30% 12%) 0%, hsl(215 25% 17%) 100%);
+    }
+  }
+
   @media (max-width: 640px) {
     .landing-hero-bg {
       background-position: center top;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { z } from 'zod';
@@ -23,7 +23,6 @@ const signUpSchema = z.object({
 });
 
 export default function SignUp() {
-  const [showBgImage, setShowBgImage] = useState(false);
   const [searchParams] = useSearchParams();
   const referralCode = searchParams.get('ref');
   
@@ -36,12 +35,6 @@ export default function SignUp() {
 
   const { signUp } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (window.innerWidth >= 768) {
-      setShowBgImage(true);
-    }
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,7 +103,7 @@ export default function SignUp() {
   };
 
   return (
-    <div className={`auth-bg flex min-h-screen items-center justify-center px-4 py-10 sm:py-12 ${showBgImage ? 'with-photo' : ''}`}>
+    <div className="auth-bg with-photo flex min-h-screen items-center justify-center px-4 py-10 sm:py-12">
       <div className="w-full max-w-md">
         <div className="rounded-2xl border bg-card/90 p-6 shadow-xl backdrop-blur sm:p-8">
           <div className="flex items-center justify-between">
