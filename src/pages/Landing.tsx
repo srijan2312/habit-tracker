@@ -99,7 +99,7 @@ export default function Landing() {
 
   // Scroll reveal for elements with stagger inside each section
   useEffect(() => {
-    const revealItems = Array.from(document.querySelectorAll<HTMLElement>('.reveal-scroll'));
+    const revealItems = Array.from(document.querySelectorAll<HTMLElement>('.reveal, .reveal-scroll'));
     if (!revealItems.length) return;
 
     // Precompute stagger delay by sibling order in each section.
@@ -107,10 +107,18 @@ export default function Landing() {
       const section = el.closest('section');
       if (!section) return;
 
-      const siblings = Array.from(section.querySelectorAll<HTMLElement>('.reveal-scroll'));
+      const siblings = Array.from(section.querySelectorAll<HTMLElement>('.reveal, .reveal-scroll'));
       const index = siblings.indexOf(el);
       const staggerRaw = getComputedStyle(el).getPropertyValue('--stagger').trim();
       const parsedStagger = Number(staggerRaw);
+
+      // Feature cards: 0.1s, 0.2s, 0.3s, 0.4s
+      if (el.classList.contains('feature-card') && Number.isFinite(parsedStagger)) {
+        const featureDelayMs = (parsedStagger + 1) * 100;
+        el.style.setProperty('--reveal-delay', `${featureDelayMs}ms`);
+        return;
+      }
+
       const staggerIndex = Number.isFinite(parsedStagger) ? parsedStagger : Math.max(index, 0);
       el.style.setProperty('--reveal-delay', `${staggerIndex * 90}ms`);
     });
@@ -379,7 +387,7 @@ export default function Landing() {
 
             <div className="grid gap-10 md:grid-cols-2 lg:gap-12 lg:grid-cols-4">
               {mainFeatures.map((feature, idx) => (
-                <div key={feature.title} className="feature-card reveal-scroll group" style={{ '--stagger': idx } as React.CSSProperties}>
+                <div key={feature.title} className="feature-card reveal group" style={{ '--stagger': idx } as React.CSSProperties}>
                   <div className="feature-icon-wrapper">
                     <div className="feature-icon">
                       <feature.icon className="h-10 w-10" />
@@ -394,7 +402,7 @@ export default function Landing() {
         </section>
 
         {/* Product Showcase with Mockup */}
-        <section className="section-tone-2 section-separator py-20">
+        <section className="section-tone-2 section-separator py-20 reveal">
           <div className="section-blob section-blob--1" aria-hidden="true" />
           <div className="container relative">
             <div className="grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-14">
@@ -516,7 +524,7 @@ export default function Landing() {
         </section>
 
         {/* Why Habits Matter - Visual Highlights */}
-        <section className="section-tone-3 section-separator py-20">
+        <section className="section-tone-3 section-separator py-20 reveal">
           <div className="section-blob section-blob--2" aria-hidden="true" />
           <div className="container relative">
             <div className="mb-20 text-center">
@@ -539,7 +547,7 @@ export default function Landing() {
         </section>
 
         {/* Stats Section */}
-        <section className="section-tone-4 section-separator py-20">
+        <section className="section-tone-4 section-separator py-20 reveal">
           <div className="container">
             <div className="stats-group grid gap-0 sm:grid-cols-2 lg:grid-cols-4">
               {stats.map((stat, idx) => (
@@ -562,7 +570,7 @@ export default function Landing() {
         </section>
 
         {/* Streak Grid Visualization */}
-        <section className="section-tone-5 section-separator py-20">
+        <section className="section-tone-5 section-separator py-20 reveal">
           <div className="container">
             <div className="reveal-scroll mb-12 text-center">
               <h2 className="font-display text-4xl font-bold text-foreground sm:text-5xl">
@@ -589,7 +597,7 @@ export default function Landing() {
                 </div>
               </div>
 
-              <div className="streak-grid-wrapper">
+              <div className="streak-grid-wrapper reveal">
                 <div className="streak-grid">
                   {Array.from({ length: 35 }).map((_, i) => {
                     // Generate activity levels (0-4) for variety
@@ -644,7 +652,7 @@ export default function Landing() {
         </section>
 
         {/* Enhanced CTA */}
-        <section className="section-tone-3 section-separator relative overflow-hidden py-20">
+        <section className="section-tone-3 section-separator relative overflow-hidden py-20 reveal">
           <div className="cta-parallax-blob cta-parallax-blob--1" data-speed="0.06" aria-hidden="true" />
           <div className="cta-parallax-blob cta-parallax-blob--2" data-speed="0.1" aria-hidden="true" />
           <div className="cta-parallax-blob cta-parallax-blob--3" data-speed="0.14" aria-hidden="true" />
