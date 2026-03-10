@@ -4,6 +4,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { StreakFreezeCounter } from './StreakFreeze';
 import { useAuth } from '@/contexts/useAuth';
 import { Button } from '@/components/ui/button';
+import { HabitlyLogo } from '@/components/HabitlyLogo';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,9 +42,7 @@ export const Header: React.FC<HeaderProps> = ({ sidebarOpen = false, onToggleSid
             </Button>
           )}
           <Link to={user ? '/dashboard' : '/'} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-primary/10 ring-1 ring-border/70">
-              <img src="/habitlyLogo.png" alt="Habitly Logo" className="h-7 w-7 object-contain" />
-            </span>
+            <HabitlyLogo alt="Habitly Logo" size="md" />
             <span className="font-display text-xl font-bold text-foreground hidden sm:inline">
               Habitly
             </span>

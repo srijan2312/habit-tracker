@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/Header';
+import { HabitlyLogo } from '@/components/HabitlyLogo';
 
 const features = [
   {
@@ -225,9 +226,7 @@ export default function Landing() {
           <div className="container">
             <div className="mx-auto max-w-3xl rounded-2xl bg-gradient-to-br from-primary to-primary-glow p-8 text-center sm:p-12">
               <div className="mb-6 inline-flex items-center justify-center">
-                <span className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-white/15 ring-1 ring-white/20 backdrop-blur-sm">
-                  <img src="/habitlyLogo.png" alt="Habitly" className="h-10 w-10 object-contain" loading="lazy" decoding="async" />
-                </span>
+                <HabitlyLogo size="lg" theme="light" />
               </div>
               <h2 className="mb-4 font-display text-3xl font-bold text-primary-foreground sm:text-4xl">
                 Ready to build better habits?
@@ -250,9 +249,7 @@ export default function Landing() {
       <footer className="border-t py-8">
         <div className="container flex flex-col items-center justify-between gap-4 sm:flex-row">
           <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full bg-primary/10 ring-1 ring-border/70">
-              <img src="/habitlyLogo.png" alt="Habitly" className="h-4 w-4 object-contain" loading="lazy" decoding="async" />
-            </span>
+            <HabitlyLogo size="sm" />
             <span className="font-display font-semibold">Habitly</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
