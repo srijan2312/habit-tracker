@@ -10,31 +10,88 @@ import {
   Sparkles,
   Target,
   Shield,
+  TrendingUp,
+  Zap,
+  GitBranch,
+  Users,
+  Award,
+  Star,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/Header';
 import { HabitlyLogo } from '@/components/HabitlyLogo';
 
-const features = [
+const mainFeatures = [
   {
     icon: Target,
-    title: 'Track Daily Habits',
-    description: 'Create and monitor your habits with a beautiful, intuitive interface.',
+    title: 'Smart Habit Tracking',
+    description: 'Create and track habits with intelligent reminders and insights.',
   },
   {
     icon: Flame,
-    title: 'Build Streaks',
-    description: 'Stay motivated with streak tracking that celebrates your consistency.',
+    title: 'Build Unstoppable Streaks',
+    description: 'Stay motivated with visual streak tracking and celebrations.',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Analytics & Insights',
+    description: 'Understand your patterns with detailed completion analytics.',
   },
   {
     icon: Calendar,
     title: 'Calendar View',
     description: 'Visualize your progress over time with an interactive calendar.',
   },
+];
+
+const benefitSlides = [
   {
-    icon: BarChart3,
-    title: 'Analytics & Insights',
-    description: 'Understand your patterns with detailed completion statistics.',
+    icon: Target,
+    title: 'Track Easily',
+    description: 'Simple one-tap habit tracking with beautiful UI.',
+  },
+  {
+    icon: Zap,
+    title: 'Stay Consistent',
+    description: 'Smart reminders keep you on track every single day.',
+  },
+  {
+    icon: TrendingUp,
+    title: 'See Progress',
+    description: 'Visual analytics show your improvement over time.',
+  },
+  {
+    icon: Award,
+    title: 'Celebrate Wins',
+    description: 'Earn badges and celebrate your streak milestones.',
+  },
+];
+
+const stats = [
+  { value: '50K+', label: 'Habits Tracked' },
+  { value: '10K+', label: 'Active Users' },
+  { value: '92%', label: 'Consistency Rate' },
+  { value: '150K+', label: 'Tasks Completed' },
+];
+
+const testimonials = [
+  {
+    name: 'Sarah Chen',
+    title: 'Product Manager',
+    quote: 'Habitly transformed my morning routine. The streak feature keeps me motivated every single day.',
+    avatar: '👩‍💼',
+  },
+  {
+    name: 'Marcus Johnson',
+    title: 'Fitness Coach',
+    quote: 'My clients love the visual progress tracking. It makes habit building feel achievable and rewarding.',
+    avatar: '👨‍🏫',
+  },
+  {
+    name: 'Elena Rodriguez',
+    title: 'Student',
+    quote: 'Finally, an app that understands habits. The analytics help me understand what actually works for me.',
+    avatar: '👩‍🎓',
   },
 ];
 
@@ -62,7 +119,7 @@ export default function Landing() {
     };
   }, []);
 
-  // Scroll-based reveal via IntersectionObserver — no library needed
+  // Scroll-based reveal via IntersectionObserver
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -73,10 +130,39 @@ export default function Landing() {
           }
         });
       },
-      { threshold: 0.12 }
+      { threshold: 0.06 }
     );
-    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+    document.querySelectorAll('.reveal-scroll').forEach((el) => observer.observe(el));
     return () => observer.disconnect();
+  }, []);
+
+  // Counter animation for stats
+  useEffect(() => {
+    const counters = document.querySelectorAll('.stat-counter');
+    const observerCounter = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement;
+            const finalValue = parseInt(el.dataset.value || '0', 10);
+            let currentValue = 0;
+            const increment = Math.ceil(finalValue / 30);
+            const interval = setInterval(() => {
+              currentValue += increment;
+              if (currentValue >= finalValue) {
+                currentValue = finalValue;
+                clearInterval(interval);
+              }
+              el.textContent = currentValue.toLocaleString();
+            }, 30);
+            observerCounter.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+    counters.forEach((el) => observerCounter.observe(el));
+    return () => observerCounter.disconnect();
   }, []);
 
   return (
@@ -203,70 +289,204 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Wave divider — hero → features */}
+        {/* Wave divider */}
         <div className="wave-divider" aria-hidden="true">
-          <svg viewBox="0 0 1440 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,36 C360,72 720,0 1080,36 C1260,54 1380,28 1440,36 L1440,72 L0,72 Z" className="wave-fill" />
+          <svg viewBox="0 0 1440 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,50 Q360,0 720,50 T1440,50 L1440,100 L0,100 Z" className="wave-path" />
           </svg>
         </div>
 
-        {/* Features Section */}
-        <section id="next-section" className="features-section relative overflow-hidden py-20 lg:py-28">
-          {/* Decorative ambient blobs */}
-          <div className="deco-blob deco-blob--1" aria-hidden="true" />
-          <div className="deco-blob deco-blob--2" aria-hidden="true" />
-
+        {/* Premium Feature Highlights */}
+        <section className="saas-section py-24 lg:py-32">
+          <div className="bg-gradient-saas pointer-events-none absolute inset-0" aria-hidden="true" />
           <div className="container relative">
-            <div className="reveal mx-auto mb-16 max-w-2xl text-center">
-              <h2 className="mb-4 font-display text-3xl font-bold text-foreground sm:text-4xl">
-                Everything you need to build lasting habits
+            <div className="reveal-scroll mx-auto mb-20 max-w-2xl text-center">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
+                <Sparkles className="h-4 w-4" />
+                Powerful Features
+              </div>
+              <h2 className="mb-4 font-display text-4xl font-bold text-foreground sm:text-5xl">
+                Everything you need to master your habits
               </h2>
               <p className="text-lg text-muted-foreground">
-                Simple tools designed to help you stay consistent and motivated.
+                Built for consistency. Designed for success.
               </p>
             </div>
 
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-              {features.map((feature, index) => (
-                <div
-                  key={feature.title}
-                  className="feature-card reveal group rounded-xl border bg-card p-6"
-                  style={{ '--stagger': index } as React.CSSProperties}
-                >
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 transition-colors duration-200 group-hover:bg-primary/20">
-                    <feature.icon className="h-6 w-6 text-primary" />
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {mainFeatures.map((feature, idx) => (
+                <div key={feature.title} className="feature-card reveal-scroll group" style={{ '--stagger': idx } as React.CSSProperties}>
+                  <div className="feature-icon">
+                    <feature.icon className="h-6 w-6" />
                   </div>
-                  <h3 className="mb-2 font-display text-lg font-semibold text-foreground">
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {feature.description}
-                  </p>
+                  <h3 className="text-lg font-semibold text-foreground">{feature.title}</h3>
+                  <p className="text-sm text-muted-foreground">{feature.description}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="py-20 lg:py-28">
+        {/* Product Showcase with Mockup */}
+        <section className="py-24 lg:py-32">
           <div className="container">
-            <div className="reveal cta-glow mx-auto max-w-3xl rounded-2xl bg-gradient-to-br from-primary to-primary-glow p-8 text-center sm:p-12">
-              <div className="mb-6 inline-flex items-center justify-center">
-                <HabitlyLogo size="lg" theme="light" />
+            <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+              <div className="reveal-scroll space-y-6">
+                <h2 className="font-display text-4xl font-bold text-foreground sm:text-5xl">
+                  See your progress unfold
+                </h2>
+                <p className="text-lg text-muted-foreground">
+                  Watch your habits come to life with real-time progress tracking, beautiful visualizations, and meaningful insights that celebrate your consistency.
+                </p>
+                <ul className="space-y-4">
+                  {[
+                    'Daily habit reminders',
+                    'Automatic streak tracking',
+                    'Rich analytics dashboard',
+                  ].map((item) => (
+                    <li key={item} className="flex items-center gap-3">
+                      <Check className="h-5 w-5 text-success" />
+                      <span className="text-foreground">{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <h2 className="mb-4 font-display text-3xl font-bold text-primary-foreground sm:text-4xl">
-                Ready to build better habits?
+
+              <div className="reveal-scroll showcase-mockup">
+                <div className="mockup-card">
+                  <div className="mockup-header" />
+                  <div className="mockup-content space-y-4">
+                    <div className="mockup-bar" style={{ '--width': '75%' } as React.CSSProperties} />
+                    <div className="mockup-bar" style={{ '--width': '60%' } as React.CSSProperties} />
+                    <div className="mockup-bar" style={{ '--width': '90%' } as React.CSSProperties} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Benefit Slider */}
+        <section className="py-24 lg:py-32">
+          <div className="container">
+            <div className="mb-16 text-center">
+              <h2 className="font-display text-4xl font-bold text-foreground sm:text-5xl">
+                Why habits matter
               </h2>
-              <p className="mb-8 text-lg text-primary-foreground/80">
-                Join thousands of people who are transforming their lives, one habit at a time.
+            </div>
+            <div className="benefit-slider">
+              <div className="slider-track">
+                {benefitSlides.map((slide, idx) => (
+                  <div key={slide.title} className="benefit-slide reveal-scroll" style={{ '--stagger': idx } as React.CSSProperties}>
+                    <div className="slide-icon">
+                      <slide.icon className="h-8 w-8" />
+                    </div>
+                    <h3 className="text-xl font-semibold">{slide.title}</h3>
+                    <p className="text-muted-foreground">{slide.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Stats Section */}
+        <section className="py-24 lg:py-32">
+          <div className="container">
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+              {stats.map((stat) => (
+                <div key={stat.label} className="stat-card reveal-scroll text-center">
+                  <div>
+                    <span className="stat-counter text-4xl font-bold text-primary sm:text-5xl" data-value={stat.value.replace(/[^\d]/g, '')}>
+                      0
+                    </span>
+                    <span className="ml-1 text-4xl font-bold text-primary sm:text-5xl">
+                      {stat.value.replace(/\d+/g, '')}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-muted-foreground">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Streak Grid Visualization */}
+        <section className="py-24 lg:py-32">
+          <div className="container">
+            <div className="reveal-scroll mb-12 text-center">
+              <h2 className="font-display text-4xl font-bold text-foreground sm:text-5xl">
+                Build your streak
+              </h2>
+              <p className="mt-4 text-lg text-muted-foreground">
+                Every day counts. Watch your consistency grow.
               </p>
-              <Button size="xl" variant="landing" asChild>
-                <Link to="/signup">
-                  Get Started Free
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
+            </div>
+            <div className="mx-auto max-w-4xl">
+              <div className="streak-grid">
+                {Array.from({ length: 35 }).map((_, i) => (
+                  <div key={i} className="streak-cell" style={{ '--delay': `${i * 30}ms` } as React.CSSProperties} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials */}
+        <section className="py-24 lg:py-32">
+          <div className="container">
+            <div className="reveal-scroll mb-16 text-center">
+              <h2 className="font-display text-4xl font-bold text-foreground sm:text-5xl">
+                Loved by our users
+              </h2>
+            </div>
+            <div className="grid gap-8 md:grid-cols-3">
+              {testimonials.map((testimonial, idx) => (
+                <div key={testimonial.name} className="testimonial-card reveal-scroll" style={{ '--stagger': idx } as React.CSSProperties}>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="text-3xl">{testimonial.avatar}</div>
+                    <div>
+                      <h4 className="font-semibold text-foreground">{testimonial.name}</h4>
+                      <p className="text-sm text-muted-foreground">{testimonial.title}</p>
+                    </div>
+                  </div>
+                  <p className="text-foreground italic">"{testimonial.quote}"</p>
+                  <div className="mt-4 flex gap-1">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Enhanced CTA */}
+        <section className="py-24 lg:py-32">
+          <div className="container">
+            <div className="reveal-scroll cta-card-premium">
+              <div className="cta-content">
+                <h2 className="font-display text-4xl font-bold text-primary-foreground sm:text-5xl">
+                  Ready to transform your habits?
+                </h2>
+                <p className="mt-4 text-lg text-primary-foreground/90">
+                  Join thousands building better lives. Start tracking your habits today.
+                </p>
+                <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+                  <Button size="xl" variant="landing" asChild>
+                    <Link to="/signup">
+                      Get Started Free
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Link>
+                  </Button>
+                  <Button size="xl" variant="outline" asChild className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
+                    <Link to="/signin">
+                      Already have an account
+                    </Link>
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </section>
