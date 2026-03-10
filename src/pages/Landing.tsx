@@ -97,6 +97,16 @@ export default function Landing() {
     };
   }, []);
 
+  // Hero blur-reveal on initial page load
+  useEffect(() => {
+    const heroItems = document.querySelectorAll<HTMLElement>('.hero-reveal');
+    if (!heroItems.length) return;
+
+    requestAnimationFrame(() => {
+      heroItems.forEach((el) => el.classList.add('visible'));
+    });
+  }, []);
+
   // Scroll reveal for elements with stagger inside each section
   useEffect(() => {
     const revealItems = Array.from(document.querySelectorAll<HTMLElement>('.reveal, .reveal-scroll'));
@@ -225,33 +235,35 @@ export default function Landing() {
           {showSnowfall && SnowfallComponent ? <SnowfallComponent color="#82C3D9" /> : null}
           <div className="container">
             <div className="mx-auto max-w-3xl text-center">
-              <div className="animate-fade-up">
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
-                  <Sparkles className="h-4 w-4" />
-                  Build better habits, one day at a time
-                </div>
+              <div
+                className="hero-reveal hero-badge mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary"
+              >
+                <Sparkles className="h-4 w-4" />
+                Build better habits, one day at a time
               </div>
               
-              <div className="animate-fade-up">
-                <h1 className="mb-6 font-display text-4xl font-bold leading-[1.15] tracking-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl">
-                  Transform your daily routine
-                  <span className="mt-2 block text-slate-700 dark:text-slate-50">
-                    with{' '}
-                    <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-                      Habitly
-                    </span>
+              <h1
+                className="hero-reveal hero-title mb-6 font-display text-4xl font-bold leading-[1.15] tracking-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl"
+              >
+                Transform your daily routine
+                <span className="mt-2 block text-slate-700 dark:text-slate-50">
+                  with{' '}
+                  <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+                    Habitly
                   </span>
-                </h1>
-              </div>
+                </span>
+              </h1>
               
-              <div className="animate-fade-up">
-                <p className="mb-10 text-lg text-slate-600 dark:text-slate-200 sm:text-xl">
-                  The simple, beautiful habit tracker that helps you stay consistent, 
-                  build streaks, and achieve your goals. Start your journey today.
-                </p>
-              </div>
+              <p
+                className="hero-reveal hero-subtitle mb-10 text-lg text-slate-600 dark:text-slate-200 sm:text-xl"
+              >
+                The simple, beautiful habit tracker that helps you stay consistent, 
+                build streaks, and achieve your goals. Start your journey today.
+              </p>
               
-              <div className="animate-fade-up flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <div
+                className="hero-reveal hero-buttons flex flex-col items-center justify-center gap-4 sm:flex-row"
+              >
                 <Button
                   size="xl"
                   variant="hero"

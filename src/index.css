@@ -379,6 +379,33 @@
     animation: fade-up 0.5s ease-out;
   }
 
+  .hero-reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(10px);
+    transition: opacity 0.8s ease, transform 0.8s ease, filter 0.8s ease;
+    transition-delay: 0s;
+  }
+
+  .hero-reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+
+  .hero-badge,
+  .hero-title {
+    transition-delay: 0s;
+  }
+
+  .hero-subtitle {
+    transition-delay: 0.2s;
+  }
+
+  .hero-buttons {
+    transition-delay: 0.4s;
+  }
+
   .animate-pulse-soft {
     animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
@@ -1855,6 +1882,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hero-reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+
   .landing-page .reveal,
   .landing-page .reveal-scroll {
     transition: none;
