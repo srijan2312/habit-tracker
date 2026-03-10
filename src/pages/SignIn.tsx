@@ -30,7 +30,11 @@ export default function SignIn() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const id = window.setTimeout(() => setShowBgImage(true), 500);
+    const id = window.setTimeout(() => {
+      if (window.innerWidth >= 768) {
+        setShowBgImage(true);
+      }
+    }, 500);
     return () => window.clearTimeout(id);
   }, []);
 

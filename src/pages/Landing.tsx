@@ -46,8 +46,13 @@ export default function Landing() {
   useEffect(() => {
     const shouldReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const isDesktop = window.innerWidth >= 1024;
+    const shouldShowPhotoBackground = window.innerWidth >= 768;
 
-    const loadBackground = () => setShowBgImage(true);
+    const loadBackground = () => {
+      if (shouldShowPhotoBackground) {
+        setShowBgImage(true);
+      }
+    };
     const loadSnowfall = async () => {
       if (shouldReduceMotion || !isDesktop) return;
       const mod = await import('react-snowfall');
