@@ -13,7 +13,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  if (loading) {
+  if (loading && !user) {
     return null;
   }
 
