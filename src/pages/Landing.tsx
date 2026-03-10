@@ -644,7 +644,7 @@ export default function Landing() {
         </section>
 
         {/* Enhanced CTA */}
-        <section className="section-light relative overflow-hidden py-20">
+        <section className="section-tone-3 section-separator relative overflow-hidden py-20">
           <div className="cta-parallax-blob cta-parallax-blob--1" data-speed="0.06" aria-hidden="true" />
           <div className="cta-parallax-blob cta-parallax-blob--2" data-speed="0.1" aria-hidden="true" />
           <div className="cta-parallax-blob cta-parallax-blob--3" data-speed="0.14" aria-hidden="true" />
