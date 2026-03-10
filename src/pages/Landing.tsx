@@ -18,7 +18,6 @@ import { HabitlyLogo } from '@/components/HabitlyLogo';
 const features = [
   {
     icon: Target,
-    
     title: 'Track Daily Habits',
     description: 'Create and monitor your habits with a beautiful, intuitive interface.',
   },
@@ -61,6 +60,23 @@ export default function Landing() {
     return () => {
       window.clearTimeout(snowTimer);
     };
+  }, []);
+
+  // Scroll-based reveal via IntersectionObserver — no library needed
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -187,10 +203,21 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* Wave divider — hero → features */}
+        <div className="wave-divider" aria-hidden="true">
+          <svg viewBox="0 0 1440 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,36 C360,72 720,0 1080,36 C1260,54 1380,28 1440,36 L1440,72 L0,72 Z" className="wave-fill" />
+          </svg>
+        </div>
+
         {/* Features Section */}
-        <section id="next-section" className="border-t bg-muted/30 py-20 lg:py-28">
-          <div className="container">
-            <div className="mx-auto mb-16 max-w-2xl text-center">
+        <section id="next-section" className="features-section relative overflow-hidden py-20 lg:py-28">
+          {/* Decorative ambient blobs */}
+          <div className="deco-blob deco-blob--1" aria-hidden="true" />
+          <div className="deco-blob deco-blob--2" aria-hidden="true" />
+
+          <div className="container relative">
+            <div className="reveal mx-auto mb-16 max-w-2xl text-center">
               <h2 className="mb-4 font-display text-3xl font-bold text-foreground sm:text-4xl">
                 Everything you need to build lasting habits
               </h2>
@@ -203,10 +230,10 @@ export default function Landing() {
               {features.map((feature, index) => (
                 <div
                   key={feature.title}
-                  className="group animate-fade-up rounded-xl border bg-card p-6 transition-all duration-300 hover:shadow-lg"
-                  style={{ animationDelay: `${index * 0.08}s` }}
+                  className="feature-card reveal group rounded-xl border bg-card p-6"
+                  style={{ '--stagger': index } as React.CSSProperties}
                 >
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 transition-colors group-hover:bg-primary/20">
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 transition-colors duration-200 group-hover:bg-primary/20">
                     <feature.icon className="h-6 w-6 text-primary" />
                   </div>
                   <h3 className="mb-2 font-display text-lg font-semibold text-foreground">
@@ -224,7 +251,7 @@ export default function Landing() {
         {/* CTA Section */}
         <section className="py-20 lg:py-28">
           <div className="container">
-            <div className="mx-auto max-w-3xl rounded-2xl bg-gradient-to-br from-primary to-primary-glow p-8 text-center sm:p-12">
+            <div className="reveal cta-glow mx-auto max-w-3xl rounded-2xl bg-gradient-to-br from-primary to-primary-glow p-8 text-center sm:p-12">
               <div className="mb-6 inline-flex items-center justify-center">
                 <HabitlyLogo size="lg" theme="light" />
               </div>
