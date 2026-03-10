@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useEffect, useState, type ComponentType } from 'react';
+import { useEffect } from 'react';
 
 import { 
   Check, 
@@ -74,29 +74,6 @@ const stats = [
 ];
 
 export default function Landing() {
-  const [showSnowfall, setShowSnowfall] = useState(false);
-  const [SnowfallComponent, setSnowfallComponent] = useState<ComponentType<{ color?: string }> | null>(null);
-
-  useEffect(() => {
-    const shouldReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isDesktop = window.innerWidth >= 1024;
-
-    const loadSnowfall = async () => {
-      if (shouldReduceMotion || !isDesktop) return;
-      const mod = await import('react-snowfall');
-      setSnowfallComponent(() => mod.default);
-      setShowSnowfall(true);
-    };
-
-    const snowTimer = window.setTimeout(() => {
-      void loadSnowfall();
-    }, 1400);
-
-    return () => {
-      window.clearTimeout(snowTimer);
-    };
-  }, []);
-
   // Hero blur-reveal on initial page load
   useEffect(() => {
     const heroItems = document.querySelectorAll<HTMLElement>('.hero-reveal');
@@ -232,18 +209,17 @@ export default function Landing() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="landing-hero-bg with-photo relative overflow-hidden py-20 lg:py-32">
-          {showSnowfall && SnowfallComponent ? <SnowfallComponent color="#82C3D9" /> : null}
           <div className="container">
             <div className="mx-auto max-w-3xl text-center">
               <div
-                className="hero-reveal hero-badge mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary"
+                className="hero-reveal visible hero-badge mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary"
               >
                 <Sparkles className="h-4 w-4" />
                 Build better habits, one day at a time
               </div>
               
               <h1
-                className="hero-reveal hero-title mb-6 font-display text-4xl font-bold leading-[1.15] tracking-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl"
+                className="hero-reveal visible hero-title mb-6 font-display text-4xl font-bold leading-[1.15] tracking-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl"
               >
                 Transform your daily routine
                 <span className="mt-2 block text-slate-700 dark:text-slate-50">
@@ -255,14 +231,14 @@ export default function Landing() {
               </h1>
               
               <p
-                className="hero-reveal hero-subtitle mb-10 text-lg text-slate-600 dark:text-slate-200 sm:text-xl"
+                className="hero-reveal visible hero-subtitle mb-10 text-lg text-slate-600 dark:text-slate-200 sm:text-xl"
               >
                 The simple, beautiful habit tracker that helps you stay consistent, 
                 build streaks, and achieve your goals. Start your journey today.
               </p>
               
               <div
-                className="hero-reveal hero-buttons flex flex-col items-center justify-center gap-4 sm:flex-row"
+                className="hero-reveal visible hero-buttons flex flex-col items-center justify-center gap-4 sm:flex-row"
               >
                 <Button
                   size="xl"
