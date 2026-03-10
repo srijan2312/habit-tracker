@@ -60,14 +60,12 @@ export default function Landing() {
       setShowSnowfall(true);
     };
 
-    // Keep LCP fast by painting gradients first, then enrich visuals after first render.
-    const bgTimer = window.setTimeout(loadBackground, 600);
+    loadBackground();
     const snowTimer = window.setTimeout(() => {
       void loadSnowfall();
     }, 1400);
 
     return () => {
-      window.clearTimeout(bgTimer);
       window.clearTimeout(snowTimer);
     };
   }, []);
