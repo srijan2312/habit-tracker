@@ -48,13 +48,7 @@ const AuthRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 const AppRoutes = () => {
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
-          Loading...
-        </div>
-      }
-    >
+    <Suspense fallback={null}>
       <Routes>
         <Route path="/" element={<AuthRoute><Landing /></AuthRoute>} />
         <Route path="/signup" element={<AuthRoute><SignUp /></AuthRoute>} />
