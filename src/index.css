@@ -2082,6 +2082,21 @@
     animation: none !important;
   }
 
+  .landing-page .reveal,
+  .landing-page .reveal-scroll,
+  .feature-card,
+  .highlight-block,
+  .stat-card,
+  .showcase-mockup,
+  .streak-grid-wrapper,
+  .dashboard-card,
+  .progress-item,
+  .cal-day {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
   .feature-card,
   .highlight-block,
   .stat-card,

@@ -17,8 +17,8 @@ import {
   Award,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Header } from '@/components/Header';
 import { HabitlyLogo } from '@/components/HabitlyLogo';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const mainFeatures = [
   {
@@ -74,20 +74,16 @@ const stats = [
 ];
 
 export default function Landing() {
-  // Hero blur-reveal on initial page load
-  useEffect(() => {
-    const heroItems = document.querySelectorAll<HTMLElement>('.hero-reveal');
-    if (!heroItems.length) return;
-
-    requestAnimationFrame(() => {
-      heroItems.forEach((el) => el.classList.add('visible'));
-    });
-  }, []);
-
   // Scroll reveal for elements with stagger inside each section
   useEffect(() => {
+    const lowPowerMode = window.matchMedia('(max-width: 900px), (prefers-reduced-motion: reduce)').matches;
     const revealItems = Array.from(document.querySelectorAll<HTMLElement>('.reveal, .reveal-scroll'));
     if (!revealItems.length) return;
+
+    if (lowPowerMode) {
+      revealItems.forEach((el) => el.classList.add('visible'));
+      return;
+    }
 
     // Precompute stagger delay by sibling order in each section.
     revealItems.forEach((el) => {
@@ -128,7 +124,18 @@ export default function Landing() {
 
   // Counter animation for stats
   useEffect(() => {
+    const lowPowerMode = window.matchMedia('(max-width: 900px), (prefers-reduced-motion: reduce)').matches;
     const counters = document.querySelectorAll('.stat-counter');
+
+    if (lowPowerMode) {
+      counters.forEach((counter) => {
+        const el = counter as HTMLElement;
+        const finalValue = parseInt(el.dataset.value || '0', 10);
+        el.textContent = finalValue.toLocaleString();
+      });
+      return;
+    }
+
     const observerCounter = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -157,8 +164,14 @@ export default function Landing() {
 
   // Dashboard animations trigger on visibility
   useEffect(() => {
+    const lowPowerMode = window.matchMedia('(max-width: 900px), (prefers-reduced-motion: reduce)').matches;
     const dashboardMockup = document.querySelector('.dashboard-mockup');
     if (!dashboardMockup) return;
+
+    if (lowPowerMode) {
+      dashboardMockup.classList.add('visible');
+      return;
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -177,7 +190,7 @@ export default function Landing() {
 
   // Parallax movement for CTA background blobs
   useEffect(() => {
-    const shouldReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const shouldReduceMotion = window.matchMedia('(max-width: 900px), (prefers-reduced-motion: reduce)').matches;
     if (shouldReduceMotion) return;
 
     const blobs = document.querySelectorAll<HTMLElement>('.cta-parallax-blob');
@@ -205,7 +218,20 @@ export default function Landing() {
 
   return (
     <div className="landing-page flex min-h-screen flex-col bg-background">
-      <Header />
+      <header className="sticky top-0 z-50 w-full border-b bg-card/80 backdrop-blur-md">
+        <div className="container flex h-16 items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <HabitlyLogo alt="Habitly Logo" size="md" priority />
+            <span className="font-display text-xl font-bold text-foreground hidden sm:inline">Habitly</span>
+          </Link>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Button variant="ghost" asChild>
+              <Link to="/signin">Sign In</Link>
+            </Button>
+          </div>
+        </div>
+      </header>
       <main className="flex-1">
         {/* Hero Section */}
         <section className="landing-hero-bg with-photo relative overflow-hidden py-20 lg:py-32">
