@@ -5,16 +5,16 @@
 @layer base {
   :root {
     /* Background & Surface Layers */
-    --background: 195 40% 88%;
-    --dashboard-bg: 215 30% 96%;
+    --background: 0 0% 98%;
+    --dashboard-bg: 0 0% 98%;
     --surface: 195 30% 92%;
-    --surface-elevated: 0 0% 99%;
+    --surface-elevated: 0 0% 100%;
     --foreground: 192 85% 15%;
 
     /* Cards & Popovers */
-    --card: 0 0% 99%;
+    --card: 0 0% 100%;
     --card-foreground: 192 85% 15%;
-    --popover: 0 0% 99%;
+    --popover: 0 0% 100%;
     --popover-foreground: 192 85% 15%;
 
     /* Primary - Deep Teal (Signature Color) */
@@ -41,9 +41,9 @@
     --destructive-foreground: 0 0% 99%;
 
     /* Borders & Inputs */
-    --border: 180 20% 82%;
-    --border-subtle: 180 15% 88%;
-    --input: 180 20% 82%;
+    --border: 220 14% 91%;
+    --border-subtle: 220 14% 91%;
+    --input: 220 14% 91%;
     --ring: 192 85% 18%;
 
     --radius: 0.75rem;
@@ -166,6 +166,7 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    background-color: #fafafa;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
@@ -734,27 +735,32 @@
 }
 
 .section-tone-1 {
-  background: #f8fafc;
-}
-
-.section-tone-2 {
   background: #ffffff;
 }
 
-.section-tone-3 {
+.section-tone-2 {
   background: #f8fafc;
 }
 
+.section-tone-3 {
+  background: #ffffff;
+}
+
 .section-tone-4 {
-  background: #f1f5f9;
+  background: #f8fafc;
 }
 
 .section-tone-5 {
-  background: #f1f5f9;
+  background: #ffffff;
 }
 
 .section-tone-6 {
   background: #f8fafc;
+}
+
+.landing-page section:not([class*="section-tone-"]) {
+  background-color: #fafafa;
+  color: hsl(var(--foreground));
 }
 
 @media (prefers-color-scheme: dark) {
